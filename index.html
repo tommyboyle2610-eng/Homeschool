@@ -47,7 +47,6 @@
       overflow-x: hidden;
     }
 
-    /* Smooth Staggered Animations & Micro-interactions */
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(-2.5px) rotate(3deg); }
@@ -117,7 +116,7 @@
       box-shadow: 0 0 16px rgba(0, 255, 136, 0.25);
       animation: floatSlow 5s ease-in-out infinite;
     }
-    .brand-top { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 800; color: #fff; }
+    .brand-top { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 800; color: #fff; flex-wrap: wrap; }
     .uk-pill {
       color: var(--ac); background: rgba(0, 255, 136, 0.12);
       border: 1px solid rgba(0, 255, 136, 0.28); border-radius: 999px;
@@ -223,7 +222,6 @@
     }
     .bar-fill { height: 100%; background: var(--grad); border-radius: 99px; transition: width 0.6s var(--ease-out); }
 
-    /* Compact Segmented View Switcher for Cleaner Workspace */
     .workspace-bar {
       display: flex;
       justify-content: space-between;
@@ -370,7 +368,6 @@
       text-shadow: 0 0 22px rgba(0, 255, 136, 0.45);
     }
 
-    /* Evidence & Proof Gallery */
     .evidence-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
@@ -432,7 +429,6 @@
       color: #fbbf24;
     }
 
-    /* Typing Indicator Dots */
     .typing-dots span {
       display: inline-block;
       width: 5px; height: 5px;
@@ -444,7 +440,6 @@
     .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
     .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
 
-    /* Parent Overview & Proof Styling */
     .parent-banner {
       display: flex;
       justify-content: space-between;
@@ -478,7 +473,6 @@
       border: 1px solid rgba(0, 255, 136, 0.35);
     }
 
-    /* Gemini AI Copilot Styling */
     .gemini-card {
       border-color: rgba(34, 211, 238, 0.35);
       background: linear-gradient(160deg, rgba(6, 20, 18, 0.92), rgba(8, 16, 12, 0.92));
@@ -632,7 +626,6 @@
     }
     .link-chip:hover { border-color: var(--ac); color: var(--ac); }
 
-    /* Modal Dialog */
     dialog {
       width: min(740px, 95vw);
       max-height: 88vh;
@@ -704,80 +697,25 @@
     }
 
     @media (max-width: 768px) {
-      html {
-        font-size: 13px;
-      }
-      body {
-        font-size: 11.5px;
-        line-height: 1.38;
-      }
-      header {
-        padding: 7px 10px;
-        gap: 6px;
-        flex-wrap: nowrap;
-      }
-      .brand {
-        gap: 6px;
-        min-width: 0;
-        flex: 1 1 auto;
-        overflow: hidden;
-      }
-      .logo {
-        width: 28px;
-        height: 28px;
-        flex-shrink: 0;
-      }
-      .brand > div:last-child {
-        display: none;
-      }
-      .header-actions {
-        gap: 4px;
-        flex-wrap: nowrap;
-        flex-shrink: 0;
-      }
-      .header-actions .b {
-        padding: 4px 7px;
-        font-size: 9.5px;
-        min-height: 26px;
-        white-space: nowrap;
-      }
+      html { font-size: 13px; }
+      body { font-size: 11.5px; line-height: 1.38; }
+      header { padding: 7px 10px; gap: 6px; flex-wrap: nowrap; }
+      .brand { gap: 6px; min-width: 0; flex: 1 1 auto; overflow: hidden; }
+      .logo { width: 28px; height: 28px; flex-shrink: 0; }
+      .brand > div:last-child { display: none; }
+      .header-actions { gap: 4px; flex-wrap: nowrap; flex-shrink: 0; }
+      .header-actions .b { padding: 4px 7px; font-size: 9.5px; min-height: 26px; white-space: nowrap; }
       .header-actions .b[onclick*="focusGeminiChat"],
-      .header-actions .b[onclick*="pickWeakTopic"] {
-        display: none;
-      }
+      .header-actions .b[onclick*="pickWeakTopic"] { display: none; }
 
-      main {
-        padding: 8px 8px 74px;
-      }
+      main { padding: 8px 8px 74px; }
 
-      /* Compact 2x2 KPI Strip on Mobile */
-      .stat-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 5px;
-        margin-bottom: 8px;
-      }
-      .stat-grid .card {
-        padding: 7px 9px;
-        border-radius: 12px;
-        min-width: 0;
-      }
-      .stat-label {
-        font-size: 8.5px;
-        letter-spacing: 0.05em;
-      }
-      .stat-val {
-        font-size: 14px;
-        margin-top: 1px;
-      }
-      .stat-grid .note {
-        font-size: 9.5px;
-        margin: 1px 0 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-bottom: 8px; }
+      .stat-grid .card { padding: 7px 9px; border-radius: 12px; min-width: 0; }
+      .stat-label { font-size: 8.5px; letter-spacing: 0.05em; }
+      .stat-val { font-size: 14px; margin-top: 1px; }
+      .stat-grid .note { font-size: 9.5px; margin: 1px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* Sleek Horizontal Swipeable Subject Progress Strip */
       .subject-cards {
         display: flex;
         overflow-x: auto;
@@ -789,35 +727,13 @@
         margin-bottom: 8px;
         scrollbar-width: none;
       }
-      .subject-cards::-webkit-scrollbar {
-        display: none;
-      }
-      .subj-card {
-        min-width: 122px;
-        max-width: 140px;
-        flex-shrink: 0;
-        scroll-snap-align: start;
-        padding: 7px 9px;
-        border-radius: 11px;
-      }
-      .subj-card strong {
-        font-size: 11px !important;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .subj-card .bar-track {
-        height: 4px;
-        margin: 4px 0 3px;
-      }
+      .subject-cards::-webkit-scrollbar { display: none; }
+      .subj-card { min-width: 122px; max-width: 140px; flex-shrink: 0; scroll-snap-align: start; padding: 7px 9px; border-radius: 11px; }
+      .subj-card strong { font-size: 11px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .subj-card .bar-track { height: 4px; margin: 4px 0 3px; }
 
-      /* Single-Pane Mobile View Switching via Bottom Nav */
-      .workspace-bar {
-        margin-bottom: 7px;
-      }
-      body:not([data-mobile-view="study"]) .workspace-bar {
-        display: none;
-      }
+      .workspace-bar { margin-bottom: 7px; }
+      body:not([data-mobile-view="study"]) .workspace-bar { display: none; }
       .seg-tabs {
         width: 100%;
         overflow-x: auto;
@@ -827,76 +743,31 @@
         gap: 2px;
         scrollbar-width: none;
       }
-      .seg-tabs::-webkit-scrollbar {
-        display: none;
-      }
-      .seg-btn {
-        flex-shrink: 0;
-        padding: 4px 9px;
-        font-size: 10.5px;
-        white-space: nowrap;
-      }
-      .workspace-bar > .b.sm {
-        display: none;
-      }
+      .seg-tabs::-webkit-scrollbar { display: none; }
+      .seg-btn { flex-shrink: 0; padding: 4px 9px; font-size: 10.5px; white-space: nowrap; }
+      .workspace-bar > .b.sm { display: none; }
 
-      .main-grid {
-        display: block;
-      }
+      .main-grid { display: block; }
       body[data-mobile-view="study"] .sticky-col,
-      body[data-mobile-view="proof"] .sticky-col {
-        display: none;
-      }
+      body[data-mobile-view="proof"] .sticky-col { display: none; }
       body[data-mobile-view="timer"] .main-grid > div:first-child,
       body[data-mobile-view="ai"] .main-grid > div:first-child,
-      body[data-mobile-view="links"] .main-grid > div:first-child {
-        display: none;
-      }
+      body[data-mobile-view="links"] .main-grid > div:first-child { display: none; }
       body[data-mobile-view="timer"] .sticky-col > .card:not(#timerCard),
       body[data-mobile-view="ai"] .sticky-col > .card:not(#geminiCopilotCard),
-      body[data-mobile-view="links"] .sticky-col > .card:not(#linksCard) {
-        display: none;
-      }
+      body[data-mobile-view="links"] .sticky-col > .card:not(#linksCard) { display: none; }
 
-      .card {
-        padding: 10px;
-        border-radius: 14px;
-        margin-bottom: 8px;
-      }
-      .card h2 {
-        font-size: 12.5px;
-        margin-bottom: 7px;
-      }
-      .row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
-        margin-bottom: 7px;
-      }
+      .card { padding: 10px; border-radius: 14px; margin-bottom: 8px; }
+      .card h2 { font-size: 12.5px; margin-bottom: 7px; }
+      .row { flex-direction: column; align-items: stretch; gap: 6px; margin-bottom: 7px; }
       .row > input,
       .row > select,
-      .row > button {
-        width: 100% !important;
-        max-width: 100% !important;
-      }
+      .row > button { width: 100% !important; max-width: 100% !important; }
       #timerCard .row:last-child,
-      #geminiCopilotCard > .row:last-child {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-      #timerCard .row:last-child > button {
-        flex: 1 1 46%;
-        width: auto !important;
-        justify-content: center;
-      }
-      #geminiCopilotCard > .row:last-child > input {
-        flex: 1 1 auto;
-        width: auto !important;
-      }
-      #geminiCopilotCard > .row:last-child > button {
-        flex: 0 0 auto;
-        width: auto !important;
-      }
+      #geminiCopilotCard > .row:last-child { flex-direction: row; flex-wrap: wrap; }
+      #timerCard .row:last-child > button { flex: 1 1 46%; width: auto !important; justify-content: center; }
+      #geminiCopilotCard > .row:last-child > input { flex: 1 1 auto; width: auto !important; }
+      #geminiCopilotCard > .row:last-child > button { flex: 0 0 auto; width: auto !important; }
       .pills {
         gap: 4px;
         margin-bottom: 7px;
@@ -906,68 +777,22 @@
         touch-action: pan-x pan-y;
         scrollbar-width: none;
       }
-      .pills::-webkit-scrollbar {
-        display: none;
-      }
-      .pills .b {
-        flex-shrink: 0;
-        padding: 3px 8px;
-        font-size: 10px;
-        min-height: 25px;
-        white-space: nowrap;
-      }
+      .pills::-webkit-scrollbar { display: none; }
+      .pills .b { flex-shrink: 0; padding: 3px 8px; font-size: 10px; min-height: 25px; white-space: nowrap; }
 
-      /* Compact Topic & Proof Cards so more items fit on screen */
       .topic-item,
-      .proof-log-item {
-        padding: 7px 9px;
-        border-radius: 11px;
-        margin-bottom: 5px;
-        gap: 6px;
-      }
-      .tag {
-        padding: 1px 6px;
-        font-size: 9px;
-        margin-right: 4px;
-      }
-      .req-badge {
-        font-size: 9.5px;
-        margin-top: 2px;
-      }
-      .rag-btn {
-        padding: 3px 7px;
-        font-size: 9.5px;
-      }
-      .evidence-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 7px;
-      }
+      .proof-log-item { padding: 7px 9px; border-radius: 11px; margin-bottom: 5px; gap: 6px; }
+      .tag { padding: 1px 6px; font-size: 9px; margin-right: 4px; }
+      .req-badge { font-size: 9.5px; margin-top: 2px; }
+      .rag-btn { padding: 3px 7px; font-size: 9.5px; }
+      .evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
       .evidence-thumb,
-      .evidence-file-box {
-        height: 76px;
-      }
+      .evidence-file-box { height: 76px; }
 
-      /* Crisp, compact Inputs & Buttons (with user-scalable=no preventing Safari zoom) */
-      input, select, textarea {
-        min-height: 32px;
-        font-size: 12px;
-        padding: 5px 9px;
-        border-radius: 10px;
-      }
-      .b {
-        min-height: 29px;
-        padding: 5px 10px;
-        font-size: 10.5px;
-      }
-      .b.sm {
-        min-height: 25px;
-        padding: 3px 8px;
-        font-size: 10px;
-      }
-      .timer-display {
-        font-size: 28px;
-        margin: 6px 0 8px;
-      }
+      input, select, textarea { min-height: 32px; font-size: 12px; padding: 5px 9px; border-radius: 10px; }
+      .b { min-height: 29px; padding: 5px 10px; font-size: 10.5px; }
+      .b.sm { min-height: 25px; padding: 3px 8px; font-size: 10px; }
+      .timer-display { font-size: 28px; margin: 6px 0 8px; }
       .gemini-chips {
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -977,29 +802,11 @@
         padding-bottom: 2px;
         margin-bottom: 7px;
       }
-      .gemini-chips::-webkit-scrollbar {
-        display: none;
-      }
-      .g-chip {
-        flex-shrink: 0;
-        font-size: 10px;
-        padding: 3px 8px;
-        white-space: nowrap;
-      }
-      .gemini-chat-log {
-        max-height: 44vh;
-        min-height: 150px;
-        padding: 8px;
-        border-radius: 12px;
-        margin-bottom: 7px;
-      }
-      .chat-msg {
-        padding: 7px 9px;
-        font-size: 11.5px;
-        border-radius: 11px;
-      }
+      .gemini-chips::-webkit-scrollbar { display: none; }
+      .g-chip { flex-shrink: 0; font-size: 10px; padding: 3px 8px; white-space: nowrap; }
+      .gemini-chat-log { max-height: 44vh; min-height: 150px; padding: 8px; border-radius: 12px; margin-bottom: 7px; }
+      .chat-msg { padding: 7px 9px; font-size: 11.5px; border-radius: 11px; }
 
-      /* Full-screen Mobile Bottom-Sheet Dialogs */
       dialog {
         width: 100vw !important;
         max-width: 100vw !important;
@@ -1008,9 +815,7 @@
         border-radius: 18px 18px 0 0;
         border-bottom: 0;
       }
-      .dlg-head {
-        padding: 10px 12px;
-      }
+      .dlg-head { padding: 10px 12px; }
       .dlg-tabs {
         padding: 7px 12px 0;
         overflow-x: auto;
@@ -1019,18 +824,10 @@
         flex-wrap: nowrap;
         scrollbar-width: none;
       }
-      .dlg-tabs::-webkit-scrollbar {
-        display: none;
-      }
-      .dlg-tabs .b {
-        flex-shrink: 0;
-      }
-      .dlg-body {
-        padding: 10px 12px 24px;
-        max-height: 78vh;
-      }
+      .dlg-tabs::-webkit-scrollbar { display: none; }
+      .dlg-tabs .b { flex-shrink: 0; }
+      .dlg-body { padding: 10px 12px 24px; max-height: 78vh; }
 
-      /* Sleek Compact Fixed Bottom Navigation Bar (Mobile Only) */
       .mobile-bottom-nav {
         position: fixed;
         bottom: 0;
@@ -1061,10 +858,7 @@
         cursor: pointer;
         transition: all 0.2s var(--ease-out);
       }
-      .mob-nav-btn .mob-ico {
-        font-size: 13px;
-        line-height: 1.1;
-      }
+      .mob-nav-btn .mob-ico { font-size: 13px; line-height: 1.1; }
       .mob-nav-btn.active {
         color: #030705;
         background: var(--grad);
@@ -1109,7 +903,6 @@
         <svg viewBox="0 0 100 100" width="38" height="38">
           <circle cx="50" cy="50" r="49" fill="#ffffff"/>
           <circle cx="50" cy="40" r="29" fill="#1e4d2b"/>
-          <!-- Circuit leaf outline & traces -->
           <path d="M50 18 C36 27 36 47 50 56 C64 47 64 27 50 18 Z" fill="none" stroke="#76b852" stroke-width="2.1" stroke-linejoin="round"/>
           <line x1="50" y1="18" x2="50" y2="62" stroke="#76b852" stroke-width="2.1" stroke-linecap="round"/>
           <path d="M46 53 L46 34 L42 30" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
@@ -1122,12 +915,10 @@
           <circle cx="58" cy="37" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
           <path d="M58 49 L58 43 L61 40" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
           <circle cx="61" cy="40" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
-          <!-- White gear & wrench -->
           <path d="M52 54 L55 54 L55.8 56.2 L57.8 57.2 L59.5 56 L61.2 57.7 L60 59.4 L60.8 61.3 L63 62 L63 64.4 L60.8 65.1 L59.8 67 L61 68.7 L59.3 70.4 L57.6 69.2 L55.6 70.1 L55 72.2 L52 72.2 Z" fill="#ffffff"/>
           <circle cx="53.5" cy="63.1" r="4.2" fill="#1e4d2b"/>
           <path d="M47 58 A4.8 4.8 0 0 0 47.6 66.5 L47.6 74.5 A2.4 2.4 0 0 0 52.4 74.5 L52.4 66.5 A4.8 4.8 0 0 0 53 58 L51.4 61.5 L48.6 61.5 Z" fill="#ffffff"/>
           <circle cx="50" cy="74.5" r="1.1" fill="#1e4d2b"/>
-          <!-- Brand wordmark -->
           <text x="50" y="78.5" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="800" font-size="7.2" letter-spacing="0.3">SECOND LIFE</text>
           <text x="50" y="85.8" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="800" font-size="7.2" letter-spacing="0.4">UK</text>
           <text x="50" y="90.6" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="700" font-size="3.4" letter-spacing="0.5">REPAIR &amp; RESELL</text>
@@ -1139,6 +930,7 @@
           <span>SECOND LIFE</span>
           <span class="uk-pill">UK</span>
           <span class="uk-pill" style="color:var(--cyan);border-color:rgba(34,211,238,0.3);">YEAR 10 GCSE HUB</span>
+          <span class="uk-pill" id="ghHeaderPill" style="cursor:pointer;" onclick="openSettings('github')" title="GitHub Live Sync Status">☁ Connecting...</span>
         </div>
         <div class="brand-sub" id="overallStats">0% Exam-Ready · 0 mins logged · Press Ctrl+Shift+A for Settings &amp; AI</div>
       </div>
@@ -1181,7 +973,7 @@
     <div class="subject-cards" id="subjectBreakdown"></div>
 
     <div class="main-grid">
-      <!-- Left Column: Clean Tabbed Workspace (Syllabus | Past Papers | Work Proof & Files | Study Diary) -->
+      <!-- Left Column: Clean Tabbed Workspace -->
       <div>
         <div class="workspace-bar">
           <div class="seg-tabs">
@@ -1191,7 +983,11 @@
             <button type="button" class="seg-btn" id="wsBtn-proof" onclick="switchWorkspaceTab('proof')">📸 Proof &amp; Files</button>
             <button type="button" class="seg-btn" id="wsBtn-diary" onclick="switchWorkspaceTab('diary')">📓 Study Diary</button>
           </div>
-          <button type="button" class="b sm" onclick="exportSyllabusJson()">⬇ Export JSON</button>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="b sm" onclick="githubPullNow(true)" title="Pull newest data from GitHub">⬇ Pull</button>
+            <button type="button" class="b sm" onclick="githubPushNow(true)" title="Push all data to GitHub now">⬆ Sync</button>
+            <button type="button" class="b sm" onclick="exportSyllabusJson()">⬇ Export JSON</button>
+          </div>
         </div>
 
         <!-- Workspace Pane 1: Syllabus & Exam Topic Tracker -->
@@ -1284,7 +1080,7 @@
           </div>
         </div>
 
-        <!-- Workspace Pane 4: Study Diary & Blurting Pad -->
+        <!-- Workspace Pane 5: Study Diary & Blurting Pad -->
         <div id="wsPane-diary" style="display:none;">
           <div class="card">
             <h2>
@@ -1379,7 +1175,7 @@
     </div>
   </main>
 
-  <!-- Sleek Mobile Bottom Navigation Bar (Visible only on <= 768px) -->
+  <!-- Sleek Mobile Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
     <button type="button" class="mob-nav-btn active" id="mobNav-study" onclick="switchMobileView('study')">
       <span class="mob-ico">📚</span>
@@ -1457,7 +1253,7 @@
       <!-- Tab 1: Gemini AI Settings -->
       <div class="tab-pane active" id="pane-gemini">
         <p class="note">
-          Paste your Google AI Studio Gemini API key below (stored locally in your browser). Get a key at
+          Paste your Google AI Studio Gemini API key below (stored locally &amp; synced to GitHub). Get a key at
           <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);font-weight:700;">aistudio.google.com/apikey ↗</a>.
         </p>
         <div class="row">
@@ -1498,15 +1294,11 @@
       <!-- Tab: GitHub Sync -->
       <div class="tab-pane" id="pane-github">
         <p class="note">
-          Back up your progress, uploaded PDFs/images and AI feedback to a GitHub repository, and load them on any device.
-          Your data is committed as <code>state.json</code> plus a <code>files/</code> folder.
-        </p>
-        <p class="note" style="color:#fcd34d;">
-          ⚠ Use a <strong>separate, private</strong> repo for the data (not the repo that hosts this page). A public repo would show names, scores and papers to everyone, and committing to the site repo would redeploy the site on every save.
+          All updates (progress, courses/subjects, topics, sessions, past papers, improvements, proof files, diary, scratchpad, links, and settings) sync automatically to your GitHub repository as <code>state.json</code> + <code>files/</code>, and load automatically whenever you open the site.
         </p>
         <div class="row">
           <input type="text" id="ghOwner" placeholder="GitHub username / org" autocomplete="off" />
-          <input type="text" id="ghRepo" placeholder="Data repo name e.g. gcse-data" autocomplete="off" />
+          <input type="text" id="ghRepo" placeholder="Data repo name e.g. schooldata" autocomplete="off" />
         </div>
         <div class="row">
           <input type="text" id="ghBranch" placeholder="Branch (main)" autocomplete="off" />
@@ -1516,22 +1308,18 @@
           <input type="password" id="ghToken" placeholder="Fine-grained token (github_pat_...)" autocomplete="off" />
           <button type="button" class="b sm" onclick="toggleGhTokenVisibility()">👁 Show</button>
         </div>
-        <p class="note">
-          Create a token at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);font-weight:700;">github.com/settings/personal-access-tokens ↗</a>:
-          Repository access → <em>Only select repositories</em> → your data repo; Permissions → Repository → <strong>Contents: Read and write</strong>. It is stored only in this browser.
-        </p>
         <div class="toggle-row">
           <div>
-            <div style="font-weight:700;color:#fff;font-size:13px;">Auto-save to GitHub</div>
-            <div style="font-size:11.5px;color:var(--mu);">Pushes a few seconds after any change.</div>
+            <div style="font-weight:700;color:#fff;font-size:13px;">Instant Auto-Sync to GitHub</div>
+            <div style="font-size:11.5px;color:var(--mu);">Immediately pushes all changes to GitHub whenever anything updates, and auto-pulls on load.</div>
           </div>
           <input type="checkbox" id="ghAuto" checked onchange="saveGithubSettings(true)" />
         </div>
-        <div class="row">
+        <div class="row" style="margin-top:10px;">
           <button type="button" class="b pri sm" onclick="saveGithubSettings()">Save Settings</button>
           <button type="button" class="b sm" onclick="testGithubConnection()">⚡ Test</button>
-          <button type="button" class="b sm" onclick="githubPushNow(true)">⬆ Push now</button>
-          <button type="button" class="b sm" onclick="githubPullNow(true)">⬇ Pull from GitHub</button>
+          <button type="button" class="b sm" onclick="githubPushNow(true)">⬆ Push Now</button>
+          <button type="button" class="b sm" onclick="githubPullNow(true)">⬇ Pull Now</button>
         </div>
         <div class="row" style="margin-top:6px;">
           <button type="button" class="b sm" onclick="document.getElementById('ghImportFile').click()">📥 Import config (.json)</button>
@@ -1543,7 +1331,7 @@
 
       <!-- Tab 2: Manage Subjects -->
       <div class="tab-pane" id="pane-subjects">
-        <p class="note">Add or remove the GCSE subjects you take. Changes automatically update your tracker and the AI JSON Prompt.</p>
+        <p class="note">Add or remove the GCSE subjects you take. Changes automatically update your tracker, AI JSON Prompt, and GitHub sync.</p>
         <div class="row">
           <input id="newSubjectInput" placeholder="e.g. Triple Biology, Business Studies, Spanish" onkeydown="if(event.key==='Enter')addSubject()" />
           <button type="button" class="b pri" onclick="addSubject()">+ Add Subject</button>
@@ -1592,7 +1380,7 @@
 
         <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(244,63,94,0.3);">
           <strong style="font-size:13.5px;color:#fda4af;">⚠️ Reset &amp; Wipe All Hub Data</strong>
-          <p class="note">Clears all topics, logged study minutes, stopwatch sessions, past papers, improvement targets, uploaded proof files, diary entries, and scratchpad notes so a new student can start fresh.</p>
+          <p class="note">Clears all topics, logged study minutes, stopwatch sessions, past papers, improvement targets, uploaded proof files, diary entries, and scratchpad notes (and pushes the clean state to GitHub).</p>
           <div id="wipeDataBox">
             <button type="button" class="b red" onclick="promptWipeAllData()">🗑 Wipe All Progress &amp; Data</button>
           </div>
@@ -1641,11 +1429,11 @@
         confirmActions: false
       },
       github: {
-        owner: "",
-        repo: "",
+        owner: "tommyboyle2610-eng",
+        repo: "schooldata",
         branch: "main",
         dir: "study-data",
-        token: "",
+        token: "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",
         auto: true,
         lastPushAt: 0,
         lastHash: ""
@@ -1684,8 +1472,6 @@
       }
     }
 
-    // Connection settings live in their own small storage slot so they survive
-    // even if the main data is too big for the browser's storage quota.
     const SETTINGS_KEY = "sluk_gcse_hub_settings_v1";
     function persistSettings() {
       try {
@@ -1704,11 +1490,27 @@
       return st;
     }
 
-    let state = overlaySavedSettings(loadState());
+    const EMBEDDED_GITHUB = {
+      owner: "tommyboyle2610-eng",
+      repo: "schooldata",
+      branch: "main",
+      dir: "study-data",
+      token: "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",
+      auto: true
+    };
+    function applyEmbeddedGithubDefaults(st) {
+      st.github = st.github || {};
+      ["owner", "repo", "branch", "dir", "token"].forEach(k => {
+        if (!String(st.github[k] || "").trim()) st.github[k] = EMBEDDED_GITHUB[k];
+      });
+      if (st.github.auto === undefined) st.github.auto = EMBEDDED_GITHUB.auto;
+      return st;
+    }
+
+    let state = applyEmbeddedGithubDefaults(overlaySavedSettings(loadState()));
     let activeSubjectFilter = "ALL";
     let geminiHistory = [];
 
-    // Drift-free count-up stopwatch state
     let stopwatchElapsedSec = 0;
     let stopwatchStartTimestamp = null;
     let stopwatchTickHandle = null;
@@ -1717,7 +1519,7 @@
       state._savedAt = Date.now();
       persistSettings();
       const ok = saveStateLocal();
-      if (typeof scheduleGithubPush === "function") scheduleGithubPush();
+      scheduleGithubPush();
       return ok;
     }
 
@@ -1726,7 +1528,6 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         return true;
       } catch (e) {
-        // Fallback: save core tracker data without heavy base64 attachments if localStorage quota is hit
         try {
           const liteState = {
             ...state,
@@ -1734,10 +1535,10 @@
             papers: state.papers.map(p => ({ ...p, fileDataUrl: p.fileDataUrl && p.fileDataUrl.length < 180000 ? p.fileDataUrl : "" }))
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(liteState));
-          showToast("Saved! Large file kept in current session memory.");
+          showToast("Saved! Large file kept in current session memory & synced to GitHub.");
           return true;
         } catch (err2) {
-          showToast("Browser storage limit reached — older files kept in session.");
+          showToast("Browser storage limit reached — syncing directly to GitHub.");
           return false;
         }
       }
@@ -1757,7 +1558,6 @@
       }[ch]));
     }
 
-    // Safe Markdown renderer for AI replies (escapes HTML first, then formats)
     function renderAiMarkdown(raw) {
       const text = String(raw ?? "").replace(/\r\n?/g, "\n");
       const inline = str => {
@@ -1781,7 +1581,6 @@
       while (i < lines.length) {
         const line = lines[i];
 
-        // fenced code block
         if (/^\s*```/.test(line)) {
           const buf = [];
           i++;
@@ -1790,25 +1589,20 @@
           out.push(`<pre class="md-pre"><code>${escapeHtml(buf.join("\n"))}</code></pre>`);
           continue;
         }
-        // blank line
         if (!line.trim()) { i++; continue; }
-        // horizontal rule
         if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
-        // heading
         const h = line.match(/^\s*(#{1,6})\s+(.*)$/);
         if (h) {
           const lvl = Math.min(h[1].length + 2, 6);
           out.push(`<h${lvl} class="md-h">${inline(h[2].replace(/\s*#+\s*$/, ""))}</h${lvl}>`);
           i++; continue;
         }
-        // blockquote
         if (/^\s*>/.test(line)) {
           const buf = [];
           while (i < lines.length && /^\s*>/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ""));
           out.push(`<blockquote class="md-quote">${buf.map(inline).join("<br>")}</blockquote>`);
           continue;
         }
-        // table
         if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
           const cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
           const head = cells(line);
@@ -1818,7 +1612,6 @@
           out.push(`<div class="md-table-wrap"><table class="md-table"><thead><tr>${head.map(c => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
           continue;
         }
-        // lists
         const li = line.match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
         if (li) {
           const ordered = /\d/.test(li[2]);
@@ -1839,7 +1632,6 @@
           out.push(`<${tag} class="md-list">${items.map(x => `<li>${x}</li>`).join("")}</${tag}>`);
           continue;
         }
-        // paragraph (consecutive plain lines)
         const buf = [];
         while (i < lines.length && lines[i].trim() &&
                !/^\s*(```|#{1,6}\s|>|([-*+]|\d+[.)])\s)/.test(lines[i]) &&
@@ -1850,343 +1642,6 @@
         out.push(`<p class="md-p">${buf.join("<br>")}</p>`);
       }
       return out.join("");
-    }
-
-
-    // =========================================================================
-    // GITHUB SYNC (state.json + files/ committed via the GitHub Contents API)
-    // =========================================================================
-    let ghPushTimer = null;
-    let ghPushing = false;
-    let ghPushQueued = false;
-
-    function ghConfigured() {
-      const g = state.github || {};
-      return Boolean(g.owner && g.repo && g.token);
-    }
-    function ghStatus(msg, color) {
-      const el = document.getElementById("ghStatus");
-      if (el) { el.textContent = msg; el.style.color = color || ""; }
-    }
-    function ghPath(sub) {
-      const dir = String(state.github.dir || "study-data").replace(/^\/+|\/+$/g, "");
-      return (dir ? dir + "/" : "") + sub;
-    }
-    function ghUrl(path) {
-      const g = state.github;
-      const enc = path.split("/").map(encodeURIComponent).join("/");
-      return `https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${enc}`;
-    }
-    function ghHeaders(extra) {
-      return {
-        "Authorization": `Bearer ${state.github.token}`,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        ...(extra || {})
-      };
-    }
-    async function ghErr(res) {
-      let m = "";
-      try { m = (await res.json()).message || ""; } catch (_) {}
-      if (res.status === 401) return new Error("GitHub rejected the token (401). Check it hasn't expired.");
-      if (res.status === 403) return new Error(`GitHub refused (403)${m ? ": " + m : ""}. Check the token has Contents: Read and write on this repo.`);
-      if (res.status === 404) return new Error("Repo, branch or folder not found (404). Check owner, repo name and token access.");
-      return new Error(`GitHub error ${res.status}${m ? ": " + m : ""}`);
-    }
-    async function ghGetMeta(path) {
-      const res = await fetch(ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}`, { headers: ghHeaders() });
-      if (res.status === 404) return null;
-      if (!res.ok) throw await ghErr(res);
-      return res.json();
-    }
-    async function ghGetRawBlob(path) {
-      const res = await fetch(ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}`, {
-        headers: ghHeaders({ "Accept": "application/vnd.github.raw+json" })
-      });
-      if (!res.ok) throw await ghErr(res);
-      return res.blob();
-    }
-    async function ghPut(path, b64, message, sha) {
-      const body = { message, content: b64, branch: state.github.branch || "main" };
-      if (sha) body.sha = sha;
-      const res = await fetch(ghUrl(path), { method: "PUT", headers: ghHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(body) });
-      if (res.status === 409 || res.status === 422) {
-        const meta = await ghGetMeta(path);
-        if (meta?.sha && meta.sha !== sha) return ghPut(path, b64, message, meta.sha);
-      }
-      if (!res.ok) throw await ghErr(res);
-      return res.json();
-    }
-    function utf8ToB64(str) {
-      const bytes = new TextEncoder().encode(str);
-      let bin = "";
-      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-      return btoa(bin);
-    }
-    function mimeToExt(mime, fileName) {
-      const map = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
-      if (map[mime]) return map[mime];
-      const m = String(fileName || "").match(/\.([a-z0-9]{2,5})$/i);
-      return m ? m[1].toLowerCase() : "bin";
-    }
-    function blobToDataUrl(blob) {
-      return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result);
-        r.onerror = () => reject(new Error("Could not read file"));
-        r.readAsDataURL(blob);
-      });
-    }
-
-    function buildGithubSnapshot() {
-      const snap = structuredClone(state);
-      delete snap.github;
-      snap.gemini = { model: state.gemini?.model, toolsEnabled: state.gemini?.toolsEnabled, confirmActions: state.gemini?.confirmActions };
-      snap.evidence = (snap.evidence || []).map(e => ({ ...e, dataUrl: "" }));
-      snap.papers = (snap.papers || []).map(p => ({ ...p, fileDataUrl: "" }));
-      return snap;
-    }
-
-    async function ghUploadAttachments() {
-      let uploaded = 0;
-      const jobs = [];
-      (state.evidence || []).forEach(it => { if (it.dataUrl && !it.ghPath) jobs.push({ it, key: "dataUrl", mime: it.mimeType, kind: "evidence" }); });
-      (state.papers || []).forEach(it => { if (it.fileDataUrl && !it.ghPath) jobs.push({ it, key: "fileDataUrl", mime: it.fileMime, kind: "paper" }); });
-      for (const j of jobs) {
-        const du = j.it[j.key];
-        const comma = du.indexOf(",");
-        if (comma < 0 || !/;base64$/i.test(du.slice(0, comma))) continue;
-        const mime = j.mime || (du.slice(5, du.indexOf(";")) || "application/octet-stream");
-        const path = ghPath(`files/${j.kind}-${j.it.id}.${mimeToExt(mime, j.it.fileName)}`);
-        ghStatus(`Uploading ${j.it.fileName || j.kind} (${++uploaded}/${jobs.length})...`);
-        const existing = await ghGetMeta(path);
-        await ghPut(path, du.slice(comma + 1), `Add ${j.kind} file ${j.it.id}`, existing?.sha);
-        j.it.ghPath = path;
-        j.it.ghMime = mime;
-      }
-      if (uploaded) saveStateLocal();
-      return uploaded;
-    }
-
-    function scheduleGithubPush() {
-      if (!ghConfigured() || state.github.auto === false) return;
-      clearTimeout(ghPushTimer);
-      ghPushTimer = setTimeout(() => githubPushNow(false), 8000);
-    }
-
-    async function githubPushNow(manual) {
-      if (!ghConfigured()) {
-        if (manual) { ghStatus("Add your owner, repo and token first.", "#fda4af"); showToast("GitHub sync not set up yet"); }
-        return;
-      }
-      if (ghPushing) { ghPushQueued = true; return; }
-      ghPushing = true;
-      try {
-        ghStatus("Saving to GitHub...", "#fcd34d");
-        await ghUploadAttachments();
-        const json = JSON.stringify(buildGithubSnapshot(), null, 1);
-        const hash = String(json.length) + ":" + json.split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7);
-        if (!manual && hash === state.github.lastHash) { ghStatus("Already up to date on GitHub."); return; }
-        const path = ghPath("state.json");
-        const meta = await ghGetMeta(path);
-        await ghPut(path, utf8ToB64(json), `Update study data ${new Date().toISOString().slice(0, 16).replace("T", " ")}`, meta?.sha);
-        state.github.lastHash = hash;
-        state.github.lastPushAt = Date.now();
-        saveStateLocal();
-        ghStatus(`✓ Saved to GitHub at ${new Date().toLocaleTimeString()}`, "#86efac");
-        if (manual) showToast("✓ Saved to GitHub");
-      } catch (err) {
-        ghStatus("✕ " + err.message, "#fda4af");
-        if (manual) showToast("GitHub save failed — see Settings");
-      } finally {
-        ghPushing = false;
-        if (ghPushQueued) { ghPushQueued = false; scheduleGithubPush(); }
-      }
-    }
-
-    async function ghHydrateFiles() {
-      const items = [];
-      (state.evidence || []).forEach(it => { if (it.ghPath && !it.dataUrl) items.push({ it, key: "dataUrl" }); });
-      (state.papers || []).forEach(it => { if (it.ghPath && !it.fileDataUrl) items.push({ it, key: "fileDataUrl" }); });
-      if (!items.length) return;
-      let n = 0;
-      for (const { it, key } of items) {
-        try {
-          const blob = await ghGetRawBlob(it.ghPath);
-          const typed = new Blob([blob], { type: it.ghMime || blob.type || "application/octet-stream" });
-          it[key] = await blobToDataUrl(typed);
-          n++;
-        } catch (_) { /* leave blank; retried next load */ }
-      }
-      if (n) { saveStateLocal(); render(); }
-    }
-
-    async function githubPullNow(manual) {
-      if (!ghConfigured()) { ghStatus("Add your owner, repo and token first.", "#fda4af"); return; }
-      try {
-        ghStatus("Loading from GitHub...", "#fcd34d");
-        const meta = await ghGetMeta(ghPath("state.json"));
-        if (!meta) { ghStatus("Nothing saved on GitHub yet — use Push now first.", "#fcd34d"); return; }
-        if (manual && !confirm("Replace the data in this browser with what's saved on GitHub?")) { ghStatus(""); return; }
-        const remote = JSON.parse(await (await ghGetRawBlob(ghPath("state.json"))).text());
-        const base = structuredClone(DEFAULT_STATE);
-        const keep = { gemini: state.gemini, github: state.github };
-        const oldFiles = {};
-        (state.evidence || []).forEach(e => { if (e.dataUrl) oldFiles["e" + e.id] = e.dataUrl; });
-        (state.papers || []).forEach(p => { if (p.fileDataUrl) oldFiles["p" + p.id] = p.fileDataUrl; });
-        const merged = { ...base, ...remote, ...keep };
-        ["subjects", "topics", "sessions", "papers", "improvements", "diary", "evidence", "links"].forEach(k => {
-          if (!Array.isArray(merged[k])) merged[k] = Array.isArray(base[k]) ? base[k] : [];
-        });
-        if (!merged.minutes || typeof merged.minutes !== "object") merged.minutes = {};
-        if (!merged.parentSignOffs || typeof merged.parentSignOffs !== "object") merged.parentSignOffs = {};
-        merged.evidence.forEach(e => { if (!e.dataUrl && oldFiles["e" + e.id]) e.dataUrl = oldFiles["e" + e.id]; });
-        merged.papers.forEach(p => { if (!p.fileDataUrl && oldFiles["p" + p.id]) p.fileDataUrl = oldFiles["p" + p.id]; });
-        state = merged;
-        persistSettings();
-        saveStateLocal();
-        render();
-        renderGeminiWelcome();
-        ghStatus("Loaded. Downloading attached files...", "#fcd34d");
-        await ghHydrateFiles();
-        ghStatus(`✓ Loaded from GitHub at ${new Date().toLocaleTimeString()}`, "#86efac");
-        if (manual) showToast("✓ Loaded from GitHub");
-      } catch (err) {
-        ghStatus("✕ " + err.message, "#fda4af");
-      }
-    }
-
-    async function testGithubConnection() {
-      saveGithubSettings(true);
-      if (!ghConfigured()) { ghStatus("Fill in owner, repo and token first.", "#fda4af"); return; }
-      ghStatus("Testing...", "#fcd34d");
-      try {
-        const g = state.github;
-        const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}`, { headers: ghHeaders() });
-        if (!res.ok) throw await ghErr(res);
-        const repo = await res.json();
-        const canWrite = repo.permissions ? Boolean(repo.permissions.push) : true;
-        if (!canWrite) throw new Error("Token can read this repo but not write. Give it Contents: Read and write.");
-        if (!repo.private) ghStatus("⚠ Connected, but this repo is PUBLIC — anyone could see your saved data. Use a private repo.", "#fcd34d");
-        else ghStatus(`✓ Connected to private repo ${repo.full_name}.`, "#86efac");
-      } catch (err) {
-        ghStatus("✕ " + err.message, "#fda4af");
-      }
-    }
-
-    function toggleGhTokenVisibility() {
-      const i = document.getElementById("ghToken");
-      i.type = i.type === "password" ? "text" : "password";
-    }
-    function applyGithubConfigObject(obj) {
-      const src = (obj && typeof obj.github === "object" && obj.github) ? obj.github : (obj || {});
-      const pick = (...keys) => { for (const k of keys) if (src[k] !== undefined && src[k] !== null && String(src[k]).trim() !== "") return String(src[k]).trim(); return ""; };
-      const cfg = {
-        owner: pick("owner", "username", "user", "org"),
-        repo: pick("repo", "repository", "repoName").replace(/\.git$/i, ""),
-        branch: pick("branch") || "main",
-        dir: pick("dir", "folder", "path") || "study-data",
-        token: pick("token", "pat", "accessToken").replace(/\s/g, "")
-      };
-      if (!cfg.owner || !cfg.repo) throw new Error("Config needs at least an \"owner\" and a \"repo\".");
-      state.github = {
-        ...state.github,
-        ...cfg,
-        auto: src.auto === undefined ? state.github.auto !== false : Boolean(src.auto),
-        lastHash: ""
-      };
-      persistSettings();
-      saveStateLocal();
-      loadGithubSettingsUI();
-      const g = state.github;
-      ghStatus(`✓ Imported: ${g.owner}/${g.repo} · branch ${g.branch} · folder ${g.dir} · token ${g.token ? "set" : "MISSING — paste it in the Token box"}`, g.token ? "#86efac" : "#fcd34d");
-      showToast("GitHub config imported");
-    }
-    function importGithubConfigFile(input) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try { applyGithubConfigObject(JSON.parse(String(reader.result).replace(/^\uFEFF/, ""))); }
-        catch (err) { ghStatus("✕ " + (err.message.startsWith("Config") ? err.message : "That file isn't valid JSON."), "#fda4af"); }
-        input.value = "";
-      };
-      reader.onerror = () => ghStatus("✕ Couldn't read that file.", "#fda4af");
-      reader.readAsText(file);
-    }
-    function exportGithubConfig() {
-      const g = state.github || {};
-      const out = { owner: g.owner || "", repo: g.repo || "", branch: g.branch || "main", dir: g.dir || "study-data", token: g.token || "", auto: g.auto !== false };
-      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "github-config.json";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      ghStatus("Downloaded github-config.json — it contains your token, so keep it private (don't upload it to GitHub).", "#fcd34d");
-    }
-
-    function wireGithubFieldAutosave() {
-      ["ghOwner", "ghRepo", "ghBranch", "ghDir", "ghToken"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.dataset.wired) {
-          el.dataset.wired = "1";
-          el.addEventListener("change", () => saveGithubSettings(true));
-          el.addEventListener("blur", () => saveGithubSettings(true));
-        }
-      });
-    }
-    function loadGithubSettingsUI() {
-      wireGithubFieldAutosave();
-      const g = state.github || {};
-      document.getElementById("ghOwner").value = g.owner || "";
-      document.getElementById("ghRepo").value = g.repo || "";
-      document.getElementById("ghBranch").value = g.branch || "main";
-      document.getElementById("ghDir").value = g.dir || "study-data";
-      document.getElementById("ghToken").value = g.token || "";
-      document.getElementById("ghAuto").checked = g.auto !== false;
-      if (g.lastPushAt) ghStatus(`Last saved to GitHub: ${new Date(g.lastPushAt).toLocaleString()}`);
-    }
-    function saveGithubSettings(silent) {
-      const v = id => document.getElementById(id).value.trim();
-      state.github = {
-        ...state.github,
-        owner: v("ghOwner"),
-        repo: v("ghRepo").replace(/\.git$/i, ""),
-        branch: v("ghBranch") || "main",
-        dir: v("ghDir") || "study-data",
-        token: v("ghToken").replace(/\s/g, ""),
-        auto: document.getElementById("ghAuto").checked
-      };
-      const stored = persistSettings();
-      saveStateLocal();
-      const g = state.github;
-      ghStatus(stored
-        ? `✓ Saved: ${g.owner || "(no owner)"}/${g.repo || "(no repo)"} · branch ${g.branch} · token ${g.token ? "set" : "MISSING"}`
-        : "✕ Couldn't save — your browser is blocking storage for this site.", stored ? "#86efac" : "#fda4af");
-      if (!silent) showToast("GitHub settings saved");
-    }
-
-    async function githubBootCheck() {
-      if (!ghConfigured()) return;
-      try {
-        const meta = await ghGetMeta(ghPath("state.json"));
-        if (!meta) return;
-        const remote = JSON.parse(await (await ghGetRawBlob(ghPath("state.json"))).text());
-        const remoteTime = Number(remote._savedAt || 0);
-        const localTime = Number(state._savedAt || 0);
-        if (remoteTime > localTime + 1000) {
-          if (confirm(`Newer study data was found on GitHub (saved ${new Date(remoteTime).toLocaleString()}). Load it now?`)) {
-            await githubPullNow(false);
-            return;
-          }
-        }
-        await ghHydrateFiles();
-      } catch (_) { /* offline or misconfigured: ignore on boot */ }
-    }
-
-    function getAllSubjects() {
-      return state.subjects;
     }
 
     // =========================================================================
@@ -2235,6 +1690,416 @@
       }
       draw();
     })();
+
+    // =========================================================================
+    // GITHUB LIVE SYNC ENGINE (INSTANT PUSH ON UPDATE + AUTO-PULL ON LOAD)
+    // =========================================================================
+    let ghPushTimer = null;
+    let ghPushing = false;
+    let ghPushQueued = false;
+    let ghBootPullComplete = false;
+
+    function ghConfigured() {
+      const g = state.github || {};
+      return Boolean(g.owner && g.repo && g.token);
+    }
+
+    function ghStatus(msg, color) {
+      const el = document.getElementById("ghStatus");
+      if (el) { el.textContent = msg; el.style.color = color || ""; }
+      const pill = document.getElementById("ghHeaderPill");
+      if (pill && msg) {
+        pill.textContent = msg.replace(/^✓\s*/, "☁ ");
+        pill.style.color = color || "var(--ac)";
+        pill.style.borderColor = color ? `${color}66` : "rgba(0, 255, 136, 0.35)";
+      }
+    }
+
+    function ghPath(sub) {
+      const dir = String(state.github.dir || "study-data").replace(/^\/+|\/+$/g, "");
+      return (dir ? dir + "/" : "") + sub;
+    }
+
+    function ghUrl(path) {
+      const g = state.github;
+      const enc = path.split("/").map(encodeURIComponent).join("/");
+      return `https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${enc}`;
+    }
+
+    function ghHeaders(extra) {
+      return {
+        "Authorization": `Bearer ${state.github.token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(extra || {})
+      };
+    }
+
+    async function ghErr(res) {
+      let m = "";
+      try { m = (await res.json()).message || ""; } catch (_) {}
+      if (res.status === 401) return new Error("GitHub rejected the token (401). Check it hasn't expired.");
+      if (res.status === 403) return new Error(`GitHub refused (403)${m ? ": " + m : ""}. Check token has Contents: Read and write.`);
+      if (res.status === 404) return new Error("Repo, branch or folder not found (404). Check owner, repo name and token access.");
+      return new Error(`GitHub error ${res.status}${m ? ": " + m : ""}`);
+    }
+
+    async function ghGetMeta(path) {
+      const res = await fetch(
+        ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}&_t=${Date.now()}`,
+        { headers: ghHeaders(), cache: "no-store" }
+      );
+      if (res.status === 404) return null;
+      if (!res.ok) throw await ghErr(res);
+      return res.json();
+    }
+
+    async function ghGetRawBlob(path) {
+      const res = await fetch(
+        ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}&_t=${Date.now()}`,
+        {
+          headers: ghHeaders({ "Accept": "application/vnd.github.raw+json" }),
+          cache: "no-store"
+        }
+      );
+      if (!res.ok) throw await ghErr(res);
+      return res.blob();
+    }
+
+    async function ghPut(path, b64, message, sha) {
+      const body = { message, content: b64, branch: state.github.branch || "main" };
+      if (sha) body.sha = sha;
+      const res = await fetch(ghUrl(path), {
+        method: "PUT",
+        headers: ghHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(body)
+      });
+      if (res.status === 409 || res.status === 422) {
+        const meta = await ghGetMeta(path);
+        if (meta?.sha && meta.sha !== sha) return ghPut(path, b64, message, meta.sha);
+      }
+      if (!res.ok) throw await ghErr(res);
+      return res.json();
+    }
+
+    function utf8ToB64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      return btoa(bin);
+    }
+
+    function mimeToExt(mime, fileName) {
+      const map = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+      if (map[mime]) return map[mime];
+      const m = String(fileName || "").match(/\.([a-z0-9]{2,5})$/i);
+      return m ? m[1].toLowerCase() : "bin";
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(new Error("Could not read file"));
+        r.readAsDataURL(blob);
+      });
+    }
+
+    function buildGithubSnapshot() {
+      const snap = structuredClone(state);
+      delete snap.github;
+      snap.gemini = {
+        apiKey: state.gemini?.apiKey || "",
+        model: state.gemini?.model || "gemini-3.5-flash",
+        toolsEnabled: state.gemini?.toolsEnabled !== false,
+        confirmActions: Boolean(state.gemini?.confirmActions)
+      };
+      // Binary attachments are uploaded separately into files/ to keep state.json fast & clean
+      snap.evidence = (snap.evidence || []).map(e => ({ ...e, dataUrl: "" }));
+      snap.papers = (snap.papers || []).map(p => ({ ...p, fileDataUrl: "" }));
+      return snap;
+    }
+
+    async function ghUploadAttachments() {
+      let uploaded = 0;
+      const jobs = [];
+      (state.evidence || []).forEach(it => { if (it.dataUrl && !it.ghPath) jobs.push({ it, key: "dataUrl", mime: it.mimeType, kind: "evidence" }); });
+      (state.papers || []).forEach(it => { if (it.fileDataUrl && !it.ghPath) jobs.push({ it, key: "fileDataUrl", mime: it.fileMime, kind: "paper" }); });
+      for (const j of jobs) {
+        const du = j.it[j.key];
+        const comma = du.indexOf(",");
+        if (comma < 0 || !/;base64$/i.test(du.slice(0, comma))) continue;
+        const mime = j.mime || (du.slice(5, du.indexOf(";")) || "application/octet-stream");
+        const path = ghPath(`files/${j.kind}-${j.it.id}.${mimeToExt(mime, j.it.fileName)}`);
+        ghStatus(`Uploading ${j.it.fileName || j.kind} (${++uploaded}/${jobs.length})...`, "#fcd34d");
+        const existing = await ghGetMeta(path);
+        await ghPut(path, du.slice(comma + 1), `Add ${j.kind} file ${j.it.id}`, existing?.sha);
+        j.it.ghPath = path;
+        j.it.ghMime = mime;
+      }
+      if (uploaded) saveStateLocal();
+      return uploaded;
+    }
+
+    // Instant push triggered on every state update (coalesced across synchronous microtasks)
+    function scheduleGithubPush() {
+      if (!ghConfigured() || state.github.auto === false) return;
+      clearTimeout(ghPushTimer);
+      ghPushTimer = setTimeout(() => githubPushNow(false), 60);
+    }
+
+    async function githubPushNow(manual) {
+      if (!ghConfigured()) {
+        if (manual) { ghStatus("Add your owner, repo and token first.", "#fda4af"); showToast("GitHub sync not set up yet"); }
+        return;
+      }
+      if (ghPushing) {
+        ghPushQueued = true;
+        return;
+      }
+      ghPushing = true;
+      try {
+        ghStatus("Syncing to GitHub...", "#fcd34d");
+        await ghUploadAttachments();
+        const snapshot = buildGithubSnapshot();
+        const json = JSON.stringify(snapshot, null, 2);
+        const path = ghPath("state.json");
+        const meta = await ghGetMeta(path);
+        await ghPut(
+          path,
+          utf8ToB64(json),
+          `Sync study data (${new Date().toISOString().slice(0, 19).replace("T", " ")})`,
+          meta?.sha
+        );
+        state.github.lastPushAt = Date.now();
+        saveStateLocal();
+        ghStatus(`✓ Synced ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`, "#86efac");
+        if (manual) showToast("✓ All data & progress synced to GitHub");
+      } catch (err) {
+        ghStatus("✕ Sync error: " + err.message, "#fda4af");
+        if (manual) showToast("GitHub save failed — see Settings");
+      } finally {
+        ghPushing = false;
+        if (ghPushQueued) {
+          ghPushQueued = false;
+          scheduleGithubPush();
+        }
+      }
+    }
+
+    async function ghHydrateFiles() {
+      const items = [];
+      (state.evidence || []).forEach(it => { if (it.ghPath && !it.dataUrl) items.push({ it, key: "dataUrl" }); });
+      (state.papers || []).forEach(it => { if (it.ghPath && !it.fileDataUrl) items.push({ it, key: "fileDataUrl" }); });
+      if (!items.length) return;
+      let n = 0;
+      for (const { it, key } of items) {
+        try {
+          const blob = await ghGetRawBlob(it.ghPath);
+          const typed = new Blob([blob], { type: it.ghMime || blob.type || "application/octet-stream" });
+          it[key] = await blobToDataUrl(typed);
+          n++;
+        } catch (_) {}
+      }
+      if (n) {
+        saveStateLocal();
+        render();
+      }
+    }
+
+    async function githubPullNow(manual) {
+      if (!ghConfigured()) {
+        ghStatus("Add your owner, repo and token first.", "#fda4af");
+        return false;
+      }
+      try {
+        ghStatus("Pulling latest from GitHub...", "#fcd34d");
+        const meta = await ghGetMeta(ghPath("state.json"));
+        if (!meta) {
+          ghStatus("No remote state yet — pushing local state...", "#fcd34d");
+          await githubPushNow(false);
+          return false;
+        }
+        const rawText = await (await ghGetRawBlob(ghPath("state.json"))).text();
+        const remote = JSON.parse(rawText);
+        const base = structuredClone(DEFAULT_STATE);
+        const keep = {
+          gemini: {
+            ...state.gemini,
+            ...(remote.gemini && typeof remote.gemini === "object" ? remote.gemini : {}),
+            apiKey: (remote.gemini && remote.gemini.apiKey) || state.gemini?.apiKey || ""
+          },
+          github: state.github
+        };
+        const oldFiles = {};
+        (state.evidence || []).forEach(e => { if (e.dataUrl) oldFiles["e" + e.id] = e.dataUrl; });
+        (state.papers || []).forEach(p => { if (p.fileDataUrl) oldFiles["p" + p.id] = p.fileDataUrl; });
+
+        const merged = { ...base, ...remote, ...keep };
+        ["subjects", "topics", "sessions", "papers", "improvements", "diary", "evidence", "links"].forEach(k => {
+          if (!Array.isArray(merged[k])) merged[k] = Array.isArray(base[k]) ? base[k] : [];
+        });
+        if (!merged.minutes || typeof merged.minutes !== "object") merged.minutes = {};
+        if (!merged.parentSignOffs || typeof merged.parentSignOffs !== "object") merged.parentSignOffs = {};
+        merged.evidence.forEach(e => { if (!e.dataUrl && oldFiles["e" + e.id]) e.dataUrl = oldFiles["e" + e.id]; });
+        merged.papers.forEach(p => { if (!p.fileDataUrl && oldFiles["p" + p.id]) p.fileDataUrl = oldFiles["p" + p.id]; });
+
+        state = merged;
+        persistSettings();
+        saveStateLocal();
+        render();
+        renderGeminiWelcome();
+        ghStatus("Hydrating attached files...", "#fcd34d");
+        await ghHydrateFiles();
+        ghStatus(`✓ Synced ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`, "#86efac");
+        if (manual) showToast("✓ Pulled newest data from GitHub");
+        return true;
+      } catch (err) {
+        ghStatus("✕ Pull failed: " + err.message, "#fda4af");
+        if (manual) showToast("GitHub pull failed: " + err.message);
+        return false;
+      }
+    }
+
+    async function testGithubConnection() {
+      saveGithubSettings(true);
+      if (!ghConfigured()) { ghStatus("Fill in owner, repo and token first.", "#fda4af"); return; }
+      ghStatus("Testing...", "#fcd34d");
+      try {
+        const g = state.github;
+        const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}`, { headers: ghHeaders() });
+        if (!res.ok) throw await ghErr(res);
+        const repo = await res.json();
+        const canWrite = repo.permissions ? Boolean(repo.permissions.push) : true;
+        if (!canWrite) throw new Error("Token can read this repo but not write. Give it Contents: Read and write.");
+        ghStatus(`✓ Connected to ${repo.full_name} (${repo.private ? "private" : "public"}).`, "#86efac");
+      } catch (err) {
+        ghStatus("✕ " + err.message, "#fda4af");
+      }
+    }
+
+    function toggleGhTokenVisibility() {
+      const i = document.getElementById("ghToken");
+      i.type = i.type === "password" ? "text" : "password";
+    }
+
+    function applyGithubConfigObject(obj) {
+      const src = (obj && typeof obj.github === "object" && obj.github) ? obj.github : (obj || {});
+      const pick = (...keys) => { for (const k of keys) if (src[k] !== undefined && src[k] !== null && String(src[k]).trim() !== "") return String(src[k]).trim(); return ""; };
+      const cfg = {
+        owner: pick("owner", "username", "user", "org"),
+        repo: pick("repo", "repository", "repoName").replace(/\.git$/i, ""),
+        branch: pick("branch") || "main",
+        dir: pick("dir", "folder", "path") || "study-data",
+        token: pick("token", "pat", "accessToken").replace(/\s/g, "")
+      };
+      if (!cfg.owner || !cfg.repo) throw new Error("Config needs at least an \"owner\" and a \"repo\".");
+      state.github = {
+        ...state.github,
+        ...cfg,
+        auto: src.auto === undefined ? state.github.auto !== false : Boolean(src.auto),
+        lastHash: ""
+      };
+      persistSettings();
+      saveStateLocal();
+      loadGithubSettingsUI();
+      const g = state.github;
+      ghStatus(`✓ Imported: ${g.owner}/${g.repo} · branch ${g.branch}`, "#86efac");
+      showToast("GitHub config imported");
+      githubPullNow(false);
+    }
+
+    function importGithubConfigFile(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { applyGithubConfigObject(JSON.parse(String(reader.result).replace(/^\uFEFF/, ""))); }
+        catch (err) { ghStatus("✕ " + (err.message.startsWith("Config") ? err.message : "That file isn't valid JSON."), "#fda4af"); }
+        input.value = "";
+      };
+      reader.onerror = () => ghStatus("✕ Couldn't read that file.", "#fda4af");
+      reader.readAsText(file);
+    }
+
+    function exportGithubConfig() {
+      const g = state.github || {};
+      const out = { owner: g.owner || "", repo: g.repo || "", branch: g.branch || "main", dir: g.dir || "study-data", token: g.token || "", auto: g.auto !== false };
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "github-config.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      ghStatus("Downloaded github-config.json — keep it private.", "#fcd34d");
+    }
+
+    function wireGithubFieldAutosave() {
+      ["ghOwner", "ghRepo", "ghBranch", "ghDir", "ghToken"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.dataset.wired) {
+          el.dataset.wired = "1";
+          el.addEventListener("change", () => saveGithubSettings(true));
+          el.addEventListener("blur", () => saveGithubSettings(true));
+        }
+      });
+    }
+
+    function loadGithubSettingsUI() {
+      wireGithubFieldAutosave();
+      const g = state.github || {};
+      document.getElementById("ghOwner").value = g.owner || "";
+      document.getElementById("ghRepo").value = g.repo || "";
+      document.getElementById("ghBranch").value = g.branch || "main";
+      document.getElementById("ghDir").value = g.dir || "study-data";
+      document.getElementById("ghToken").value = g.token || "";
+      document.getElementById("ghAuto").checked = g.auto !== false;
+      if (g.lastPushAt) ghStatus(`✓ Synced ${new Date(g.lastPushAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`, "#86efac");
+    }
+
+    function saveGithubSettings(silent) {
+      const v = id => document.getElementById(id).value.trim();
+      state.github = {
+        ...state.github,
+        owner: v("ghOwner"),
+        repo: v("ghRepo").replace(/\.git$/i, ""),
+        branch: v("ghBranch") || "main",
+        dir: v("ghDir") || "study-data",
+        token: v("ghToken").replace(/\s/g, ""),
+        auto: document.getElementById("ghAuto").checked,
+        lastHash: ""
+      };
+      const stored = persistSettings();
+      saveStateLocal();
+      const g = state.github;
+      ghStatus(stored
+        ? `✓ Saved: ${g.owner || "(no owner)"}/${g.repo || "(no repo)"} · branch ${g.branch}`
+        : "✕ Couldn't save — browser storage blocked.", stored ? "#86efac" : "#fda4af");
+      if (!silent) {
+        showToast("GitHub settings saved & syncing...");
+        githubPushNow(true);
+      }
+    }
+
+    // Automatically pull newest data from GitHub on initial load (and when tab regains focus)
+    async function githubBootSync() {
+      if (!ghConfigured()) {
+        ghStatus("Offline (No GitHub)", "#94a3b8");
+        return;
+      }
+      await githubPullNow(false);
+      ghBootPullComplete = true;
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && ghBootPullComplete && ghConfigured() && !ghPushing) {
+        githubPullNow(false);
+      }
+    });
+
+    function getAllSubjects() {
+      return state.subjects;
+    }
 
     // =========================================================================
     // RENDER UI
@@ -2304,7 +2169,6 @@
     function render() {
       syncSubjectDropdowns();
 
-      // Top KPIs
       const greenCount = state.topics.filter(t => t.status === "green").length;
       const totalTopics = state.topics.length;
       const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
@@ -2339,7 +2203,6 @@
       document.getElementById("kpiAiModel").textContent =
         `Model: ${state.gemini.model || "gemini-3.5-flash"}`;
 
-      // Subject Breakdown Cards
       const breakdownEl = document.getElementById("subjectBreakdown");
       breakdownEl.innerHTML = state.subjects.map(subj => {
         const subTopics = state.topics.filter(t => t.subject === subj);
@@ -2364,7 +2227,6 @@
         `;
       }).join("");
 
-      // Subject Filter Pills
       const pillsEl = document.getElementById("subjectPills");
       pillsEl.innerHTML = [`<button type="button" class="b ${activeSubjectFilter === "ALL" ? "on" : ""}" onclick="setSubjectFilter('ALL')">All (${state.topics.length})</button>`]
         .concat(state.subjects.map(s => {
@@ -2372,7 +2234,6 @@
           return `<button type="button" class="b ${activeSubjectFilter === s ? "on" : ""}" onclick="setSubjectFilter('${escapeHtml(s).replace(/'/g, "\\'")}')">${escapeHtml(s)} (${cnt})</button>`;
         })).join("");
 
-      // Filtered Topic List
       const searchInput = document.getElementById("topicSearchInput");
       const query = searchInput.value.trim().toLowerCase();
       const statFilter = document.getElementById("statusFilterSelect").value;
@@ -2459,7 +2320,7 @@
             bar.style.display = "flex";
             bar.style.justifyContent = "space-between";
             bar.style.alignItems = "center";
-            bar.innerHTML = `<span>🖼️ Attached image: <strong>${escapeHtml(file.name)}</strong> (Ready to log or AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
+            bar.innerHTML = `<span>🖼️ Attached image: <strong>${escapeHtml(file.name)}</strong> (Ready to AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
           };
           img.src = rawDataUrl;
         } else {
@@ -2477,7 +2338,7 @@
           bar.style.display = "flex";
           bar.style.justifyContent = "space-between";
           bar.style.alignItems = "center";
-          bar.innerHTML = `<span>📄 Attached PDF: <strong>${escapeHtml(file.name)}</strong> (Ready to log or AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
+          bar.innerHTML = `<span>📄 Attached PDF: <strong>${escapeHtml(file.name)}</strong> (Ready to AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
         }
       };
       reader.readAsDataURL(file);
@@ -2643,7 +2504,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       if (btn) btn.textContent = "✓ Added to Improvement Tab";
       saveState();
       render();
-      showToast(`Added ${pendingAiMarkedResult.improvements.length} focus area(s) to Improvement tab!`);
+      showToast(`Added ${pendingAiMarkedResult.improvements.length} focus area(s) & synced to GitHub!`);
     }
 
     function commitAiMarkedPaper() {
@@ -2670,7 +2531,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       clearPendingPaperFile();
       saveState();
       render();
-      showToast("✓ AI-verified past paper logged!");
+      showToast("✓ AI-verified past paper logged & synced to GitHub!");
     }
 
     function toggleImprovementResolved(id) {
@@ -2784,7 +2645,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
                 </div>
               `;
             }).join("")
-          : `<p class="note">No past papers logged yet. Add mock or past-paper scores above.</p>`;
+          : `<p class="note">No past papers logged yet. Upload a completed worksheet above and run the AI Marker.</p>`;
       }
 
       const sList = document.getElementById("sessionProofList");
@@ -2919,7 +2780,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       });
       saveState();
       render();
-      showToast(`✓ Logged proof: ${caption}`);
+      showToast(`✓ Logged proof & syncing to GitHub: ${caption}`);
     }
 
     function deleteEvidenceItem(id) {
@@ -2955,7 +2816,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       document.getElementById("diaryEntryInput").value = "";
       saveState();
       render();
-      showToast("Diary entry saved");
+      showToast("Diary entry saved & synced to GitHub");
     }
 
     function deleteDiaryEntry(id) {
@@ -3030,13 +2891,13 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       }
       saveState();
       renderParentOverviewContent();
-      showToast("Parent verification updated");
+      showToast("Parent verification updated & synced to GitHub");
     }
 
     let parentSelectedDate = new Date().toISOString().slice(0, 10);
-    let parentStatsPeriod = "month"; // "month" | "year"
-    let parentSelectedMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-    let parentSelectedYear = new Date().toISOString().slice(0, 4); // YYYY
+    let parentStatsPeriod = "month";
+    let parentSelectedMonth = new Date().toISOString().slice(0, 7);
+    let parentSelectedYear = new Date().toISOString().slice(0, 4);
 
     function shiftParentDate(deltaDays) {
       const d = new Date(parentSelectedDate + "T12:00:00");
@@ -3106,7 +2967,8 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const dayPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedDate));
       const dayDiary = state.diary.filter(d => String(d.date).startsWith(parentSelectedDate));
 
-      const weekSessions = state.sessions.filter(s => String(s.date).slice(0, 10) >= weekIso && String(s.date).slice(0, 10) <= new Date(new Date(weekIso + "T12:00:00").getTime() + 6 * 86400000).toISOString().slice(0, 10));
+      const weekEndIso = new Date(new Date(weekIso + "T12:00:00").getTime() + 6 * 86400000).toISOString().slice(0, 10);
+      const weekSessions = state.sessions.filter(s => String(s.date).slice(0, 10) >= weekIso && String(s.date).slice(0, 10) <= weekEndIso);
       const weekMins = weekSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
       const weekProofs = state.evidence.filter(e => String(e.date).slice(0, 10) >= weekIso);
       const weekDaysActive = new Set(weekSessions.map(s => String(s.date).slice(0, 10))).size;
@@ -3120,7 +2982,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         ? `Today (${new Date(parentSelectedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })})`
         : new Date(parentSelectedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
-      // Daily Subject-by-Subject Breakdown for parentSelectedDate
       const dailySubjectRows = state.subjects.map(subj => {
         const sSessions = daySessions.filter(s => s.subject === subj);
         const sMins = sSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
@@ -3154,7 +3015,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         `;
       }).join("");
 
-      // Monthly & Yearly Stats Calculation
       const monthSessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedMonth));
       const monthMins = monthSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
       const monthActiveDays = new Set(monthSessions.map(s => String(s.date).slice(0, 10))).size;
@@ -3173,7 +3033,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         : "—";
       const yearProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedYear));
 
-      // Monthly breakdown bars across the selected year (Jan - Dec)
       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const monthlyTotals = monthNames.map((label, idx) => {
         const ym = `${parentSelectedYear}-${String(idx + 1).padStart(2, "0")}`;
@@ -3184,7 +3043,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       });
       const maxMonthMins = Math.max(60, ...monthlyTotals.map(m => m.mins));
 
-      // Yearly breakdown across all recorded years
       const allYearsSet = new Set([parentSelectedYear, todayIso.slice(0, 4)]);
       state.sessions.forEach(s => { if (s.date) allYearsSet.add(String(s.date).slice(0, 4)); });
       state.papers.forEach(p => { if (p.date) allYearsSet.add(String(p.date).slice(0, 4)); });
@@ -3199,7 +3057,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       });
       const maxYearMins = Math.max(60, ...yearlyTotals.map(y => y.mins));
 
-      // Subject breakdown for selected Month or Year
       const periodPrefix = parentStatsPeriod === "month" ? parentSelectedMonth : parentSelectedYear;
       const periodSubjectSummary = state.subjects.map(subj => {
         const pSess = state.sessions.filter(s => s.subject === subj && String(s.date).startsWith(periodPrefix));
@@ -3369,7 +3226,6 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
           </div>
         </div>
 
-        <!-- Daily & Weekly Parent Verification Check -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px;">
           <div class="proof-log-item" style="flex-direction:column;align-items:stretch;padding:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -3610,15 +3466,15 @@ ${subjLines}`;
       saveState();
       updateTimerUi();
       render();
-      showToast(`✓ Logged ${mins} min(s) on "${topic}" to Parent Overview!`);
+      showToast(`✓ Logged ${mins} min(s) on "${topic}" & synced to GitHub!`);
     }
 
-    // Backwards-compatible wrappers for Gemini tool calls
     function startTimer(subjectOverride, _mins, topicOverride) {
       startStopwatch(subjectOverride, topicOverride);
     }
     function pauseTimer() { pauseStopwatch(); }
     function resetTimer() { resetStopwatch(); }
+
     // =========================================================================
     // SETTINGS, AI PROMPT GENERATOR & JSON IMPORT (CTRL+SHIFT+A)
     // =========================================================================
@@ -3686,11 +3542,14 @@ ${subjLines}`;
       state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-3.5-flash";
       state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
       state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
+      if (state.github) state.github.lastHash = "";
       persistSettings();
       saveState();
       render();
       renderGeminiWelcome();
-      if (!silent) showToast("Gemini AI settings saved");
+      if (!silent) {
+        showToast("Gemini API key saved & syncing to GitHub...");
+      }
     }
 
     function updateGeminiBadge() {
@@ -3727,6 +3586,7 @@ ${subjLines}`;
         render();
         renderSettingsSubjects();
         updateAiPromptText();
+        showToast(`Added subject "${name}" & synced to GitHub`);
       }
       inp.value = "";
     }
@@ -3823,11 +3683,9 @@ CRITICAL RULES:
       const cleaned = String(rawSubj || "").trim();
       if (!cleaned) return state.subjects[0] || "General";
 
-      // 1. Exact case-insensitive match
       const exact = state.subjects.find(s => s.toLowerCase() === cleaned.toLowerCase());
       if (exact) return exact;
 
-      // 2. Prefix / containment match (e.g. "Maths Paper 1" -> "Maths", "Biology" -> "Combined Science")
       const partial = state.subjects.find(s => {
         const sl = s.toLowerCase();
         const cl = cleaned.toLowerCase();
@@ -3835,7 +3693,6 @@ CRITICAL RULES:
       });
       if (partial) return partial;
 
-      // 3. Science discipline alias mapping if user has Combined Science
       if (/^(biology|chemistry|physics)\b/i.test(cleaned)) {
         const sci = state.subjects.find(s => /science/i.test(s));
         if (sci) return sci;
@@ -3859,7 +3716,6 @@ CRITICAL RULES:
       try {
         const parsed = JSON.parse(raw);
 
-        // If the JSON is a full exported backup object (has subjects/topics/minutes), import topics safely without overwriting layout structure
         let items = [];
         if (Array.isArray(parsed)) {
           items = parsed;
@@ -3910,7 +3766,7 @@ CRITICAL RULES:
         switchWorkspaceTab("syllabus");
         render();
         closeSettings();
-        showToast(`Imported ${validItems.length} topics!`);
+        showToast(`Imported ${validItems.length} topics & synced to GitHub!`);
       } catch (err) {
         showToast("JSON Import Error: " + err.message);
       }
@@ -3961,7 +3817,7 @@ CRITICAL RULES:
       if (!box) return;
       box.innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.4);">
-          <span style="font-size:12px;color:#fda4af;font-weight:700;">Are you sure? This permanently erases all progress.</span>
+          <span style="font-size:12px;color:#fda4af;font-weight:700;">Are you sure? This permanently erases all progress & syncs the wipe to GitHub.</span>
           <button type="button" class="b red sm" onclick="executeWipeAllData()">Yes, Wipe Everything</button>
           <button type="button" class="b sm" onclick="cancelWipeAllData()">Cancel</button>
         </div>
@@ -3991,13 +3847,12 @@ CRITICAL RULES:
       geminiHistory = [];
       clearPendingPaperFile();
       clearPendingProofFiles();
-      clearTimeout(ghPushTimer);
-      saveStateLocal(); // local wipe only; GitHub copy is untouched until the next change is pushed
+      saveState();
       cancelWipeAllData();
       renderGeminiWelcome();
       render();
       closeSettings();
-      showToast("All progress wiped — ready for a new user!");
+      showToast("All progress wiped & synced to GitHub!");
     }
 
     // =========================================================================
@@ -4273,6 +4128,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
         if (!state.subjects.includes(matchedSubj)) {
           state.subjects.push(matchedSubj);
           if (!(matchedSubj in state.minutes)) state.minutes[matchedSubj] = 0;
+          saveState();
         }
         syncSubjectDropdowns();
         const topicLabel = args.topic ? String(args.topic).trim() : "";
@@ -4412,7 +4268,6 @@ ${JSON.stringify(snapshot, null, 2)}`;
     ];
     let geminiStatusCallback = null;
     const waitMs = ms => new Promise(resolve => setTimeout(resolve, ms));
-    // Models that recently failed are skipped for a short cooldown so we don't keep hammering them
     const geminiCooldown = {};
 
     function parseRetryDelayMs(res, data) {
@@ -4437,8 +4292,8 @@ ${JSON.stringify(snapshot, null, 2)}`;
         : state.gemini.model;
 
       const modelsToTry = [preferred, ...GEMINI_FALLBACK_CHAIN.filter(m => m !== preferred)];
-      const MAX_ROUNDS = 3;            // full sweeps across all models
-      const ATTEMPTS_PER_MODEL = 2;    // quick retry, then move on to a different model
+      const MAX_ROUNDS = 3;
+      const ATTEMPTS_PER_MODEL = 2;
       let lastError = null;
       let sawOverload = false;
       let sawQuota = false;
@@ -4467,7 +4322,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
                   return data;
                 }
                 err = new Error("Empty response from model");
-                err.status = 503; // treat blank replies as transient
+                err.status = 503;
               } else {
                 err = new Error(data?.error?.message || `HTTP ${res.status}`);
                 err.status = res.status;
@@ -4482,18 +4337,15 @@ ${JSON.stringify(snapshot, null, 2)}`;
             lastError = err;
             const msg = err.message || "";
 
-            // Bad key / bad request: no point trying other models
             if (err.status === 401 || err.status === 403 || (err.status === 400 && /api key|permission/i.test(msg))) {
               throw err;
             }
 
-            // Model doesn't exist for this key: skip it permanently this session
             if (err.status === 404 || (err.status === 400 && /model/i.test(msg))) {
               geminiCooldown[modelId] = Date.now() + 10 * 60 * 1000;
               break;
             }
 
-            // Quota exhausted on this model (limits are per-model): switch model immediately
             if (err.status === 429) {
               sawQuota = true;
               geminiCooldown[modelId] = Date.now() + (retryMs || 20000);
@@ -4527,7 +4379,6 @@ ${JSON.stringify(snapshot, null, 2)}`;
           const delay = 2500 * (round + 1);
           if (geminiStatusCallback) geminiStatusCallback(`All models busy — waiting ${Math.round(delay / 1000)}s then trying again...`);
           await waitMs(delay);
-          // Clear short cooldowns so the next sweep can retry everything
           for (const k of Object.keys(geminiCooldown)) {
             if (geminiCooldown[k] - Date.now() < 30000) delete geminiCooldown[k];
           }
@@ -4645,12 +4496,12 @@ ${JSON.stringify(snapshot, null, 2)}`;
       }
     }
 
-    // Boot
+    // Boot: Render local cache immediately, then silently pull the newest GitHub state & files
     document.body.setAttribute("data-mobile-view", "study");
     updateTimerUi();
     renderGeminiWelcome();
     render();
-    githubBootCheck();
+    githubBootSync();
   </script>
 </body>
 </html>
