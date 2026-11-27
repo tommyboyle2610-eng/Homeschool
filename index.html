@@ -571,17 +571,34 @@
     .md-body > :last-child { margin-bottom: 0; }
     .md-p { margin: 0 0 8px; }
     .md-h { margin: 12px 0 5px; font-weight: 800; line-height: 1.3; color: var(--cyan); }
-    h3.md-h { font-size: 14.5px; } h4.md-h { font-size: 13.5px; } h5.md-h, h6.md-h { font-size: 12.5px; }
+    h3.md-h { font-size: 14.5px; color: var(--ac); border-bottom: 1px solid rgba(0, 255, 136, 0.22); padding-bottom: 3px; }
+    h4.md-h { font-size: 13.5px; color: var(--cyan); }
+    h5.md-h, h6.md-h { font-size: 12.5px; color: var(--lime); }
     .md-list { margin: 0 0 8px; padding-left: 20px; }
-    .md-list li { margin: 3px 0; }
+    .md-list li { margin: 4px 0; }
     .md-sub { margin: 2px 0 0 4px; opacity: 0.9; }
-    .md-quote { margin: 0 0 8px; padding: 4px 10px; border-left: 3px solid var(--cyan); background: rgba(34,211,238,0.07); border-radius: 0 8px 8px 0; }
+    .md-quote { margin: 0 0 8px; padding: 6px 11px; border-left: 3px solid var(--cyan); background: rgba(34,211,238,0.08); border-radius: 0 8px 8px 0; color: #cffafe; }
     .md-pre { margin: 0 0 8px; padding: 9px 11px; background: rgba(0,0,0,0.5); border-radius: 9px; overflow-x: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
     .md-body code { font-family: var(--font-mono); font-size: 11px; background: rgba(0,0,0,0.45); padding: 1px 5px; border-radius: 5px; color: var(--ac); }
     .md-pre code { background: none; padding: 0; color: var(--tx); }
     .md-body a { color: var(--cyan); text-decoration: underline; }
     .md-body hr { border: 0; border-top: 1px solid rgba(255,255,255,0.15); margin: 10px 0; }
     .md-body strong { color: #fff; }
+    .md-mark-pill {
+      display: inline-block;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font: 800 10.5px var(--font-mono);
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .md-mark-full { background: rgba(0, 255, 136, 0.16); color: var(--ac); border: 1px solid rgba(0, 255, 136, 0.4); }
+    .md-mark-part { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .md-mark-zero { background: rgba(244, 63, 94, 0.16); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.4); }
+    .md-c-green { color: var(--ac); font-weight: 700; }
+    .md-c-amber { color: #fbbf24; font-weight: 700; }
+    .md-c-red { color: #fda4af; font-weight: 700; }
+    .md-c-cyan { color: var(--cyan); font-weight: 700; }
     .md-table-wrap { overflow-x: auto; margin: 0 0 8px; }
     .md-table { border-collapse: collapse; font-size: 11.5px; min-width: 60%; }
     .md-table th, .md-table td { border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; text-align: left; }
@@ -1519,7 +1536,7 @@
       state._savedAt = Date.now();
       persistSettings();
       const ok = saveStateLocal();
-      scheduleGithubPush();
+      if (typeof scheduleGithubPush === "function") scheduleGithubPush();
       return ok;
     }
 
@@ -1535,10 +1552,10 @@
             papers: state.papers.map(p => ({ ...p, fileDataUrl: p.fileDataUrl && p.fileDataUrl.length < 180000 ? p.fileDataUrl : "" }))
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(liteState));
-          showToast("Saved! Large file kept in current session memory & synced to GitHub.");
+          showToast("Saved! Large file kept in current session memory.");
           return true;
         } catch (err2) {
-          showToast("Browser storage limit reached — syncing directly to GitHub.");
+          showToast("Browser storage limit reached — older files kept in session.");
           return false;
         }
       }
@@ -1546,6 +1563,7 @@
 
     function showToast(msg) {
       const el = document.getElementById("toast");
+      if (!el) return;
       el.textContent = msg;
       el.classList.add("show");
       clearTimeout(el._t);
@@ -1558,13 +1576,57 @@
       }[ch]));
     }
 
+    function cleanMathNotation(str) {
+      let s = String(str ?? "");
+      // Convert common LaTeX commands to clean readable symbols
+      for (let k = 0; k < 3; k++) {
+        s = s.replace(/\\(?:d|t)?frac\{([^{}]+)\}\{([^{}]+)\}/g, "$1/$2");
+        s = s.replace(/\\(?:mathbf|textbf|text|mathrm|mathit)\{([^{}]+)\}/g, "$1");
+      }
+      s = s
+        .replace(/\\times/g, "×")
+        .replace(/\\div/g, "÷")
+        .replace(/\\pm/g, "±")
+        .replace(/\\approx/g, "≈")
+        .replace(/\\neq/g, "≠")
+        .replace(/\\leq/g, "≤")
+        .replace(/\\geq/g, "≥")
+        .replace(/\\implies/g, "→")
+        .replace(/\\rightarrow/g, "→")
+        .replace(/\\left|\\right/g, "")
+        .replace(/\\%/g, "%")
+        .replace(/\\£/g, "£")
+        .replace(/\\sqrt\{([^{}]+)\}/g, "√($1)")
+        .replace(/\^2\b/g, "²")
+        .replace(/\^3\b/g, "³");
+      // Unwrap inline $...$ and $$...$$ math delimiters
+      s = s.replace(/\$\$([^$]+)\$\$/g, "$1").replace(/\$([^$\n]+)\$/g, "$1");
+      return s;
+    }
+
     function renderAiMarkdown(raw) {
-      const text = String(raw ?? "").replace(/\r\n?/g, "\n");
+      const cleaned = cleanMathNotation(raw)
+        .replace(/\r\n?/g, "\n")
+        // Remove empty or whitespace-only bullet lines like "- " or "*   "
+        .replace(/^\s*[-*+]\s*$/gm, "")
+        // Ensure a space/newline before mashed Q2:/Q8: markers inside a line
+        .replace(/([^\n])(\bQ\d+[:.)])/g, "$1\n- **$2**");
+
+      const text = cleaned;
       const inline = str => {
         let t = escapeHtml(str);
         const codes = [];
         t = t.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
         t = t.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        // Optional semantic colour tags from AI: [green]...[/green], [amber]...[/amber], [red]...[/red], [cyan]...[/cyan]
+        t = t.replace(/\[(green|amber|red|cyan)\]([\s\S]*?)\[\/\1\]/gi, (_, col, inner) => `<span class="md-c-${col.toLowerCase()}">${inner}</span>`);
+        // Highlight mark badges like [1 Mark], [2/3 Marks], [0 Marks]
+        t = t.replace(/\[(\d+(?:\/\d+)?\s*Marks?)\]/gi, (_, lbl) => {
+          const isZero = /^0(?:\D|$)/.test(lbl.trim());
+          const isPartial = /\//.test(lbl) && !/^(\d+)\/\1\b/.test(lbl.trim());
+          const cls = isZero ? "md-mark-zero" : isPartial ? "md-mark-part" : "md-mark-full";
+          return `<span class="md-mark-pill ${cls}">${lbl}</span>`;
+        });
         t = t.replace(/\*\*\*([^*\n]+?)\*\*\*/g, "<strong><em>$1</em></strong>");
         t = t.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
         t = t.replace(/__([^_\n]+?)__/g, "<strong>$1</strong>");
@@ -2484,6 +2546,14 @@ Tasks:
 2. Mark each question according to official UK GCSE mark-scheme standards (awarding method/working marks where applicable).
 3. Estimate the UK GCSE 9-1 grade for this performance.
 4. Identify 2 to 4 concrete, specific Areas of Improvement based on dropped marks or weak exam technique.
+
+STRICT FORMATTING RULES (VERY IMPORTANT):
+- NEVER use LaTeX syntax or dollar signs (NO $, \\frac, \\times, \\mathbf, \\implies). Write plain readable math instead (e.g. "188 / 200 × 100 = 94%").
+- NEVER output blank/empty bullet points. Every bullet point must have complete text on the same line.
+- Use clean Markdown headings (### for main sections, #### for individual questions) and concise bullets.
+- You may highlight key statuses using colour tags: [green]Correct / Full Marks[/green], [amber]Partial / Method Mark[/amber], [red]Incorrect / Dropped Mark[/red], and [cyan]Key Rule / Formula[/cyan].
+- Put mark awards at the end of each question summary in square brackets like [2/2 Marks], [1/3 Marks], or [0/2 Marks].
+- Separate "Worked Example / Guided Example" items on the worksheet from actual student-answered questions so the feedback is crystal clear.
 
 At the very end of your response, include a single JSON block in this exact format so the tracker can record the verified score and suggested improvements:
 SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improvements": [{"area": "<short weak topic or skill>", "advice": "<specific mark-scheme action to improve>"}]}`;
