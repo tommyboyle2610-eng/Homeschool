@@ -1450,6 +1450,7 @@
       <button type="button" class="b sm" id="tabBtn-aiprompt" onclick="switchSettingsTab('aiprompt')">🤖 AI JSON Prompt</button>
       <button type="button" class="b sm" id="tabBtn-import" onclick="switchSettingsTab('import')">📥 Import JSON</button>
       <button type="button" class="b sm" id="tabBtn-links" onclick="switchSettingsTab('links')">🔗 Study Links</button>
+      <button type="button" class="b sm" id="tabBtn-github" onclick="switchSettingsTab('github')">☁ GitHub Sync</button>
     </div>
 
     <div class="dlg-body">
@@ -1492,6 +1493,47 @@
           </div>
           <input type="checkbox" id="geminiConfirmActions" onchange="saveGeminiSettings(true)" />
         </div>
+      </div>
+
+      <!-- Tab: GitHub Sync -->
+      <div class="tab-pane" id="pane-github">
+        <p class="note">
+          Back up your progress, uploaded PDFs/images and AI feedback to a GitHub repository, and load them on any device.
+          Your data is committed as <code>state.json</code> plus a <code>files/</code> folder.
+        </p>
+        <p class="note" style="color:#fcd34d;">
+          ⚠ Use a <strong>separate, private</strong> repo for the data (not the repo that hosts this page). A public repo would show names, scores and papers to everyone, and committing to the site repo would redeploy the site on every save.
+        </p>
+        <div class="row">
+          <input type="text" id="ghOwner" placeholder="GitHub username / org" autocomplete="off" />
+          <input type="text" id="ghRepo" placeholder="Data repo name e.g. gcse-data" autocomplete="off" />
+        </div>
+        <div class="row">
+          <input type="text" id="ghBranch" placeholder="Branch (main)" autocomplete="off" />
+          <input type="text" id="ghDir" placeholder="Folder (study-data)" autocomplete="off" />
+        </div>
+        <div class="row">
+          <input type="password" id="ghToken" placeholder="Fine-grained token (github_pat_...)" autocomplete="off" />
+          <button type="button" class="b sm" onclick="toggleGhTokenVisibility()">👁 Show</button>
+        </div>
+        <p class="note">
+          Create a token at <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);font-weight:700;">github.com/settings/personal-access-tokens ↗</a>:
+          Repository access → <em>Only select repositories</em> → your data repo; Permissions → Repository → <strong>Contents: Read and write</strong>. It is stored only in this browser.
+        </p>
+        <div class="toggle-row">
+          <div>
+            <div style="font-weight:700;color:#fff;font-size:13px;">Auto-save to GitHub</div>
+            <div style="font-size:11.5px;color:var(--mu);">Pushes a few seconds after any change.</div>
+          </div>
+          <input type="checkbox" id="ghAuto" checked onchange="saveGithubSettings(true)" />
+        </div>
+        <div class="row">
+          <button type="button" class="b pri sm" onclick="saveGithubSettings()">Save Settings</button>
+          <button type="button" class="b sm" onclick="testGithubConnection()">⚡ Test</button>
+          <button type="button" class="b sm" onclick="githubPushNow(true)">⬆ Push now</button>
+          <button type="button" class="b sm" onclick="githubPullNow(true)">⬇ Pull from GitHub</button>
+        </div>
+        <div id="ghStatus" class="note" style="font-family:var(--font-mono);"></div>
       </div>
 
       <!-- Tab 2: Manage Subjects -->
@@ -1592,6 +1634,16 @@
         model: "gemini-3.5-flash",
         toolsEnabled: true,
         confirmActions: false
+      },
+      github: {
+        owner: "",
+        repo: "",
+        branch: "main",
+        dir: "study-data",
+        token: "",
+        auto: true,
+        lastPushAt: 0,
+        lastHash: ""
       }
     };
 
@@ -1616,6 +1668,10 @@
           gemini: {
             ...DEFAULT_STATE.gemini,
             ...(typeof parsed.gemini === "object" && parsed.gemini ? parsed.gemini : {})
+          },
+          github: {
+            ...DEFAULT_STATE.github,
+            ...(typeof parsed.github === "object" && parsed.github ? parsed.github : {})
           }
         };
       } catch (e) {
@@ -1633,6 +1689,13 @@
     let stopwatchTickHandle = null;
 
     function saveState() {
+      state._savedAt = Date.now();
+      const ok = saveStateLocal();
+      if (typeof scheduleGithubPush === "function") scheduleGithubPush();
+      return ok;
+    }
+
+    function saveStateLocal() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         return true;
@@ -1761,6 +1824,274 @@
         out.push(`<p class="md-p">${buf.join("<br>")}</p>`);
       }
       return out.join("");
+    }
+
+
+    // =========================================================================
+    // GITHUB SYNC (state.json + files/ committed via the GitHub Contents API)
+    // =========================================================================
+    let ghPushTimer = null;
+    let ghPushing = false;
+    let ghPushQueued = false;
+
+    function ghConfigured() {
+      const g = state.github || {};
+      return Boolean(g.owner && g.repo && g.token);
+    }
+    function ghStatus(msg, color) {
+      const el = document.getElementById("ghStatus");
+      if (el) { el.textContent = msg; el.style.color = color || ""; }
+    }
+    function ghPath(sub) {
+      const dir = String(state.github.dir || "study-data").replace(/^\/+|\/+$/g, "");
+      return (dir ? dir + "/" : "") + sub;
+    }
+    function ghUrl(path) {
+      const g = state.github;
+      const enc = path.split("/").map(encodeURIComponent).join("/");
+      return `https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${enc}`;
+    }
+    function ghHeaders(extra) {
+      return {
+        "Authorization": `Bearer ${state.github.token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        ...(extra || {})
+      };
+    }
+    async function ghErr(res) {
+      let m = "";
+      try { m = (await res.json()).message || ""; } catch (_) {}
+      if (res.status === 401) return new Error("GitHub rejected the token (401). Check it hasn't expired.");
+      if (res.status === 403) return new Error(`GitHub refused (403)${m ? ": " + m : ""}. Check the token has Contents: Read and write on this repo.`);
+      if (res.status === 404) return new Error("Repo, branch or folder not found (404). Check owner, repo name and token access.");
+      return new Error(`GitHub error ${res.status}${m ? ": " + m : ""}`);
+    }
+    async function ghGetMeta(path) {
+      const res = await fetch(ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}`, { headers: ghHeaders() });
+      if (res.status === 404) return null;
+      if (!res.ok) throw await ghErr(res);
+      return res.json();
+    }
+    async function ghGetRawBlob(path) {
+      const res = await fetch(ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}`, {
+        headers: ghHeaders({ "Accept": "application/vnd.github.raw+json" })
+      });
+      if (!res.ok) throw await ghErr(res);
+      return res.blob();
+    }
+    async function ghPut(path, b64, message, sha) {
+      const body = { message, content: b64, branch: state.github.branch || "main" };
+      if (sha) body.sha = sha;
+      const res = await fetch(ghUrl(path), { method: "PUT", headers: ghHeaders({ "Content-Type": "application/json" }), body: JSON.stringify(body) });
+      if (res.status === 409 || res.status === 422) {
+        const meta = await ghGetMeta(path);
+        if (meta?.sha && meta.sha !== sha) return ghPut(path, b64, message, meta.sha);
+      }
+      if (!res.ok) throw await ghErr(res);
+      return res.json();
+    }
+    function utf8ToB64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      return btoa(bin);
+    }
+    function mimeToExt(mime, fileName) {
+      const map = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+      if (map[mime]) return map[mime];
+      const m = String(fileName || "").match(/\.([a-z0-9]{2,5})$/i);
+      return m ? m[1].toLowerCase() : "bin";
+    }
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = () => reject(new Error("Could not read file"));
+        r.readAsDataURL(blob);
+      });
+    }
+
+    function buildGithubSnapshot() {
+      const snap = structuredClone(state);
+      delete snap.github;
+      snap.gemini = { model: state.gemini?.model, toolsEnabled: state.gemini?.toolsEnabled, confirmActions: state.gemini?.confirmActions };
+      snap.evidence = (snap.evidence || []).map(e => ({ ...e, dataUrl: "" }));
+      snap.papers = (snap.papers || []).map(p => ({ ...p, fileDataUrl: "" }));
+      return snap;
+    }
+
+    async function ghUploadAttachments() {
+      let uploaded = 0;
+      const jobs = [];
+      (state.evidence || []).forEach(it => { if (it.dataUrl && !it.ghPath) jobs.push({ it, key: "dataUrl", mime: it.mimeType, kind: "evidence" }); });
+      (state.papers || []).forEach(it => { if (it.fileDataUrl && !it.ghPath) jobs.push({ it, key: "fileDataUrl", mime: it.fileMime, kind: "paper" }); });
+      for (const j of jobs) {
+        const du = j.it[j.key];
+        const comma = du.indexOf(",");
+        if (comma < 0 || !/;base64$/i.test(du.slice(0, comma))) continue;
+        const mime = j.mime || (du.slice(5, du.indexOf(";")) || "application/octet-stream");
+        const path = ghPath(`files/${j.kind}-${j.it.id}.${mimeToExt(mime, j.it.fileName)}`);
+        ghStatus(`Uploading ${j.it.fileName || j.kind} (${++uploaded}/${jobs.length})...`);
+        const existing = await ghGetMeta(path);
+        await ghPut(path, du.slice(comma + 1), `Add ${j.kind} file ${j.it.id}`, existing?.sha);
+        j.it.ghPath = path;
+        j.it.ghMime = mime;
+      }
+      if (uploaded) saveStateLocal();
+      return uploaded;
+    }
+
+    function scheduleGithubPush() {
+      if (!ghConfigured() || state.github.auto === false) return;
+      clearTimeout(ghPushTimer);
+      ghPushTimer = setTimeout(() => githubPushNow(false), 8000);
+    }
+
+    async function githubPushNow(manual) {
+      if (!ghConfigured()) {
+        if (manual) { ghStatus("Add your owner, repo and token first.", "#fda4af"); showToast("GitHub sync not set up yet"); }
+        return;
+      }
+      if (ghPushing) { ghPushQueued = true; return; }
+      ghPushing = true;
+      try {
+        ghStatus("Saving to GitHub...", "#fcd34d");
+        await ghUploadAttachments();
+        const json = JSON.stringify(buildGithubSnapshot(), null, 1);
+        const hash = String(json.length) + ":" + json.split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7);
+        if (!manual && hash === state.github.lastHash) { ghStatus("Already up to date on GitHub."); return; }
+        const path = ghPath("state.json");
+        const meta = await ghGetMeta(path);
+        await ghPut(path, utf8ToB64(json), `Update study data ${new Date().toISOString().slice(0, 16).replace("T", " ")}`, meta?.sha);
+        state.github.lastHash = hash;
+        state.github.lastPushAt = Date.now();
+        saveStateLocal();
+        ghStatus(`✓ Saved to GitHub at ${new Date().toLocaleTimeString()}`, "#86efac");
+        if (manual) showToast("✓ Saved to GitHub");
+      } catch (err) {
+        ghStatus("✕ " + err.message, "#fda4af");
+        if (manual) showToast("GitHub save failed — see Settings");
+      } finally {
+        ghPushing = false;
+        if (ghPushQueued) { ghPushQueued = false; scheduleGithubPush(); }
+      }
+    }
+
+    async function ghHydrateFiles() {
+      const items = [];
+      (state.evidence || []).forEach(it => { if (it.ghPath && !it.dataUrl) items.push({ it, key: "dataUrl" }); });
+      (state.papers || []).forEach(it => { if (it.ghPath && !it.fileDataUrl) items.push({ it, key: "fileDataUrl" }); });
+      if (!items.length) return;
+      let n = 0;
+      for (const { it, key } of items) {
+        try {
+          const blob = await ghGetRawBlob(it.ghPath);
+          const typed = new Blob([blob], { type: it.ghMime || blob.type || "application/octet-stream" });
+          it[key] = await blobToDataUrl(typed);
+          n++;
+        } catch (_) { /* leave blank; retried next load */ }
+      }
+      if (n) { saveStateLocal(); render(); }
+    }
+
+    async function githubPullNow(manual) {
+      if (!ghConfigured()) { ghStatus("Add your owner, repo and token first.", "#fda4af"); return; }
+      try {
+        ghStatus("Loading from GitHub...", "#fcd34d");
+        const meta = await ghGetMeta(ghPath("state.json"));
+        if (!meta) { ghStatus("Nothing saved on GitHub yet — use Push now first.", "#fcd34d"); return; }
+        if (manual && !confirm("Replace the data in this browser with what's saved on GitHub?")) { ghStatus(""); return; }
+        const remote = JSON.parse(await (await ghGetRawBlob(ghPath("state.json"))).text());
+        const base = structuredClone(DEFAULT_STATE);
+        const keep = { gemini: state.gemini, github: state.github };
+        const oldFiles = {};
+        (state.evidence || []).forEach(e => { if (e.dataUrl) oldFiles["e" + e.id] = e.dataUrl; });
+        (state.papers || []).forEach(p => { if (p.fileDataUrl) oldFiles["p" + p.id] = p.fileDataUrl; });
+        const merged = { ...base, ...remote, ...keep };
+        ["subjects", "topics", "sessions", "papers", "improvements", "diary", "evidence", "links"].forEach(k => {
+          if (!Array.isArray(merged[k])) merged[k] = Array.isArray(base[k]) ? base[k] : [];
+        });
+        if (!merged.minutes || typeof merged.minutes !== "object") merged.minutes = {};
+        if (!merged.parentSignOffs || typeof merged.parentSignOffs !== "object") merged.parentSignOffs = {};
+        merged.evidence.forEach(e => { if (!e.dataUrl && oldFiles["e" + e.id]) e.dataUrl = oldFiles["e" + e.id]; });
+        merged.papers.forEach(p => { if (!p.fileDataUrl && oldFiles["p" + p.id]) p.fileDataUrl = oldFiles["p" + p.id]; });
+        state = merged;
+        saveStateLocal();
+        render();
+        renderGeminiWelcome();
+        ghStatus("Loaded. Downloading attached files...", "#fcd34d");
+        await ghHydrateFiles();
+        ghStatus(`✓ Loaded from GitHub at ${new Date().toLocaleTimeString()}`, "#86efac");
+        if (manual) showToast("✓ Loaded from GitHub");
+      } catch (err) {
+        ghStatus("✕ " + err.message, "#fda4af");
+      }
+    }
+
+    async function testGithubConnection() {
+      saveGithubSettings(true);
+      if (!ghConfigured()) { ghStatus("Fill in owner, repo and token first.", "#fda4af"); return; }
+      ghStatus("Testing...", "#fcd34d");
+      try {
+        const g = state.github;
+        const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}`, { headers: ghHeaders() });
+        if (!res.ok) throw await ghErr(res);
+        const repo = await res.json();
+        const canWrite = repo.permissions ? Boolean(repo.permissions.push) : true;
+        if (!canWrite) throw new Error("Token can read this repo but not write. Give it Contents: Read and write.");
+        if (!repo.private) ghStatus("⚠ Connected, but this repo is PUBLIC — anyone could see your saved data. Use a private repo.", "#fcd34d");
+        else ghStatus(`✓ Connected to private repo ${repo.full_name}.`, "#86efac");
+      } catch (err) {
+        ghStatus("✕ " + err.message, "#fda4af");
+      }
+    }
+
+    function toggleGhTokenVisibility() {
+      const i = document.getElementById("ghToken");
+      i.type = i.type === "password" ? "text" : "password";
+    }
+    function loadGithubSettingsUI() {
+      const g = state.github || {};
+      document.getElementById("ghOwner").value = g.owner || "";
+      document.getElementById("ghRepo").value = g.repo || "";
+      document.getElementById("ghBranch").value = g.branch || "main";
+      document.getElementById("ghDir").value = g.dir || "study-data";
+      document.getElementById("ghToken").value = g.token || "";
+      document.getElementById("ghAuto").checked = g.auto !== false;
+      if (g.lastPushAt) ghStatus(`Last saved to GitHub: ${new Date(g.lastPushAt).toLocaleString()}`);
+    }
+    function saveGithubSettings(silent) {
+      const v = id => document.getElementById(id).value.trim();
+      state.github = {
+        ...state.github,
+        owner: v("ghOwner"),
+        repo: v("ghRepo").replace(/\.git$/i, ""),
+        branch: v("ghBranch") || "main",
+        dir: v("ghDir") || "study-data",
+        token: v("ghToken").replace(/\s/g, ""),
+        auto: document.getElementById("ghAuto").checked
+      };
+      saveStateLocal();
+      if (!silent) showToast("GitHub settings saved");
+    }
+
+    async function githubBootCheck() {
+      if (!ghConfigured()) return;
+      try {
+        const meta = await ghGetMeta(ghPath("state.json"));
+        if (!meta) return;
+        const remote = JSON.parse(await (await ghGetRawBlob(ghPath("state.json"))).text());
+        const remoteTime = Number(remote._savedAt || 0);
+        const localTime = Number(state._savedAt || 0);
+        if (remoteTime > localTime + 1000) {
+          if (confirm(`Newer study data was found on GitHub (saved ${new Date(remoteTime).toLocaleString()}). Load it now?`)) {
+            await githubPullNow(false);
+            return;
+          }
+        }
+        await ghHydrateFiles();
+      } catch (_) { /* offline or misconfigured: ignore on boot */ }
     }
 
     function getAllSubjects() {
@@ -3209,6 +3540,7 @@ ${subjLines}`;
 
     function openSettings(tabName = "gemini") {
       loadGeminiSettingsUI();
+      loadGithubSettingsUI();
       renderSettingsSubjects();
       renderSettingsLinks();
       updateAiPromptText();
@@ -3554,17 +3886,20 @@ CRITICAL RULES:
       resetStopwatch();
       const preservedKey = state.gemini?.apiKey || "";
       const preservedModel = state.gemini?.model || "gemini-3.5-flash";
+      const preservedGithub = state.github ? { ...state.github, lastHash: "" } : null;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem("sluk_gcse_hub_v4");
       state = structuredClone(DEFAULT_STATE);
       state.gemini.apiKey = preservedKey;
       state.gemini.model = preservedModel;
+      if (preservedGithub) state.github = preservedGithub;
       activeSubjectFilter = "ALL";
       improvementSubjectFilter = "ALL";
       geminiHistory = [];
       clearPendingPaperFile();
       clearPendingProofFiles();
-      saveState();
+      clearTimeout(ghPushTimer);
+      saveStateLocal(); // local wipe only; GitHub copy is untouched until the next change is pushed
       cancelWipeAllData();
       renderGeminiWelcome();
       render();
@@ -4222,6 +4557,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
     updateTimerUi();
     renderGeminiWelcome();
     render();
+    githubBootCheck();
   </script>
 </body>
 </html>
