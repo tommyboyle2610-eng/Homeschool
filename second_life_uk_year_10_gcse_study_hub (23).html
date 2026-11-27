@@ -1,0 +1,4058 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Second Life UK | Year 10 GCSE Study Hub + Gemini AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    :root {
+      --bg: #030705;
+      --card: rgba(8, 16, 12, 0.88);
+      --sol: rgba(6, 13, 9, 0.98);
+      --line: rgba(255, 255, 255, 0.08);
+      --tx: #e2e8f0;
+      --mu: #94a3b8;
+      --ac: #00ff88;
+      --lime: #a3e635;
+      --cyan: #22d3ee;
+      --red: #f43f5e;
+      --amb: #f59e0b;
+      --grad: linear-gradient(135deg, #00ff88, #a3e635);
+      --bg-glow: rgba(0, 255, 136, 0.16);
+      --font-main: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--tx);
+      font: 500 14px/1.5 var(--font-main);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 50% -10%, var(--bg-glow), transparent 65%),
+        radial-gradient(var(--line) 1px, transparent 1px);
+      background-size: 100% 100%, 28px 28px;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    /* Smooth Staggered Animations & Micro-interactions */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-2.5px) rotate(3deg); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.45); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+    @keyframes modalSlide {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    #aurora-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      filter: blur(46px) saturate(135%);
+      opacity: 0.55;
+    }
+
+    .gradient-emerald-text {
+      background: linear-gradient(135deg, #ffffff 0%, var(--ac) 50%, var(--lime) 100%);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 7s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px 24px;
+      background: rgba(2, 6, 4, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .logo {
+      width: 40px; height: 40px; border-radius: 50%; background: #fff;
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(0, 255, 136, 0.25);
+      animation: floatSlow 5s ease-in-out infinite;
+    }
+    .brand-top { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 800; color: #fff; }
+    .uk-pill {
+      color: var(--ac); background: rgba(0, 255, 136, 0.12);
+      border: 1px solid rgba(0, 255, 136, 0.28); border-radius: 999px;
+      padding: 1px 8px; font: 700 10px var(--font-mono);
+    }
+    .brand-sub { color: var(--ac); font: 600 9.5px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 20px 60px;
+    }
+
+    .b {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--tx); font: 700 12px var(--font-main);
+      cursor: pointer; transition: all 0.22s var(--ease-spring);
+    }
+    .b:hover { border-color: var(--ac); background: rgba(255, 255, 255, 0.1); transform: translateY(-1.5px); }
+    .b:active { transform: scale(0.96); }
+    .b:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .b.sm { padding: 5px 11px; font-size: 11px; }
+    .b.pri { background: var(--grad); color: #030705; border: 0; font-weight: 800; box-shadow: 0 4px 16px -4px var(--ac); }
+    .b.pri:hover { filter: brightness(1.08); }
+    .b.parent-btn {
+      background: linear-gradient(135deg, rgba(163, 230, 53, 0.16), rgba(34, 211, 238, 0.16));
+      border: 1px solid rgba(163, 230, 53, 0.45);
+      color: #ecfccb;
+    }
+    .b.parent-btn:hover {
+      border-color: var(--lime);
+      box-shadow: 0 0 18px rgba(163, 230, 53, 0.25);
+    }
+    .b.red { color: var(--red); border-color: rgba(244, 63, 94, 0.35); }
+    .b.red:hover { background: rgba(244, 63, 94, 0.16); border-color: var(--red); }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.65);
+      transition: border-color 0.25s, transform 0.28s var(--ease-out), box-shadow 0.28s;
+      animation: popIn 0.45s var(--ease-out) backwards;
+    }
+    .stat-grid .card:nth-child(1) { animation-delay: 0.03s; }
+    .stat-grid .card:nth-child(2) { animation-delay: 0.08s; }
+    .stat-grid .card:nth-child(3) { animation-delay: 0.13s; }
+    .stat-grid .card:nth-child(4) { animation-delay: 0.18s; }
+    .stat-grid .card { margin-bottom: 0; }
+    .card:hover { border-color: rgba(0, 255, 136, 0.32); box-shadow: 0 12px 30px -10px rgba(0, 255, 136, 0.12); }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .stat-label { font: 800 10px var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ac); }
+    .stat-val { font: 800 24px var(--font-mono); color: #fff; margin-top: 3px; }
+
+    .subject-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .subj-card {
+      background: rgba(8, 16, 12, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 13px 15px;
+      cursor: pointer;
+      transition: all 0.24s var(--ease-spring);
+      animation: popIn 0.4s var(--ease-out) backwards;
+    }
+    .subj-card:hover, .subj-card.active {
+      border-color: var(--ac);
+      background: rgba(0, 255, 136, 0.08);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 22px -8px rgba(0, 255, 136, 0.22);
+    }
+    .bar-track {
+      height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.08);
+      overflow: hidden; margin: 8px 0 6px;
+    }
+    .bar-fill { height: 100%; background: var(--grad); border-radius: 99px; transition: width 0.6s var(--ease-out); }
+
+    /* Compact Segmented View Switcher for Cleaner Workspace */
+    .workspace-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .seg-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(8, 16, 12, 0.9);
+      border: 1px solid var(--line);
+    }
+    .seg-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: var(--mu);
+      font: 700 12px var(--font-main);
+      cursor: pointer;
+      transition: all 0.22s var(--ease-out);
+    }
+    .seg-btn:hover { color: #fff; }
+    .seg-btn.active {
+      background: var(--grad);
+      color: #030705;
+      font-weight: 800;
+      box-shadow: 0 3px 12px -3px var(--ac);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .main-grid > div {
+      min-width: 0;
+    }
+    .sticky-col {
+      position: sticky;
+      top: 76px;
+    }
+    @media (max-width: 940px) {
+      .main-grid { grid-template-columns: minmax(0, 1fr); }
+      .sticky-col { position: static; }
+    }
+
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    input, select, textarea {
+      background: #020604;
+      color: var(--tx);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 9px 13px;
+      font: 500 13px var(--font-main);
+      max-width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--ac);
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.16);
+    }
+    input, select { flex: 1; min-width: 0; }
+    textarea { width: 100%; min-height: 120px; resize: vertical; }
+
+    .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .pills .b { padding: 5px 11px; font-size: 11.5px; }
+    .pills .b.on { background: var(--grad); color: #030705; border-color: transparent; font-weight: 800; }
+
+    .topic-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      transition: transform 0.2s var(--ease-out), border-color 0.2s, background 0.2s;
+      animation: fadeUp 0.28s var(--ease-out);
+    }
+    .topic-item:hover {
+      border-color: rgba(0, 255, 136, 0.28);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(3px);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      background: rgba(0, 255, 136, 0.12);
+      border: 1px solid rgba(0, 255, 136, 0.26);
+      color: var(--ac);
+      font: 700 10.5px var(--font-mono);
+      margin-right: 7px;
+    }
+    .req-badge {
+      display: inline-block;
+      margin-top: 4px;
+      font: 600 11px var(--font-mono);
+      color: var(--cyan);
+    }
+
+    .rag-btn {
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 0;
+      font: 800 11px var(--font-mono);
+      cursor: pointer;
+      transition: transform 0.18s var(--ease-spring), filter 0.18s;
+    }
+    .rag-btn:hover { transform: scale(1.06); filter: brightness(1.1); }
+    .rag-btn:active { transform: scale(0.94); }
+    .rag-red { background: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.45); }
+    .rag-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45); }
+    .rag-green { background: rgba(0, 255, 136, 0.18); color: var(--ac); border: 1px solid rgba(0, 255, 136, 0.45); }
+
+    .timer-display {
+      text-align: center;
+      font: 800 40px var(--font-mono);
+      color: #fff;
+      margin: 6px 0 12px;
+      letter-spacing: -0.02em;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    .timer-running {
+      animation: pulseRing 2.2s infinite;
+      border-color: rgba(0, 255, 136, 0.45);
+    }
+    .timer-running .timer-display {
+      color: var(--ac);
+      text-shadow: 0 0 22px rgba(0, 255, 136, 0.45);
+    }
+
+    /* Evidence & Proof Gallery */
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .evidence-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s var(--ease-out), border-color 0.2s;
+    }
+    .evidence-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+    .evidence-thumb {
+      width: 100%;
+      height: 105px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #020604;
+      border: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .evidence-file-box {
+      width: 100%;
+      height: 105px;
+      border-radius: 10px;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px dashed rgba(34, 211, 238, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      color: var(--cyan);
+      font: 700 11px var(--font-mono);
+    }
+    .verify-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font: 800 11px var(--font-mono);
+      background: rgba(0, 255, 136, 0.14);
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      color: var(--ac);
+    }
+    .verify-badge.pending {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.45);
+      color: #fbbf24;
+    }
+
+    /* Typing Indicator Dots */
+    .typing-dots span {
+      display: inline-block;
+      width: 5px; height: 5px;
+      margin-left: 3px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: dotBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    /* Parent Overview & Proof Styling */
+    .parent-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(34, 211, 238, 0.08));
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      margin-bottom: 14px;
+    }
+    .proof-log-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .score-pill {
+      font: 800 11px var(--font-mono);
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--ac);
+      border: 1px solid rgba(0, 255, 136, 0.35);
+    }
+
+    /* Gemini AI Copilot Styling */
+    .gemini-card {
+      border-color: rgba(34, 211, 238, 0.35);
+      background: linear-gradient(160deg, rgba(6, 20, 18, 0.92), rgba(8, 16, 12, 0.92));
+    }
+    .gemini-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 9px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(0, 255, 136, 0.18));
+      border: 1px solid rgba(34, 211, 238, 0.4);
+      color: var(--cyan);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .gemini-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      display: inline-block;
+    }
+    .gemini-status-dot.connected {
+      background: var(--ac);
+      box-shadow: 0 0 8px var(--ac);
+    }
+    .gemini-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .g-chip {
+      font-family: var(--font-main);
+      font-size: 11px;
+      font-weight: 700;
+      color: #cffafe;
+      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 9999px;
+      padding: 5px 11px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+    }
+    .g-chip:hover {
+      background: rgba(34, 211, 238, 0.2);
+      border-color: var(--cyan);
+      transform: translateY(-1px);
+    }
+    .gemini-chat-log {
+      background: rgba(2, 6, 4, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      max-height: 300px;
+      min-height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .chat-msg {
+      padding: 10px 13px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      word-wrap: break-word;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      max-width: 86%;
+      background: rgba(0, 255, 136, 0.14);
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      color: #fff;
+      font-weight: 600;
+    }
+    .chat-msg.ai {
+      align-self: flex-start;
+      max-width: 96%;
+      background: rgba(14, 26, 22, 0.92);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      color: var(--tx);
+    }
+    .chat-msg.ai code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 1px 5px;
+      border-radius: 5px;
+      color: var(--ac);
+    }
+    .tool-pill-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+    .tool-exec-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #030705;
+      background: linear-gradient(135deg, var(--cyan), var(--ac));
+      padding: 2px 8px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .fallback-open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(34, 211, 238, 0.16);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .links-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .link-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 11px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--tx); text-decoration: none;
+      font: 600 12px var(--font-main);
+    }
+    .link-chip:hover { border-color: var(--ac); color: var(--ac); }
+
+    /* Modal Dialog */
+    dialog {
+      width: min(740px, 95vw);
+      max-height: 88vh;
+      background: var(--sol);
+      color: var(--tx);
+      border: 1px solid rgba(0, 255, 136, 0.32);
+      border-radius: 24px;
+      padding: 0;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+    }
+    dialog[open] { animation: modalSlide 0.28s var(--ease-out); }
+    dialog::backdrop { background: rgba(2, 6, 4, 0.78); backdrop-filter: blur(6px); }
+    .dlg-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 22px; border-bottom: 1px solid var(--line);
+    }
+    .dlg-tabs {
+      display: flex; gap: 6px; padding: 12px 22px 0; flex-wrap: wrap;
+    }
+    .dlg-body { padding: 16px 22px 22px; overflow-y: auto; max-height: 68vh; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+    .mono-box {
+      font: 500 12px/1.55 var(--font-mono);
+      background: #020604;
+      border: 1px solid rgba(0, 255, 136, 0.25);
+      border-radius: 14px;
+      padding: 12px;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+    }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: rgba(2, 6, 4, 0.7);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin-top: 8px;
+    }
+    .toggle-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      flex: 0;
+      accent-color: var(--ac);
+      cursor: pointer;
+    }
+    .note { color: var(--mu); font-size: 12px; margin: 6px 0; }
+    .toast {
+      position: fixed; bottom: 18px; right: 18px; z-index: 120;
+      padding: 10px 16px; border-radius: 999px;
+      background: #06140d; border: 1px solid var(--ac); color: var(--ac);
+      font: 700 12px var(--font-mono);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7);
+      opacity: 0; transform: translateY(8px);
+      pointer-events: none; transition: opacity 0.25s, transform 0.25s var(--ease-out);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* =========================================================================
+       DEDICATED MOBILE VIEW (ONLY ACTIVE ON MOBILE VIEWPORTS <= 768px)
+       ========================================================================= */
+    .mobile-bottom-nav,
+    .mobile-sheet-backdrop {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      html {
+        font-size: 13px;
+      }
+      body {
+        font-size: 11.5px;
+        line-height: 1.38;
+      }
+      header {
+        padding: 7px 10px;
+        gap: 6px;
+        flex-wrap: nowrap;
+      }
+      .brand {
+        gap: 6px;
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+      }
+      .logo {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .brand > div:last-child {
+        display: none;
+      }
+      .header-actions {
+        gap: 4px;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+      }
+      .header-actions .b {
+        padding: 4px 7px;
+        font-size: 9.5px;
+        min-height: 26px;
+        white-space: nowrap;
+      }
+      .header-actions .b[onclick*="focusGeminiChat"],
+      .header-actions .b[onclick*="pickWeakTopic"] {
+        display: none;
+      }
+
+      main {
+        padding: 8px 8px 74px;
+      }
+
+      /* Compact 2x2 KPI Strip on Mobile */
+      .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+        margin-bottom: 8px;
+      }
+      .stat-grid .card {
+        padding: 7px 9px;
+        border-radius: 12px;
+        min-width: 0;
+      }
+      .stat-label {
+        font-size: 8.5px;
+        letter-spacing: 0.05em;
+      }
+      .stat-val {
+        font-size: 14px;
+        margin-top: 1px;
+      }
+      .stat-grid .note {
+        font-size: 9.5px;
+        margin: 1px 0 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Sleek Horizontal Swipeable Subject Progress Strip */
+      .subject-cards {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        gap: 6px;
+        padding-bottom: 3px;
+        margin-bottom: 8px;
+        scrollbar-width: none;
+      }
+      .subject-cards::-webkit-scrollbar {
+        display: none;
+      }
+      .subj-card {
+        min-width: 122px;
+        max-width: 140px;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        padding: 7px 9px;
+        border-radius: 11px;
+      }
+      .subj-card strong {
+        font-size: 11px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .subj-card .bar-track {
+        height: 4px;
+        margin: 4px 0 3px;
+      }
+
+      /* Single-Pane Mobile View Switching via Bottom Nav */
+      .workspace-bar {
+        margin-bottom: 7px;
+      }
+      body:not([data-mobile-view="study"]) .workspace-bar {
+        display: none;
+      }
+      .seg-tabs {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        padding: 2.5px;
+        gap: 2px;
+        scrollbar-width: none;
+      }
+      .seg-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .seg-btn {
+        flex-shrink: 0;
+        padding: 4px 9px;
+        font-size: 10.5px;
+        white-space: nowrap;
+      }
+      .workspace-bar > .b.sm {
+        display: none;
+      }
+
+      .main-grid {
+        display: block;
+      }
+      body[data-mobile-view="study"] .sticky-col,
+      body[data-mobile-view="proof"] .sticky-col {
+        display: none;
+      }
+      body[data-mobile-view="timer"] .main-grid > div:first-child,
+      body[data-mobile-view="ai"] .main-grid > div:first-child,
+      body[data-mobile-view="links"] .main-grid > div:first-child {
+        display: none;
+      }
+      body[data-mobile-view="timer"] .sticky-col > .card:not(#timerCard),
+      body[data-mobile-view="ai"] .sticky-col > .card:not(#geminiCopilotCard),
+      body[data-mobile-view="links"] .sticky-col > .card:not(#linksCard) {
+        display: none;
+      }
+
+      .card {
+        padding: 10px;
+        border-radius: 14px;
+        margin-bottom: 8px;
+      }
+      .card h2 {
+        font-size: 12.5px;
+        margin-bottom: 7px;
+      }
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        margin-bottom: 7px;
+      }
+      .row > input,
+      .row > select,
+      .row > button {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      #timerCard .row:last-child,
+      #geminiCopilotCard > .row:last-child {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      #timerCard .row:last-child > button {
+        flex: 1 1 46%;
+        width: auto !important;
+        justify-content: center;
+      }
+      #geminiCopilotCard > .row:last-child > input {
+        flex: 1 1 auto;
+        width: auto !important;
+      }
+      #geminiCopilotCard > .row:last-child > button {
+        flex: 0 0 auto;
+        width: auto !important;
+      }
+      .pills {
+        gap: 4px;
+        margin-bottom: 7px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        scrollbar-width: none;
+      }
+      .pills::-webkit-scrollbar {
+        display: none;
+      }
+      .pills .b {
+        flex-shrink: 0;
+        padding: 3px 8px;
+        font-size: 10px;
+        min-height: 25px;
+        white-space: nowrap;
+      }
+
+      /* Compact Topic & Proof Cards so more items fit on screen */
+      .topic-item,
+      .proof-log-item {
+        padding: 7px 9px;
+        border-radius: 11px;
+        margin-bottom: 5px;
+        gap: 6px;
+      }
+      .tag {
+        padding: 1px 6px;
+        font-size: 9px;
+        margin-right: 4px;
+      }
+      .req-badge {
+        font-size: 9.5px;
+        margin-top: 2px;
+      }
+      .rag-btn {
+        padding: 3px 7px;
+        font-size: 9.5px;
+      }
+      .evidence-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+      }
+      .evidence-thumb,
+      .evidence-file-box {
+        height: 76px;
+      }
+
+      /* Crisp, compact Inputs & Buttons (with user-scalable=no preventing Safari zoom) */
+      input, select, textarea {
+        min-height: 32px;
+        font-size: 12px;
+        padding: 5px 9px;
+        border-radius: 10px;
+      }
+      .b {
+        min-height: 29px;
+        padding: 5px 10px;
+        font-size: 10.5px;
+      }
+      .b.sm {
+        min-height: 25px;
+        padding: 3px 8px;
+        font-size: 10px;
+      }
+      .timer-display {
+        font-size: 28px;
+        margin: 6px 0 8px;
+      }
+      .gemini-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+        margin-bottom: 7px;
+      }
+      .gemini-chips::-webkit-scrollbar {
+        display: none;
+      }
+      .g-chip {
+        flex-shrink: 0;
+        font-size: 10px;
+        padding: 3px 8px;
+        white-space: nowrap;
+      }
+      .gemini-chat-log {
+        max-height: 44vh;
+        min-height: 150px;
+        padding: 8px;
+        border-radius: 12px;
+        margin-bottom: 7px;
+      }
+      .chat-msg {
+        padding: 7px 9px;
+        font-size: 11.5px;
+        border-radius: 11px;
+      }
+
+      /* Full-screen Mobile Bottom-Sheet Dialogs */
+      dialog {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        max-height: 92vh !important;
+        margin: auto 0 0 0;
+        border-radius: 18px 18px 0 0;
+        border-bottom: 0;
+      }
+      .dlg-head {
+        padding: 10px 12px;
+      }
+      .dlg-tabs {
+        padding: 7px 12px 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+      }
+      .dlg-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .dlg-tabs .b {
+        flex-shrink: 0;
+      }
+      .dlg-body {
+        padding: 10px 12px 24px;
+        max-height: 78vh;
+      }
+
+      /* Sleek Compact Fixed Bottom Navigation Bar (Mobile Only) */
+      .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 60;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 2px;
+        padding: 3px 5px calc(3px + env(safe-area-inset-bottom, 0px));
+        background: rgba(3, 9, 6, 0.96);
+        backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(0, 255, 136, 0.22);
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.75);
+      }
+      .mob-nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        padding: 4px 2px;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        color: var(--mu);
+        font: 700 9px var(--font-main);
+        cursor: pointer;
+        transition: all 0.2s var(--ease-out);
+      }
+      .mob-nav-btn .mob-ico {
+        font-size: 13px;
+        line-height: 1.1;
+      }
+      .mob-nav-btn.active {
+        color: #030705;
+        background: var(--grad);
+        font-weight: 800;
+        box-shadow: 0 2px 10px -2px var(--ac);
+      }
+      .toast {
+        bottom: 58px;
+        right: 8px;
+        left: 8px;
+        padding: 7px 10px;
+        font-size: 10.5px;
+        text-align: center;
+      }
+    }
+
+    @media print {
+      body { background: #fff !important; color: #111 !important; }
+      #aurora-canvas, header, main, .toast, #settingsDialog { display: none !important; }
+      #parentDialog {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-height: none !important;
+        background: #fff !important;
+        color: #111 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+      #parentDialog .dlg-head button, #parentDialog .no-print { display: none !important; }
+      #parentDialog .dlg-body { max-height: none !important; overflow: visible !important; }
+      .mono-box, .proof-log-item { background: #f8fafc !important; color: #111 !important; border-color: #cbd5e1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="aurora-canvas"></canvas>
+
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="38" height="38">
+          <circle cx="50" cy="50" r="49" fill="#ffffff"/>
+          <circle cx="50" cy="40" r="29" fill="#1e4d2b"/>
+          <!-- Circuit leaf outline & traces -->
+          <path d="M50 18 C36 27 36 47 50 56 C64 47 64 27 50 18 Z" fill="none" stroke="#76b852" stroke-width="2.1" stroke-linejoin="round"/>
+          <line x1="50" y1="18" x2="50" y2="62" stroke="#76b852" stroke-width="2.1" stroke-linecap="round"/>
+          <path d="M46 53 L46 34 L42 30" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="42" cy="30" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
+          <path d="M42 49 L42 40 L39 37" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="39" cy="37" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
+          <path d="M50 38 L54 34 L54 29" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="54" cy="29" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
+          <path d="M54 53 L54 41 L58 37" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="58" cy="37" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
+          <path d="M58 49 L58 43 L61 40" fill="none" stroke="#76b852" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="61" cy="40" r="1.7" fill="none" stroke="#76b852" stroke-width="1.4"/>
+          <!-- White gear & wrench -->
+          <path d="M52 54 L55 54 L55.8 56.2 L57.8 57.2 L59.5 56 L61.2 57.7 L60 59.4 L60.8 61.3 L63 62 L63 64.4 L60.8 65.1 L59.8 67 L61 68.7 L59.3 70.4 L57.6 69.2 L55.6 70.1 L55 72.2 L52 72.2 Z" fill="#ffffff"/>
+          <circle cx="53.5" cy="63.1" r="4.2" fill="#1e4d2b"/>
+          <path d="M47 58 A4.8 4.8 0 0 0 47.6 66.5 L47.6 74.5 A2.4 2.4 0 0 0 52.4 74.5 L52.4 66.5 A4.8 4.8 0 0 0 53 58 L51.4 61.5 L48.6 61.5 Z" fill="#ffffff"/>
+          <circle cx="50" cy="74.5" r="1.1" fill="#1e4d2b"/>
+          <!-- Brand wordmark -->
+          <text x="50" y="78.5" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="800" font-size="7.2" letter-spacing="0.3">SECOND LIFE</text>
+          <text x="50" y="85.8" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="800" font-size="7.2" letter-spacing="0.4">UK</text>
+          <text x="50" y="90.6" text-anchor="middle" fill="#1e4d2b" font-family="Plus Jakarta Sans, Arial, sans-serif" font-weight="700" font-size="3.4" letter-spacing="0.5">REPAIR &amp; RESELL</text>
+          <line x1="33" y1="92.2" x2="67" y2="92.2" stroke="#1e4d2b" stroke-width="0.7"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-top">
+          <span>SECOND LIFE</span>
+          <span class="uk-pill">UK</span>
+          <span class="uk-pill" style="color:var(--cyan);border-color:rgba(34,211,238,0.3);">YEAR 10 GCSE HUB</span>
+        </div>
+        <div class="brand-sub" id="overallStats">0% Exam-Ready · 0 mins logged · Press Ctrl+Shift+A for Settings &amp; AI</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="b parent-btn" onclick="openParentOverview()">👨‍👩‍👦 Parent Overview &amp; Proof</button>
+      <button type="button" class="b" style="border-color:rgba(34,211,238,0.45);color:var(--cyan);" onclick="focusGeminiChat()">✦ Gemini AI</button>
+      <button type="button" class="b" onclick="pickWeakTopic()">🎯 Roulette</button>
+      <button type="button" class="b pri" onclick="openSettings('gemini')">⚙ Settings &amp; AI (Ctrl+Shift+A)</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Top KPI Strip -->
+    <div class="stat-grid">
+      <div class="card">
+        <div class="stat-label">Exam Readiness</div>
+        <div class="stat-val gradient-emerald-text" id="kpiReady">0%</div>
+        <div class="note" id="kpiTopicsCount">0 / 0 topics Green</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Total Study Logged</div>
+        <div class="stat-val" id="kpiMins">0 mins</div>
+        <div class="note" id="kpiHours">0.0 hrs · 0 verified sessions</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Past Paper Average</div>
+        <div class="stat-val" id="kpiPaperAvg">—</div>
+        <div class="note" id="kpiPaperCount">0 mock / past papers logged</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Gemini AI Copilot</div>
+        <div class="stat-val" id="kpiAiStatus" style="font-size:17px;margin-top:7px;color:var(--amb);">No API Key</div>
+        <div class="note" id="kpiAiModel">Model: gemini-4-hydrogen</div>
+      </div>
+    </div>
+
+    <!-- Per-Subject Topic Breakdown Cards -->
+    <div class="subject-cards" id="subjectBreakdown"></div>
+
+    <div class="main-grid">
+      <!-- Left Column: Clean Tabbed Workspace (Syllabus | Past Papers | Work Proof & Files | Study Diary) -->
+      <div>
+        <div class="workspace-bar">
+          <div class="seg-tabs">
+            <button type="button" class="seg-btn active" id="wsBtn-syllabus" onclick="switchWorkspaceTab('syllabus')">📚 Syllabus</button>
+            <button type="button" class="seg-btn" id="wsBtn-papers" onclick="switchWorkspaceTab('papers')">📝 Past Papers</button>
+            <button type="button" class="seg-btn" id="wsBtn-improvement" onclick="switchWorkspaceTab('improvement')">🎯 Improvement</button>
+            <button type="button" class="seg-btn" id="wsBtn-proof" onclick="switchWorkspaceTab('proof')">📸 Proof &amp; Files</button>
+            <button type="button" class="seg-btn" id="wsBtn-diary" onclick="switchWorkspaceTab('diary')">📓 Study Diary</button>
+          </div>
+          <button type="button" class="b sm" onclick="exportSyllabusJson()">⬇ Export JSON</button>
+        </div>
+
+        <!-- Workspace Pane 1: Syllabus & Exam Topic Tracker -->
+        <div id="wsPane-syllabus">
+          <div class="card">
+            <h2>
+              <span>Syllabus &amp; Exam Topic Tracker</span>
+              <span class="uk-pill" id="filteredCountBadge">0 topics</span>
+            </h2>
+
+            <div class="pills" id="subjectPills"></div>
+
+            <div class="row" style="align-items:center;">
+              <input id="topicSearchInput" placeholder="🔍 Search topics, subjects, or exam spec codes..." oninput="render()" />
+              <select id="statusFilterSelect" onchange="render()" style="max-width:185px;">
+                <option value="ALL">All RAG Statuses</option>
+                <option value="red">Red (Needs Work)</option>
+                <option value="amber">Amber (Practising)</option>
+                <option value="green">Green (Exam-Ready)</option>
+              </select>
+              <button type="button" class="b sm" id="clearTopicSearchBtn" onclick="clearTopicSearch()" style="display:none;">✕ Clear</button>
+            </div>
+
+            <div id="topicList"></div>
+          </div>
+        </div>
+
+        <!-- Workspace Pane 2: Past Paper Scores & AI Marker -->
+        <div id="wsPane-papers" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>AI-Verified Past Papers &amp; Worksheets</span>
+              <span class="uk-pill" id="paperCountBadge">0 papers</span>
+            </h2>
+            <p class="note">Upload an image or PDF of your completed GCSE worksheet or past paper. To keep records verified for the Parent Overview, all past papers must be marked by the <strong>Gemini AI Examiner</strong>.</p>
+            <div class="row">
+              <select id="paperSubjectSelect"></select>
+              <input id="paperTitleInput" placeholder="Paper / Worksheet name (e.g. AQA Biology Paper 1 2024)" />
+              <input id="paperMaxInput" type="number" min="1" placeholder="Optional max marks hint" style="max-width:190px;" />
+            </div>
+            <div class="row" style="align-items:center;">
+              <input type="file" id="paperFileInput" accept="image/*,application/pdf" onchange="handlePaperFileSelect(event)" />
+              <button type="button" class="b pri" id="aiMarkPaperBtn" onclick="aiMarkUploadedPaper()">✦ AI Mark Worksheet / Paper</button>
+            </div>
+            <div id="paperUploadPreviewBar" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:14px;background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.28);font-size:12px;"></div>
+            <div id="aiMarkerOutputBox" style="display:none;margin-bottom:12px;" class="chat-msg ai"></div>
+            <div id="paperScoresList"></div>
+          </div>
+        </div>
+
+        <!-- Workspace Pane 3: AI Suggested Areas of Improvement -->
+        <div id="wsPane-improvement" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>AI-Suggested Areas of Improvement</span>
+              <span class="uk-pill" id="improvementCountBadge">0 action items</span>
+            </h2>
+            <p class="note">Targeted exam gaps and revision actions identified by the Gemini AI Examiner from your marked past papers and worksheets.</p>
+            <div class="pills" id="improvementFilterPills"></div>
+            <div id="improvementList"></div>
+          </div>
+        </div>
+
+        <!-- Workspace Pane 4: Physical Proof, Screenshots & Work Files -->
+        <div id="wsPane-proof" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>Work Proof, Screenshots &amp; Saved Files</span>
+              <span class="uk-pill" id="proofCountBadge">0 items</span>
+            </h2>
+            <p class="note">Upload photos of written workbook pages, screenshots of completed Seneca/PMT quizzes, or PDFs/files so parents can verify daily work.</p>
+            <div class="row">
+              <select id="proofSubjectSelect"></select>
+              <input id="proofCaptionInput" placeholder="What does this show? (e.g. Completed 20 Quadratic Questions)" />
+            </div>
+            <div class="row">
+              <input type="file" id="proofFileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt,.json" onchange="handleProofFileSelect(event)" />
+              <button type="button" class="b pri" id="saveProofBtn" onclick="commitProofUpload()">✓ Save &amp; Log Proof</button>
+            </div>
+            <div id="proofPendingBar" style="display:none;margin-bottom:10px;padding:9px 12px;border-radius:14px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.3);font-size:12px;"></div>
+            <div class="evidence-grid" id="evidenceGallery"></div>
+          </div>
+
+          <div class="card">
+            <h2>
+              <span>Stopwatch Study Session Log</span>
+              <span class="uk-pill" id="sessionCountBadge">0 sessions</span>
+            </h2>
+            <div id="sessionProofList"></div>
+          </div>
+        </div>
+
+        <!-- Workspace Pane 4: Study Diary & Blurting Pad -->
+        <div id="wsPane-diary" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>Daily Learning Diary &amp; Reflection Log</span>
+              <span class="uk-pill" id="diaryCountBadge">0 entries</span>
+            </h2>
+            <p class="note">Log what you learned today, what went well, and what to revisit next—visible in the Parent Overview.</p>
+            <div class="row">
+              <select id="diarySubjectSelect"></select>
+              <input id="diaryMoodSelect" placeholder="Confidence / takeaway (e.g. Nailed factorising, need practice on formula)" />
+            </div>
+            <div class="row">
+              <textarea id="diaryEntryInput" style="min-height:85px;" placeholder="Write a quick summary of what you studied today..."></textarea>
+            </div>
+            <div class="row" style="justify-content:flex-end;">
+              <button type="button" class="b pri" onclick="addDiaryEntry()">+ Save Diary Entry</button>
+            </div>
+            <div id="diaryEntriesList"></div>
+          </div>
+
+          <div class="card">
+            <h2>
+              <span>Quick Blurting Scratchpad</span>
+              <button type="button" class="b sm" onclick="clearScratchpad()">Clear</button>
+            </h2>
+            <textarea id="scratchpadInput" style="min-height:130px;" placeholder="Brain-dump everything you remember on a topic before checking your notes..." oninput="saveScratchpad()"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sticky Column: Live Study Stopwatch, Gemini Copilot & Quick Links -->
+      <div class="sticky-col">
+        <!-- Count-Up Live Study Stopwatch -->
+        <div class="card" id="timerCard">
+          <h2>
+            <span>⏱ Live Study Stopwatch</span>
+            <span class="uk-pill" id="timerStateBadge">READY</span>
+          </h2>
+          <div class="row" style="margin-bottom:8px;">
+            <select id="timerSubjectSelect" onchange="syncStopwatchTopics()"></select>
+            <select id="timerTopicSelect"></select>
+          </div>
+          <div class="timer-display" id="timerDisplay">00:00:00</div>
+          <div class="row" style="justify-content:center;margin-bottom:0;">
+            <button type="button" class="b pri" onclick="startStopwatch()">▶ Start</button>
+            <button type="button" class="b" onclick="pauseStopwatch()">⏸ Pause</button>
+            <button type="button" class="b" style="border-color:var(--ac);color:var(--ac);" onclick="finishAndLogStopwatch()">✓ Finish &amp; Log</button>
+            <button type="button" class="b red" onclick="resetStopwatch()">↺ Reset</button>
+          </div>
+        </div>
+
+        <!-- Google Gemini AI Study Copilot -->
+        <div class="card gemini-card" id="geminiCopilotCard">
+          <h2>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span>✦ Gemini AI Copilot</span>
+              <span class="gemini-badge">
+                <span class="gemini-status-dot" id="geminiStatusDot"></span>
+                <span id="geminiStatusText">No API Key</span>
+              </span>
+            </span>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="b sm" onclick="clearGeminiChat()">Clear</button>
+              <button type="button" class="b sm" onclick="openSettings('gemini')">🔑 Key</button>
+            </div>
+          </h2>
+
+          <div class="gemini-chips">
+            <button type="button" class="g-chip" onclick="sendGeminiQuickPrompt('What should I revise today based on my weak topics and study minutes?')">🎯 What to revise?</button>
+            <button type="button" class="g-chip" onclick="sendGeminiQuickPrompt('Start a 25 minute focus session on my highest-priority Red topic and filter to that subject.')">⏱ Start 25m weak spot</button>
+            <button type="button" class="g-chip" onclick="sendGeminiQuickPrompt('Quiz me on one of my Red GCSE topics with 3 exam-style questions.')">🧠 Quiz me</button>
+            <button type="button" class="g-chip" onclick="sendGeminiQuickPrompt('Open Physics & Maths Tutor for me.')">↗ Open PMT</button>
+          </div>
+
+          <div class="gemini-chat-log" id="geminiChatLog"></div>
+
+          <div class="row" style="margin-bottom:0;">
+            <input id="geminiPromptInput" placeholder="Ask Gemini to plan, start timer, open sites, quiz you..." onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); sendGeminiMessage(); }" />
+            <button type="button" class="b pri" id="geminiSendBtn" onclick="sendGeminiMessage()">Send ✦</button>
+          </div>
+        </div>
+
+        <!-- Useful Revision & Learning Links -->
+        <div class="card" id="linksCard">
+          <h2>
+            <span>Useful Revision &amp; Learning Links</span>
+            <button type="button" class="b sm" onclick="openSettings('links')">+ Manage</button>
+          </h2>
+          <div class="links-grid" id="linksContainer"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sleek Mobile Bottom Navigation Bar (Visible only on <= 768px) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button type="button" class="mob-nav-btn active" id="mobNav-study" onclick="switchMobileView('study')">
+      <span class="mob-ico">📚</span>
+      <span>Study</span>
+    </button>
+    <button type="button" class="mob-nav-btn" id="mobNav-timer" onclick="switchMobileView('timer')">
+      <span class="mob-ico">⏱</span>
+      <span>Stopwatch</span>
+    </button>
+    <button type="button" class="mob-nav-btn" id="mobNav-ai" onclick="switchMobileView('ai')">
+      <span class="mob-ico">✦</span>
+      <span>Gemini AI</span>
+    </button>
+    <button type="button" class="mob-nav-btn" id="mobNav-proof" onclick="switchMobileView('proof')">
+      <span class="mob-ico">📸</span>
+      <span>Proof</span>
+    </button>
+    <button type="button" class="mob-nav-btn" id="mobNav-links" onclick="switchMobileView('links')">
+      <span class="mob-ico">🔗</span>
+      <span>Links</span>
+    </button>
+  </nav>
+
+  <!-- Parent Overview & Proof of Learning Modal -->
+  <dialog id="parentDialog" style="width:min(820px,96vw);">
+    <div class="dlg-head">
+      <strong style="font-size:16px;">👨‍👩‍👦 Parent Verification &amp; Proof of Learning Overview</strong>
+      <button type="button" class="b sm" onclick="document.getElementById('parentDialog').close()">✕ Close</button>
+    </div>
+    <div class="dlg-body" id="parentReportBody"></div>
+  </dialog>
+
+  <!-- Parent PIN Protection Modal -->
+  <dialog id="parentPinDialog" style="width:min(400px,92vw);">
+    <div class="dlg-head">
+      <strong style="font-size:15px;">🔒 Parent Access Verification</strong>
+      <button type="button" class="b sm" onclick="document.getElementById('parentPinDialog').close()">✕</button>
+    </div>
+    <div class="dlg-body">
+      <p class="note">Enter the 4-digit parent PIN to view verified study logs, uploaded work proof, and sign-off controls.</p>
+      <div class="row" style="margin-top:10px;">
+        <input type="password" id="parentPinInput" inputmode="numeric" maxlength="6" placeholder="Enter PIN" style="text-align:center;font:800 18px var(--font-mono);letter-spacing:0.25em;" onkeydown="if(event.key==='Enter')verifyParentPin()" />
+        <button type="button" class="b pri" onclick="verifyParentPin()">Unlock</button>
+      </div>
+      <div id="parentPinError" class="note" style="color:#fda4af;min-height:18px;"></div>
+    </div>
+  </dialog>
+
+  <!-- Image / Proof Lightbox Preview -->
+  <dialog id="proofPreviewDialog" style="width:min(760px,95vw);">
+    <div class="dlg-head">
+      <strong id="proofPreviewTitle" style="font-size:15px;">Work Proof Preview</strong>
+      <button type="button" class="b sm" onclick="document.getElementById('proofPreviewDialog').close()">✕ Close</button>
+    </div>
+    <div class="dlg-body" id="proofPreviewBody" style="text-align:center;"></div>
+  </dialog>
+
+  <!-- Settings, Gemini AI, Syllabus Prompt & JSON Import Modal (Ctrl+Shift+A) -->
+  <dialog id="settingsDialog">
+    <div class="dlg-head">
+      <strong style="font-size:16px;">⚙ Hub Settings, Gemini AI &amp; Syllabus Import</strong>
+      <button type="button" class="b sm" onclick="closeSettings()">✕ Close</button>
+    </div>
+
+    <div class="dlg-tabs">
+      <button type="button" class="b sm pri" id="tabBtn-gemini" onclick="switchSettingsTab('gemini')">✨ Gemini AI &amp; API Key</button>
+      <button type="button" class="b sm" id="tabBtn-subjects" onclick="switchSettingsTab('subjects')">📚 Subjects</button>
+      <button type="button" class="b sm" id="tabBtn-aiprompt" onclick="switchSettingsTab('aiprompt')">🤖 AI JSON Prompt</button>
+      <button type="button" class="b sm" id="tabBtn-import" onclick="switchSettingsTab('import')">📥 Import JSON</button>
+      <button type="button" class="b sm" id="tabBtn-links" onclick="switchSettingsTab('links')">🔗 Study Links</button>
+    </div>
+
+    <div class="dlg-body">
+      <!-- Tab 1: Gemini AI Settings -->
+      <div class="tab-pane active" id="pane-gemini">
+        <p class="note">
+          Paste your Google AI Studio Gemini API key below (stored locally in your browser). Get a key at
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);font-weight:700;">aistudio.google.com/apikey ↗</a>.
+        </p>
+        <div class="row">
+          <input type="password" id="geminiKeyInput" placeholder="AIzaSy..." autocomplete="off" />
+          <button type="button" class="b sm" id="toggleKeyVisBtn" onclick="toggleApiKeyVisibility()">👁 Show</button>
+          <button type="button" class="b pri sm" onclick="saveGeminiSettings()">Save Key</button>
+        </div>
+        <div class="row">
+          <select id="geminiModelSelect" onchange="saveGeminiSettings(true)">
+            <option value="gemini-4-hydrogen">gemini-4-hydrogen (Default)</option>
+            <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+            <option value="gemini-4-neon">gemini-4-neon</option>
+            <option value="gemini-4-carbon">gemini-4-carbon</option>
+          </select>
+          <button type="button" class="b sm" id="testGeminiBtn" onclick="testGeminiConnection()">⚡ Test Connection</button>
+        </div>
+        <div id="geminiTestResult" class="note" style="font-family:var(--font-mono);"></div>
+
+        <div class="toggle-row">
+          <div>
+            <div style="font-weight:700;color:#fff;font-size:13px;">Allow Gemini App Control (Tool Permissions)</div>
+            <div style="font-size:11.5px;color:var(--mu);">Lets Gemini start/pause timers, open revision sites, add/update topics, filter subjects, and write to your scratchpad.</div>
+          </div>
+          <input type="checkbox" id="geminiToolsEnabled" checked onchange="saveGeminiSettings(true)" />
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div style="font-weight:700;color:#fff;font-size:13px;">Confirm Before Opening Sites or Editing Topics</div>
+            <div style="font-size:11.5px;color:var(--mu);">Shows an inline confirmation prompt before opening external URLs or modifying topics.</div>
+          </div>
+          <input type="checkbox" id="geminiConfirmActions" onchange="saveGeminiSettings(true)" />
+        </div>
+      </div>
+
+      <!-- Tab 2: Manage Subjects -->
+      <div class="tab-pane" id="pane-subjects">
+        <p class="note">Add or remove the GCSE subjects you take. Changes automatically update your tracker and the AI JSON Prompt.</p>
+        <div class="row">
+          <input id="newSubjectInput" placeholder="e.g. Triple Biology, Business Studies, Spanish" onkeydown="if(event.key==='Enter')addSubject()" />
+          <button type="button" class="b pri" onclick="addSubject()">+ Add Subject</button>
+        </div>
+        <div id="settingsSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      </div>
+
+      <!-- Tab 3: AI Syllabus JSON Prompt Generator -->
+      <div class="tab-pane" id="pane-aiprompt">
+        <p class="note">Dynamically tailored to the active subjects you are learning right now. Choose all active subjects or target a single subject:</p>
+        <div id="aiPromptSubjectBadges" class="pills" style="margin-bottom:10px;"></div>
+        <div class="row">
+          <select id="aiPromptScopeSelect" onchange="updateAiPromptText()" style="max-width:230px;"></select>
+          <input id="examBoardInput" value="AQA / Edexcel / OCR (UK GCSE)" placeholder="Exam boards (e.g. AQA Science, Edexcel Maths)" oninput="updateAiPromptText()" />
+          <button type="button" class="b pri" onclick="copyAiPrompt()">📋 Copy Prompt</button>
+        </div>
+        <div class="mono-box" id="aiPromptOutput"></div>
+      </div>
+
+      <!-- Tab 4: Import JSON -->
+      <div class="tab-pane" id="pane-import">
+        <p class="note">Upload a <code>.json</code> file or paste JSON generated by the AI prompt below to import topics and exam requirements.</p>
+        <div class="row">
+          <input type="file" id="jsonFileInput" accept=".json,application/json" onchange="handleJsonFileUpload(event)" />
+        </div>
+        <textarea id="jsonPasteInput" placeholder='[{"subject":"Maths","name":"Surds & Indices","requirement":"Higher Tier 1.3","status":"red"}]'></textarea>
+        <label class="toggle-row" style="margin:8px 0 0;cursor:pointer;">
+          <span style="font-size:12px;">Keep my existing subject tabs (map sub-topics into matching subjects instead of creating extra cards)</span>
+          <input type="checkbox" id="importKeepSubjectsOnly" checked />
+        </label>
+        <div class="row" style="margin-top:10px;">
+          <button type="button" class="b pri" onclick="importJsonFromText(false)">+ Merge Topics</button>
+          <button type="button" class="b red" onclick="importJsonFromText(true)">Replace All Topics</button>
+        </div>
+      </div>
+
+      <!-- Tab 5: Study Links -->
+      <div class="tab-pane" id="pane-links">
+        <p class="note">Add quick-access links to your revision websites.</p>
+        <div class="row">
+          <input id="newLinkName" placeholder="Site Name (e.g. Seneca Learning)" />
+          <input id="newLinkUrl" placeholder="https://..." />
+          <button type="button" class="b pri" onclick="addStudyLink()">+ Add</button>
+        </div>
+        <div id="settingsLinksList"></div>
+
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(244,63,94,0.3);">
+          <strong style="font-size:13.5px;color:#fda4af;">⚠️ Reset &amp; Wipe All Hub Data</strong>
+          <p class="note">Clears all topics, logged study minutes, stopwatch sessions, past papers, improvement targets, uploaded proof files, diary entries, and scratchpad notes so a new student can start fresh.</p>
+          <div id="wipeDataBox">
+            <button type="button" class="b red" onclick="promptWipeAllData()">🗑 Wipe All Progress &amp; Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "sluk_gcse_hub_v5";
+    const PARENT_PIN = "2610";
+
+    const DEFAULT_STATE = {
+      subjects: ["Maths", "Combined Science", "English Lang", "English Lit", "Computer Science", "History"],
+      topics: [],
+      minutes: {
+        "Maths": 0,
+        "Combined Science": 0,
+        "English Lang": 0,
+        "English Lit": 0,
+        "Computer Science": 0,
+        "History": 0
+      },
+      sessions: [],
+      papers: [],
+      improvements: [],
+      diary: [],
+      evidence: [],
+      parentSignOffs: {},
+      studentName: "Year 10 Student",
+      links: [
+        { name: "Physics & Maths Tutor", url: "https://www.physicsandmathstutor.com/" },
+        { name: "BBC Bitesize GCSE", url: "https://www.bbc.co.uk/bitesize/levels/z98jmp3" },
+        { name: "Save My Exams", url: "https://www.savemyexams.com/" },
+        { name: "Seneca Learning", url: "https://senecalearning.com/en-GB/" },
+        { name: "Corbettmaths", url: "https://corbettmaths.com/" },
+        { name: "Cognito Science", url: "https://cognitoedu.org/" }
+      ],
+      scratchpad: "",
+      gemini: {
+        apiKey: "",
+        model: "gemini-4-hydrogen",
+        toolsEnabled: true,
+        confirmActions: false
+      }
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_STATE);
+        const parsed = JSON.parse(raw);
+        return {
+          ...structuredClone(DEFAULT_STATE),
+          ...parsed,
+          subjects: Array.isArray(parsed.subjects) && parsed.subjects.length ? parsed.subjects : [...DEFAULT_STATE.subjects],
+          topics: Array.isArray(parsed.topics) ? parsed.topics : [...DEFAULT_STATE.topics],
+          minutes: typeof parsed.minutes === "object" && parsed.minutes ? parsed.minutes : { ...DEFAULT_STATE.minutes },
+          sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [...DEFAULT_STATE.sessions],
+          papers: Array.isArray(parsed.papers) ? parsed.papers : [...DEFAULT_STATE.papers],
+          improvements: Array.isArray(parsed.improvements) ? parsed.improvements : [...DEFAULT_STATE.improvements],
+          diary: Array.isArray(parsed.diary) ? parsed.diary : [...DEFAULT_STATE.diary],
+          evidence: Array.isArray(parsed.evidence) ? parsed.evidence : [],
+          parentSignOffs: typeof parsed.parentSignOffs === "object" && parsed.parentSignOffs ? parsed.parentSignOffs : {},
+          links: Array.isArray(parsed.links) ? parsed.links : [...DEFAULT_STATE.links],
+          gemini: {
+            ...DEFAULT_STATE.gemini,
+            ...(typeof parsed.gemini === "object" && parsed.gemini ? parsed.gemini : {})
+          }
+        };
+      } catch (e) {
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    let state = loadState();
+    let activeSubjectFilter = "ALL";
+    let geminiHistory = [];
+
+    // Drift-free count-up stopwatch state
+    let stopwatchElapsedSec = 0;
+    let stopwatchStartTimestamp = null;
+    let stopwatchTickHandle = null;
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        return true;
+      } catch (e) {
+        // Fallback: save core tracker data without heavy base64 attachments if localStorage quota is hit
+        try {
+          const liteState = {
+            ...state,
+            evidence: state.evidence.map(ev => ({ ...ev, dataUrl: ev.dataUrl && ev.dataUrl.length < 180000 ? ev.dataUrl : "" })),
+            papers: state.papers.map(p => ({ ...p, fileDataUrl: p.fileDataUrl && p.fileDataUrl.length < 180000 ? p.fileDataUrl : "" }))
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(liteState));
+          showToast("Saved! Large file kept in current session memory.");
+          return true;
+        } catch (err2) {
+          showToast("Browser storage limit reached — older files kept in session.");
+          return false;
+        }
+      }
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[ch]));
+    }
+
+    function getAllSubjects() {
+      return state.subjects;
+    }
+
+    // =========================================================================
+    // AURORA BACKGROUND CANVAS
+    // =========================================================================
+    (function initAurora() {
+      const canvas = document.getElementById("aurora-canvas");
+      const ctx = canvas.getContext("2d");
+      let w = canvas.width = window.innerWidth;
+      let h = canvas.height = window.innerHeight;
+      window.addEventListener("resize", () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+      let t = 0;
+      const waves = [
+        { c1: "rgba(0, 255, 136, 0.34)", c2: "rgba(163, 230, 53, 0.16)", speed: 0.004, freq: 0.001, amp: 140, y: 0.25 },
+        { c1: "rgba(34, 211, 238, 0.24)", c2: "rgba(0, 255, 136, 0.14)", speed: 0.003, freq: 0.0008, amp: 180, y: 0.42 },
+        { c1: "rgba(163, 230, 53, 0.22)", c2: "rgba(16, 185, 129, 0.10)", speed: 0.005, freq: 0.0013, amp: 110, y: 0.18 }
+      ];
+      function draw() {
+        t += 1;
+        ctx.clearRect(0, 0, w, h);
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 0; i < waves.length; i++) {
+          const wv = waves[i];
+          const base = h * wv.y;
+          ctx.beginPath();
+          ctx.moveTo(0, h);
+          ctx.lineTo(0, base);
+          for (let x = 0; x <= w; x += 28) {
+            const y = base + Math.sin(x * wv.freq + t * wv.speed + i) * wv.amp;
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(w, h);
+          ctx.closePath();
+          const grad = ctx.createLinearGradient(0, base - wv.amp, w * 0.7, base + wv.amp * 2.5);
+          grad.addColorStop(0, "transparent");
+          grad.addColorStop(0.35, wv.c1);
+          grad.addColorStop(0.75, wv.c2);
+          grad.addColorStop(1, "transparent");
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // =========================================================================
+    // RENDER UI
+    // =========================================================================
+    function syncSubjectDropdowns() {
+      const ids = ["timerSubjectSelect", "paperSubjectSelect", "proofSubjectSelect", "diarySubjectSelect"];
+      const optionsHtml = state.subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const prev = el.value;
+        el.innerHTML = optionsHtml;
+        if (state.subjects.includes(prev)) el.value = prev;
+      });
+      syncStopwatchTopics();
+    }
+
+    function syncStopwatchTopics() {
+      const subj = document.getElementById("timerSubjectSelect")?.value || state.subjects[0];
+      const topicSel = document.getElementById("timerTopicSelect");
+      if (!topicSel) return;
+      const prev = topicSel.value;
+      const matching = state.topics.filter(t => t.subject === subj);
+      const opts = [
+        `<option value="General ${escapeHtml(subj)} Revision">General ${escapeHtml(subj)} Revision</option>`,
+        ...matching.map(t => {
+          const shortName = t.name.length > 52 ? t.name.slice(0, 49) + "..." : t.name;
+          return `<option value="${escapeHtml(t.name)}">${escapeHtml(shortName)} (${t.status.toUpperCase()})</option>`;
+        })
+      ];
+      topicSel.innerHTML = opts.join("");
+      if ([...topicSel.options].some(o => o.value === prev)) topicSel.value = prev;
+    }
+
+    function switchWorkspaceTab(tab) {
+      ["syllabus", "papers", "improvement", "proof", "diary"].forEach(t => {
+        const pane = document.getElementById(`wsPane-${t}`);
+        const btn = document.getElementById(`wsBtn-${t}`);
+        if (pane) pane.style.display = t === tab ? "block" : "none";
+        if (btn) btn.classList.toggle("active", t === tab);
+      });
+      if (window.innerWidth <= 768) {
+        const targetMobileView = tab === "proof" ? "proof" : "study";
+        document.body.setAttribute("data-mobile-view", targetMobileView);
+        ["study", "timer", "ai", "proof", "links"].forEach(v => {
+          const btn = document.getElementById(`mobNav-${v}`);
+          if (btn) btn.classList.toggle("active", v === targetMobileView);
+        });
+      }
+    }
+
+    function switchMobileView(view) {
+      document.body.setAttribute("data-mobile-view", view);
+      ["study", "timer", "ai", "proof", "links"].forEach(v => {
+        const btn = document.getElementById(`mobNav-${v}`);
+        if (btn) btn.classList.toggle("active", v === view);
+      });
+      if (view === "proof") {
+        switchWorkspaceTab("proof");
+      } else if (view === "study") {
+        const activeSeg = document.querySelector(".seg-btn.active")?.id?.replace("wsBtn-", "") || "syllabus";
+        if (activeSeg === "proof") switchWorkspaceTab("syllabus");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function render() {
+      syncSubjectDropdowns();
+
+      // Top KPIs
+      const greenCount = state.topics.filter(t => t.status === "green").length;
+      const totalTopics = state.topics.length;
+      const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
+      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+
+      document.getElementById("kpiReady").textContent = `${readyPct}%`;
+      document.getElementById("kpiTopicsCount").textContent = `${greenCount} / ${totalTopics} topics Green`;
+      document.getElementById("kpiMins").textContent = `${totalMins} mins`;
+      document.getElementById("kpiHours").textContent = `${(totalMins / 60).toFixed(1)} hrs · ${state.sessions.length} verified sessions`;
+
+      const papers = state.papers || [];
+      if (papers.length) {
+        const avgPct = Math.round(papers.reduce((acc, p) => acc + ((Number(p.score) / Math.max(1, Number(p.max))) * 100), 0) / papers.length);
+        document.getElementById("kpiPaperAvg").textContent = `${avgPct}%`;
+        document.getElementById("kpiPaperCount").textContent = `${papers.length} mock / past paper${papers.length === 1 ? "" : "s"} logged`;
+      } else {
+        document.getElementById("kpiPaperAvg").textContent = "—";
+        document.getElementById("kpiPaperCount").textContent = "Log mocks in Past Papers tab";
+      }
+
+      document.getElementById("overallStats").textContent =
+        `${readyPct}% Exam-Ready · ${totalMins} mins logged · Press Ctrl+Shift+A for Settings & AI`;
+
+      const aiStatusEl = document.getElementById("kpiAiStatus");
+      if (state.gemini && state.gemini.apiKey) {
+        aiStatusEl.textContent = "Connected";
+        aiStatusEl.style.color = "var(--ac)";
+      } else {
+        aiStatusEl.textContent = "No API Key";
+        aiStatusEl.style.color = "var(--amb)";
+      }
+      document.getElementById("kpiAiModel").textContent =
+        `Model: ${state.gemini.model || "gemini-4-hydrogen"}`;
+
+      // Subject Breakdown Cards
+      const breakdownEl = document.getElementById("subjectBreakdown");
+      breakdownEl.innerHTML = state.subjects.map(subj => {
+        const subTopics = state.topics.filter(t => t.subject === subj);
+        const g = subTopics.filter(t => t.status === "green").length;
+        const a = subTopics.filter(t => t.status === "amber").length;
+        const r = subTopics.filter(t => t.status === "red").length;
+        const pct = subTopics.length ? Math.round((g / subTopics.length) * 100) : 0;
+        const mins = Number(state.minutes[subj]) || 0;
+        const isActive = activeSubjectFilter === subj;
+        return `
+          <div class="subj-card ${isActive ? "active" : ""}" onclick="toggleSubjectFilter('${escapeHtml(subj).replace(/'/g, "\\'")}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+              <strong style="color:#fff;font-size:13.5px;">${escapeHtml(subj)}</strong>
+              <span style="font:800 12px var(--font-mono);color:var(--ac);">${pct}%</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            <div style="display:flex;justify-content:space-between;font:600 11px var(--font-mono);color:var(--mu);">
+              <span>🟢${g} 🟡${a} 🔴${r}</span>
+              <span>${mins}m</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Subject Filter Pills
+      const pillsEl = document.getElementById("subjectPills");
+      pillsEl.innerHTML = [`<button type="button" class="b ${activeSubjectFilter === "ALL" ? "on" : ""}" onclick="setSubjectFilter('ALL')">All (${state.topics.length})</button>`]
+        .concat(state.subjects.map(s => {
+          const cnt = state.topics.filter(t => t.subject === s).length;
+          return `<button type="button" class="b ${activeSubjectFilter === s ? "on" : ""}" onclick="setSubjectFilter('${escapeHtml(s).replace(/'/g, "\\'")}')">${escapeHtml(s)} (${cnt})</button>`;
+        })).join("");
+
+      // Filtered Topic List
+      const searchInput = document.getElementById("topicSearchInput");
+      const query = searchInput.value.trim().toLowerCase();
+      const statFilter = document.getElementById("statusFilterSelect").value;
+      const clearBtn = document.getElementById("clearTopicSearchBtn");
+      if (clearBtn) {
+        clearBtn.style.display = (query || statFilter !== "ALL" || activeSubjectFilter !== "ALL") ? "inline-flex" : "none";
+      }
+      const visibleTopics = state.topics.filter(t => {
+        if (activeSubjectFilter !== "ALL" && t.subject !== activeSubjectFilter) return false;
+        if (statFilter !== "ALL" && t.status !== statFilter) return false;
+        if (query && !(`${t.subject} ${t.name} ${t.requirement || ""}`).toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      document.getElementById("filteredCountBadge").textContent = `${visibleTopics.length} topics`;
+      const listEl = document.getElementById("topicList");
+      if (!visibleTopics.length) {
+        listEl.innerHTML = `<p class="note" style="text-align:center;padding:18px 0;">No topics match your search or filter. Import a JSON syllabus via Ctrl+Shift+A or ask Gemini AI to add topics.</p>`;
+      } else {
+        listEl.innerHTML = visibleTopics.map(t => {
+          const label = t.status === "green" ? "Exam-Ready" : t.status === "amber" ? "Practising" : "Needs Work";
+          return `
+            <div class="topic-item">
+              <div style="min-width:0;flex:1;">
+                <div><span class="tag">${escapeHtml(t.subject)}</span><strong style="color:#fff;">${escapeHtml(t.name)}</strong></div>
+                ${t.requirement ? `<div class="req-badge">📋 ${escapeHtml(t.requirement)}</div>` : ""}
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <button type="button" class="rag-btn rag-${t.status}" onclick="cycleTopicRag(${t.id})">${label}</button>
+                <button type="button" class="b red" style="padding:4px 9px;" onclick="deleteTopic(${t.id})">✕</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      renderLinks();
+      renderProofAndPapers();
+      renderImprovements();
+      renderEvidenceAndDiary();
+
+      const pad = document.getElementById("scratchpadInput");
+      if (document.activeElement !== pad) pad.value = state.scratchpad || "";
+      updateGeminiBadge();
+    }
+
+    let pendingPaperAttachment = null;
+    let pendingAiMarkedResult = null;
+    let improvementSubjectFilter = "ALL";
+
+    function handlePaperFileSelect(event) {
+      const file = event.target.files?.[0];
+      const bar = document.getElementById("paperUploadPreviewBar");
+      if (!file) {
+        pendingPaperAttachment = null;
+        if (bar) bar.style.display = "none";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rawDataUrl = String(reader.result || "");
+        const titleInput = document.getElementById("paperTitleInput");
+        if (titleInput && !titleInput.value.trim()) {
+          titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+        }
+
+        if (file.type.startsWith("image/")) {
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 1400;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressed = canvas.toDataURL("image/jpeg", 0.85);
+            pendingPaperAttachment = {
+              fileName: file.name,
+              mimeType: "image/jpeg",
+              dataUrl: compressed,
+              base64: compressed.split(",")[1]
+            };
+            bar.style.display = "flex";
+            bar.style.justifyContent = "space-between";
+            bar.style.alignItems = "center";
+            bar.innerHTML = `<span>🖼️ Attached image: <strong>${escapeHtml(file.name)}</strong> (Ready to log or AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
+          };
+          img.src = rawDataUrl;
+        } else {
+          if (file.size > 4 * 1024 * 1024) {
+            showToast("PDF must be under 4MB for browser storage & AI marking");
+            event.target.value = "";
+            return;
+          }
+          pendingPaperAttachment = {
+            fileName: file.name,
+            mimeType: file.type || "application/pdf",
+            dataUrl: rawDataUrl,
+            base64: rawDataUrl.split(",")[1]
+          };
+          bar.style.display = "flex";
+          bar.style.justifyContent = "space-between";
+          bar.style.alignItems = "center";
+          bar.innerHTML = `<span>📄 Attached PDF: <strong>${escapeHtml(file.name)}</strong> (Ready to log or AI mark)</span><button type="button" class="b red sm" onclick="clearPendingPaperFile()">✕</button>`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearPendingPaperFile() {
+      pendingPaperAttachment = null;
+      pendingAiMarkedResult = null;
+      const inp = document.getElementById("paperFileInput");
+      const bar = document.getElementById("paperUploadPreviewBar");
+      const box = document.getElementById("aiMarkerOutputBox");
+      if (inp) inp.value = "";
+      if (bar) bar.style.display = "none";
+      if (box) box.style.display = "none";
+    }
+
+    async function aiMarkUploadedPaper() {
+      if (!state.gemini || !state.gemini.apiKey) {
+        openSettings("gemini");
+        return showToast("Add your Gemini API key first to use the AI Marker");
+      }
+      if (!pendingPaperAttachment) {
+        return showToast("Upload an image or PDF of your completed worksheet/paper first");
+      }
+
+      const subject = document.getElementById("paperSubjectSelect").value;
+      const title = document.getElementById("paperTitleInput").value.trim() || pendingPaperAttachment.fileName;
+      const maxMarksHint = document.getElementById("paperMaxInput").value.trim();
+      const btn = document.getElementById("aiMarkPaperBtn");
+      const outBox = document.getElementById("aiMarkerOutputBox");
+
+      btn.disabled = true;
+      pendingAiMarkedResult = null;
+      outBox.style.display = "block";
+      outBox.innerHTML = `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Gemini AI Examiner is reading &amp; marking your ${escapeHtml(subject)} work...</span>`;
+
+      geminiStatusCallback = msg => {
+        outBox.innerHTML = `<span style="color:#fcd34d;font-family:var(--font-mono);font-size:11.5px;">⏳ ${escapeHtml(msg)}</span>`;
+      };
+
+      const markerPrompt = `You are a strict, encouraging UK GCSE Examiner for ${subject}.
+Examine the attached completed student worksheet or past paper ("${title}").
+${maxMarksHint ? `The student noted the maximum marks are ${maxMarksHint}.` : "Count the total available marks visible on the page(s) (or estimate an appropriate GCSE mark total if unlabelled)."}
+
+Tasks:
+1. Read every question and the student's written/typed answers carefully.
+2. Mark each question according to official UK GCSE mark-scheme standards (awarding method/working marks where applicable).
+3. Estimate the UK GCSE 9-1 grade for this performance.
+4. Identify 2 to 4 concrete, specific Areas of Improvement based on dropped marks or weak exam technique.
+
+At the very end of your response, include a single JSON block in this exact format so the tracker can record the verified score and suggested improvements:
+SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improvements": [{"area": "<short weak topic or skill>", "advice": "<specific mark-scheme action to improve>"}]}`;
+
+      try {
+        const data = await callGeminiRaw({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: markerPrompt },
+                {
+                  inlineData: {
+                    mimeType: pendingPaperAttachment.mimeType,
+                    data: pendingPaperAttachment.base64
+                  }
+                }
+              ]
+            }
+          ]
+        });
+
+        const fullReply = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim() || "Marking complete.";
+        const jsonMatch = fullReply.match(/SCORE_JSON:\s*(\{[\s\S]*\})/);
+        let cleanFeedback = fullReply.replace(/SCORE_JSON:\s*\{[\s\S]*\}/, "").trim();
+
+        let parsedScore = 0;
+        let parsedMax = Number(maxMarksHint) || 50;
+        let parsedGrade = "—";
+        let suggestedImprovements = [];
+
+        if (jsonMatch) {
+          try {
+            const parsed = JSON.parse(jsonMatch[1]);
+            if (typeof parsed.score === "number") parsedScore = Math.max(0, parsed.score);
+            if (typeof parsed.max === "number" && parsed.max > 0) parsedMax = parsed.max;
+            if (parsed.grade) parsedGrade = String(parsed.grade);
+            if (Array.isArray(parsed.improvements)) {
+              suggestedImprovements = parsed.improvements
+                .filter(item => item && (item.area || item.advice))
+                .map(item => ({
+                  area: String(item.area || "Exam Technique").trim(),
+                  advice: String(item.advice || "").trim()
+                }));
+            }
+          } catch (_) {}
+        }
+
+        const pct = Math.round((parsedScore / Math.max(1, parsedMax)) * 100);
+        pendingAiMarkedResult = {
+          subject,
+          title,
+          score: parsedScore,
+          max: parsedMax,
+          grade: parsedGrade,
+          feedback: cleanFeedback,
+          improvements: suggestedImprovements,
+          improvementsAdded: false
+        };
+
+        const impPreviewHtml = suggestedImprovements.length
+          ? `<div style="margin-top:10px;padding:10px;border-radius:12px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.28);">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--ac);font-weight:800;">🎯 SUGGESTED AREAS OF IMPROVEMENT (${suggestedImprovements.length})</span>
+                <button type="button" class="b sm" id="addSuggestedImpBtn" style="border-color:var(--ac);color:var(--ac);" onclick="addPendingImprovementsToTab()">+ Add to Improvement Tab</button>
+              </div>
+              <ul style="margin:4px 0 0 18px;padding:0;font-size:12px;">
+                ${suggestedImprovements.map(imp => `<li><strong>${escapeHtml(imp.area)}:</strong> ${escapeHtml(imp.advice)}</li>`).join("")}
+              </ul>
+            </div>`
+          : "";
+
+        outBox.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div>
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--ac);font-weight:800;">✦ AI VERIFIED MARK: ${parsedScore}/${parsedMax} (${pct}%) · Grade ${escapeHtml(parsedGrade)}</span>
+            </div>
+            <button type="button" class="b sm pri" onclick="commitAiMarkedPaper()">✓ Log Verified Past Paper</button>
+          </div>
+          <div>${escapeHtml(cleanFeedback).replace(/\*\*([^\n]+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}</div>
+          ${impPreviewHtml}
+        `;
+        showToast(`AI marked paper: ${parsedScore}/${parsedMax} (${pct}%)`);
+      } catch (err) {
+        outBox.innerHTML = `<span style="color:#fda4af;">✕ AI Marker Error: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        geminiStatusCallback = null;
+        btn.disabled = false;
+      }
+    }
+
+    function addPendingImprovementsToTab() {
+      if (!pendingAiMarkedResult || !pendingAiMarkedResult.improvements.length) {
+        return showToast("No suggested improvements available");
+      }
+      if (pendingAiMarkedResult.improvementsAdded) {
+        switchWorkspaceTab("improvement");
+        return showToast("Already added to Improvement tab");
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      pendingAiMarkedResult.improvements.forEach((imp, idx) => {
+        state.improvements.unshift({
+          id: Date.now() + idx,
+          date: today,
+          subject: pendingAiMarkedResult.subject,
+          sourcePaper: pendingAiMarkedResult.title,
+          area: imp.area,
+          advice: imp.advice,
+          resolved: false
+        });
+      });
+      pendingAiMarkedResult.improvementsAdded = true;
+      const btn = document.getElementById("addSuggestedImpBtn");
+      if (btn) btn.textContent = "✓ Added to Improvement Tab";
+      saveState();
+      render();
+      showToast(`Added ${pendingAiMarkedResult.improvements.length} focus area(s) to Improvement tab!`);
+    }
+
+    function commitAiMarkedPaper() {
+      if (!pendingAiMarkedResult || !pendingPaperAttachment) {
+        return showToast("Upload a past paper and run the AI Marker first");
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      state.papers.unshift({
+        id: Date.now(),
+        date: today,
+        subject: pendingAiMarkedResult.subject,
+        title: document.getElementById("paperTitleInput").value.trim() || pendingAiMarkedResult.title,
+        score: pendingAiMarkedResult.score,
+        max: pendingAiMarkedResult.max,
+        grade: pendingAiMarkedResult.grade,
+        aiVerified: true,
+        fileName: pendingPaperAttachment.fileName || "",
+        fileMime: pendingPaperAttachment.mimeType || "",
+        fileDataUrl: pendingPaperAttachment.dataUrl || "",
+        aiFeedback: pendingAiMarkedResult.feedback || ""
+      });
+      document.getElementById("paperTitleInput").value = "";
+      document.getElementById("paperMaxInput").value = "";
+      clearPendingPaperFile();
+      saveState();
+      render();
+      showToast("✓ AI-verified past paper logged!");
+    }
+
+    function toggleImprovementResolved(id) {
+      const item = state.improvements.find(x => x.id === id);
+      if (!item) return;
+      item.resolved = !item.resolved;
+      saveState();
+      render();
+    }
+
+    function deleteImprovementItem(id) {
+      state.improvements = state.improvements.filter(x => x.id !== id);
+      saveState();
+      render();
+    }
+
+    function renderImprovements() {
+      const badge = document.getElementById("improvementCountBadge");
+      const pillsEl = document.getElementById("improvementFilterPills");
+      const listEl = document.getElementById("improvementList");
+      if (!badge || !pillsEl || !listEl) return;
+
+      const openCount = state.improvements.filter(i => !i.resolved).length;
+      badge.textContent = `${openCount} active · ${state.improvements.length} total`;
+
+      const usedSubjects = Array.from(new Set(state.improvements.map(i => i.subject)));
+      pillsEl.innerHTML = [`<button type="button" class="b ${improvementSubjectFilter === "ALL" ? "on" : ""}" onclick="improvementSubjectFilter='ALL';renderImprovements()">All (${state.improvements.length})</button>`]
+        .concat(usedSubjects.map(s => {
+          const cnt = state.improvements.filter(i => i.subject === s).length;
+          return `<button type="button" class="b ${improvementSubjectFilter === s ? "on" : ""}" onclick="improvementSubjectFilter='${escapeHtml(s).replace(/'/g, "\\'")}';renderImprovements()">${escapeHtml(s)} (${cnt})</button>`;
+        })).join("");
+
+      const filtered = state.improvements.filter(i => improvementSubjectFilter === "ALL" || i.subject === improvementSubjectFilter);
+      listEl.innerHTML = filtered.length
+        ? filtered.map(item => `
+            <div class="proof-log-item" style="flex-direction:column;align-items:stretch;opacity:${item.resolved ? "0.65" : "1"};">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                <div>
+                  <span class="tag">${escapeHtml(item.subject)}</span>
+                  <strong style="color:#fff;text-decoration:${item.resolved ? "line-through" : "none"};">${escapeHtml(item.area)}</strong>
+                  <span class="note" style="margin-left:6px;">from <em>${escapeHtml(item.sourcePaper)}</em> (${escapeHtml(item.date)})</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <button type="button" class="rag-btn ${item.resolved ? "rag-green" : "rag-amber"}" onclick="toggleImprovementResolved(${item.id})">
+                    ${item.resolved ? "✓ Improved" : "🎯 Focus Area"}
+                  </button>
+                  <button type="button" class="b red sm" onclick="deleteImprovementItem(${item.id})">✕</button>
+                </div>
+              </div>
+              ${item.advice ? `<div class="note" style="margin:6px 0 0;color:var(--tx);">💡 ${escapeHtml(item.advice)}</div>` : ""}
+            </div>
+          `).join("")
+        : `<p class="note" style="text-align:center;padding:16px 0;">No improvement targets logged yet. Mark a worksheet or past paper in the <strong>📝 Past Papers</strong> tab to generate AI improvement areas.</p>`;
+    }
+
+    function openPaperPreview(id) {
+      const paper = state.papers.find(p => p.id === id);
+      if (!paper) return;
+      const pct = Math.round((paper.score / Math.max(1, paper.max)) * 100);
+      document.getElementById("proofPreviewTitle").textContent = `[${paper.subject}] ${paper.title} — ${paper.score}/${paper.max} (${pct}%)`;
+      const body = document.getElementById("proofPreviewBody");
+      let mediaHtml = "";
+      if (paper.fileDataUrl) {
+        if (paper.fileMime && paper.fileMime.startsWith("image/")) {
+          mediaHtml = `<img src="${paper.fileDataUrl}" alt="${escapeHtml(paper.title)}" style="max-width:100%;max-height:54vh;border-radius:14px;border:1px solid var(--line);margin-bottom:12px;" />`;
+        } else {
+          mediaHtml = `
+            <div style="margin-bottom:12px;">
+              <iframe src="${paper.fileDataUrl}" style="width:100%;height:46vh;border-radius:12px;border:1px solid var(--line);background:#fff;"></iframe>
+              <div style="margin-top:8px;"><a class="b sm pri" href="${paper.fileDataUrl}" download="${escapeHtml(paper.fileName || "past-paper.pdf")}">⬇ Download ${escapeHtml(paper.fileName || "PDF")}</a></div>
+            </div>
+          `;
+        }
+      }
+      const feedbackHtml = paper.aiFeedback
+        ? `<div class="chat-msg ai" style="text-align:left;max-width:100%;"><div style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);font-weight:800;margin-bottom:4px;">✦ AI MARKING FEEDBACK</div>${escapeHtml(paper.aiFeedback).replace(/\*\*([^\n]+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}</div>`
+        : "";
+      body.innerHTML = `${mediaHtml}${feedbackHtml || (!mediaHtml ? `<p class="note">No file or AI feedback attached to this paper entry.</p>` : "")}`;
+      document.getElementById("proofPreviewDialog").showModal();
+    }
+
+    function deletePaperScore(id) {
+      state.papers = state.papers.filter(p => p.id !== id);
+      saveState();
+      render();
+    }
+
+    function renderProofAndPapers() {
+      const pBadge = document.getElementById("paperCountBadge");
+      if (pBadge) pBadge.textContent = `${state.papers.length} papers`;
+      const pList = document.getElementById("paperScoresList");
+      if (pList) {
+        pList.innerHTML = state.papers.length
+          ? state.papers.map(p => {
+              const pct = Math.round((p.score / Math.max(1, p.max)) * 100);
+              const hasAttachment = Boolean(p.fileDataUrl || p.aiFeedback);
+              return `
+                <div class="proof-log-item">
+                  <div>
+                    <span class="tag">${escapeHtml(p.subject)}</span>
+                    <strong style="color:#fff;">${escapeHtml(p.title)}</strong>
+                    ${p.fileName ? `<span class="uk-pill" style="margin-left:6px;color:var(--cyan);">📎 ${escapeHtml(p.fileName)}</span>` : ""}
+                    ${p.aiFeedback ? `<span class="uk-pill" style="margin-left:4px;">✦ AI Marked</span>` : ""}
+                    <div class="note" style="margin:2px 0 0;">Date: ${escapeHtml(p.date)}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                    <span class="score-pill">${p.score}/${p.max} (${pct}%)${p.grade ? ` · Grade ${escapeHtml(p.grade)}` : ""}</span>
+                    ${hasAttachment ? `<button type="button" class="b sm" onclick="openPaperPreview(${p.id})">👁 View</button>` : ""}
+                    <button type="button" class="b red sm" onclick="deletePaperScore(${p.id})">✕</button>
+                  </div>
+                </div>
+              `;
+            }).join("")
+          : `<p class="note">No past papers logged yet. Add mock or past-paper scores above.</p>`;
+      }
+
+      const sList = document.getElementById("sessionProofList");
+      const sBadge = document.getElementById("sessionCountBadge");
+      if (sBadge) sBadge.textContent = `${state.sessions.length} sessions`;
+      if (sList) {
+        sList.innerHTML = state.sessions.length
+          ? state.sessions.slice(0, 25).map(s => `
+              <div class="proof-log-item">
+                <div>
+                  <span class="tag">${escapeHtml(s.subject)}</span>
+                  <strong style="color:#fff;">${escapeHtml(s.topic || s.note || "Focused revision")}</strong>
+                  <span class="note"> · ${s.minutes} mins</span>
+                </div>
+                <span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(s.date)}</span>
+              </div>
+            `).join("")
+          : `<p class="note">No stopwatch sessions recorded yet. Select a topic and press Start on the Live Study Stopwatch.</p>`;
+      }
+    }
+
+    let pendingProofFiles = [];
+
+    function handleProofFileSelect(event) {
+      const files = Array.from(event.target.files || []);
+      const bar = document.getElementById("proofPendingBar");
+      if (!files.length) {
+        pendingProofFiles = [];
+        if (bar) bar.style.display = "none";
+        return;
+      }
+      pendingProofFiles = files;
+      const captionInput = document.getElementById("proofCaptionInput");
+      if (captionInput && !captionInput.value.trim() && files.length === 1) {
+        captionInput.value = files[0].name.replace(/\.[^/.]+$/, "");
+      }
+      if (bar) {
+        bar.style.display = "flex";
+        bar.style.justifyContent = "space-between";
+        bar.style.alignItems = "center";
+        bar.innerHTML = `<span>📎 Ready to save: <strong>${files.map(f => escapeHtml(f.name)).join(", ")}</strong></span><button type="button" class="b red sm" onclick="clearPendingProofFiles()">✕</button>`;
+      }
+    }
+
+    function clearPendingProofFiles() {
+      pendingProofFiles = [];
+      const inp = document.getElementById("proofFileInput");
+      const bar = document.getElementById("proofPendingBar");
+      if (inp) inp.value = "";
+      if (bar) bar.style.display = "none";
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error(`Could not read ${file.name}`));
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function compressImageDataUrl(rawDataUrl, fallbackMime) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onerror = () => resolve({ mimeType: fallbackMime || "image/png", dataUrl: rawDataUrl });
+        img.onload = () => {
+          const maxW = 800;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve({ mimeType: "image/jpeg", dataUrl: canvas.toDataURL("image/jpeg", 0.72) });
+        };
+        img.src = rawDataUrl;
+      });
+    }
+
+    async function commitProofUpload() {
+      const inp = document.getElementById("proofFileInput");
+      const files = pendingProofFiles.length ? pendingProofFiles : Array.from(inp?.files || []);
+      const subject = document.getElementById("proofSubjectSelect").value || state.subjects[0] || "General";
+      const captionInput = document.getElementById("proofCaptionInput");
+      const captionBase = captionInput.value.trim();
+
+      if (!files.length && !captionBase) {
+        return showToast("Select a file/screenshot or enter a description first");
+      }
+
+      const btn = document.getElementById("saveProofBtn");
+      if (btn) btn.disabled = true;
+
+      try {
+        if (!files.length) {
+          saveEvidenceItem(subject, captionBase, "Work Note", "text/plain", "");
+        } else {
+          for (const file of files) {
+            const isImage = (file.type && file.type.startsWith("image/")) || /\.(png|jpe?g|gif|webp|bmp)$/i.test(file.name);
+            if (!isImage && file.size > 4 * 1024 * 1024) {
+              showToast(`${file.name} exceeds 4MB limit`);
+              continue;
+            }
+            const rawDataUrl = await readFileAsDataUrl(file);
+            if (isImage) {
+              const { mimeType, dataUrl } = await compressImageDataUrl(rawDataUrl, file.type);
+              saveEvidenceItem(subject, captionBase || file.name, file.name, mimeType, dataUrl);
+            } else {
+              saveEvidenceItem(subject, captionBase || file.name, file.name, file.type || "application/octet-stream", rawDataUrl);
+            }
+          }
+        }
+        captionInput.value = "";
+        clearPendingProofFiles();
+      } catch (err) {
+        showToast(err.message || "Error saving proof");
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function saveEvidenceItem(subject, caption, fileName, mimeType, dataUrl) {
+      const nowStr = new Date().toISOString().slice(0, 16).replace("T", " ");
+      state.evidence.unshift({
+        id: Date.now() + Math.floor(Math.random() * 10000),
+        date: nowStr,
+        subject,
+        caption,
+        fileName,
+        mimeType,
+        dataUrl
+      });
+      saveState();
+      render();
+      showToast(`✓ Logged proof: ${caption}`);
+    }
+
+    function deleteEvidenceItem(id) {
+      state.evidence = state.evidence.filter(e => e.id !== id);
+      saveState();
+      render();
+    }
+
+    function openEvidencePreview(id) {
+      const item = state.evidence.find(e => e.id === id);
+      if (!item) return;
+      document.getElementById("proofPreviewTitle").textContent = `[${item.subject}] ${item.caption} (${item.date})`;
+      const body = document.getElementById("proofPreviewBody");
+      if (item.mimeType && item.mimeType.startsWith("image/")) {
+        body.innerHTML = `<img src="${item.dataUrl}" alt="${escapeHtml(item.caption)}" style="max-width:100%;max-height:62vh;border-radius:14px;border:1px solid var(--line);" />`;
+      } else {
+        body.innerHTML = `
+          <p class="note">File: <strong>${escapeHtml(item.fileName)}</strong> · Uploaded ${escapeHtml(item.date)}</p>
+          <a class="b pri" href="${item.dataUrl}" download="${escapeHtml(item.fileName)}">⬇ Download ${escapeHtml(item.fileName)}</a>
+        `;
+      }
+      document.getElementById("proofPreviewDialog").showModal();
+    }
+
+    function addDiaryEntry() {
+      const subject = document.getElementById("diarySubjectSelect").value;
+      const takeaway = document.getElementById("diaryMoodSelect").value.trim();
+      const body = document.getElementById("diaryEntryInput").value.trim();
+      if (!body && !takeaway) return showToast("Write a diary note first");
+      const today = new Date().toISOString().slice(0, 10);
+      state.diary.unshift({ id: Date.now(), date: today, subject, takeaway, body });
+      document.getElementById("diaryMoodSelect").value = "";
+      document.getElementById("diaryEntryInput").value = "";
+      saveState();
+      render();
+      showToast("Diary entry saved");
+    }
+
+    function deleteDiaryEntry(id) {
+      state.diary = state.diary.filter(d => d.id !== id);
+      saveState();
+      render();
+    }
+
+    function renderEvidenceAndDiary() {
+      const pBadge = document.getElementById("proofCountBadge");
+      if (pBadge) pBadge.textContent = `${state.evidence.length} items`;
+      const gallery = document.getElementById("evidenceGallery");
+      if (gallery) {
+        gallery.innerHTML = state.evidence.length
+          ? state.evidence.map(item => {
+              const isImg = item.mimeType && item.mimeType.startsWith("image/");
+              return `
+                <div class="evidence-card">
+                  ${isImg
+                    ? `<img class="evidence-thumb" src="${item.dataUrl}" alt="${escapeHtml(item.caption)}" onclick="openEvidencePreview(${item.id})" />`
+                    : `<div class="evidence-file-box" onclick="openEvidencePreview(${item.id})" style="cursor:pointer;">📄<br>${escapeHtml(item.fileName)}</div>`
+                  }
+                  <div style="font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.caption)}</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
+                    <span class="tag" style="margin:0;font-size:9.5px;">${escapeHtml(item.subject)}</span>
+                    <button type="button" class="b red sm" style="padding:2px 7px;" onclick="deleteEvidenceItem(${item.id})">✕</button>
+                  </div>
+                  <div style="font:600 10px var(--font-mono);color:var(--mu);">${escapeHtml(item.date)}</div>
+                </div>
+              `;
+            }).join("")
+          : `<p class="note" style="grid-column:1/-1;">No work screenshots or files uploaded yet. Add photos of completed work above.</p>`;
+      }
+
+      const dBadge = document.getElementById("diaryCountBadge");
+      if (dBadge) dBadge.textContent = `${state.diary.length} entries`;
+      const dList = document.getElementById("diaryEntriesList");
+      if (dList) {
+        dList.innerHTML = state.diary.length
+          ? state.diary.map(d => `
+              <div class="proof-log-item" style="flex-direction:column;align-items:stretch;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                    <span class="tag">${escapeHtml(d.subject)}</span>
+                    <strong style="color:#fff;">${escapeHtml(d.takeaway || "Study Log")}</strong>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(d.date)}</span>
+                    <button type="button" class="b red sm" onclick="deleteDiaryEntry(${d.id})">✕</button>
+                  </div>
+                </div>
+                ${d.body ? `<div class="note" style="margin:4px 0 0;color:var(--tx);">${escapeHtml(d.body)}</div>` : ""}
+              </div>
+            `).join("")
+          : `<p class="note">No diary entries yet. Record what you revised today above.</p>`;
+      }
+    }
+
+    function getWeekStartIso(dateObj = new Date()) {
+      const d = new Date(dateObj);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      d.setDate(diff);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function toggleParentConfirmation(periodKey) {
+      if (state.parentSignOffs[periodKey]) {
+        delete state.parentSignOffs[periodKey];
+      } else {
+        state.parentSignOffs[periodKey] = new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      }
+      saveState();
+      renderParentOverviewContent();
+      showToast("Parent verification updated");
+    }
+
+    let parentSelectedDate = new Date().toISOString().slice(0, 10);
+    let parentStatsPeriod = "month"; // "month" | "year"
+    let parentSelectedMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    let parentSelectedYear = new Date().toISOString().slice(0, 4); // YYYY
+
+    function shiftParentDate(deltaDays) {
+      const d = new Date(parentSelectedDate + "T12:00:00");
+      d.setDate(d.getDate() + deltaDays);
+      parentSelectedDate = d.toISOString().slice(0, 10);
+      renderParentOverviewContent();
+    }
+
+    function setParentDate(newIso) {
+      if (!newIso) return;
+      parentSelectedDate = newIso;
+      renderParentOverviewContent();
+    }
+
+    function setParentStatsMode(mode) {
+      parentStatsPeriod = mode;
+      renderParentOverviewContent();
+    }
+
+    function openParentOverview() {
+      const dlg = document.getElementById("parentDialog");
+      const pinDlg = document.getElementById("parentPinDialog");
+      const inp = document.getElementById("parentPinInput");
+      const err = document.getElementById("parentPinError");
+      if (dlg && dlg.open) return;
+      parentSelectedDate = new Date().toISOString().slice(0, 10);
+      parentSelectedMonth = parentSelectedDate.slice(0, 7);
+      parentSelectedYear = parentSelectedDate.slice(0, 4);
+      inp.value = "";
+      err.textContent = "";
+      if (!pinDlg.open) {
+        pinDlg.showModal();
+      }
+      setTimeout(() => inp.focus(), 50);
+    }
+
+    function verifyParentPin() {
+      const inp = document.getElementById("parentPinInput");
+      const err = document.getElementById("parentPinError");
+      const pinDlg = document.getElementById("parentPinDialog");
+      if (inp.value.trim() !== PARENT_PIN) {
+        err.textContent = "✕ Incorrect PIN. Please try again.";
+        inp.value = "";
+        inp.focus();
+        return;
+      }
+      inp.value = "";
+      err.textContent = "";
+      if (pinDlg.open) {
+        pinDlg.close();
+      }
+      requestAnimationFrame(() => {
+        renderParentOverviewContent();
+      });
+    }
+
+    function renderParentOverviewContent() {
+      const todayIso = new Date().toISOString().slice(0, 10);
+      if (!parentSelectedDate) parentSelectedDate = todayIso;
+      const selectedDayKey = `day_${parentSelectedDate}`;
+      const weekIso = getWeekStartIso(new Date(parentSelectedDate + "T12:00:00"));
+      const weekKey = `week_${weekIso}`;
+
+      const daySessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedDate));
+      const dayMins = daySessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const dayProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedDate));
+      const dayPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedDate));
+      const dayDiary = state.diary.filter(d => String(d.date).startsWith(parentSelectedDate));
+
+      const weekSessions = state.sessions.filter(s => String(s.date).slice(0, 10) >= weekIso && String(s.date).slice(0, 10) <= new Date(new Date(weekIso + "T12:00:00").getTime() + 6 * 86400000).toISOString().slice(0, 10));
+      const weekMins = weekSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const weekProofs = state.evidence.filter(e => String(e.date).slice(0, 10) >= weekIso);
+      const weekDaysActive = new Set(weekSessions.map(s => String(s.date).slice(0, 10))).size;
+
+      const greenCount = state.topics.filter(t => t.status === "green").length;
+      const totalTopics = state.topics.length;
+      const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
+      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+      const reportDate = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      const selectedDateLabel = parentSelectedDate === todayIso
+        ? `Today (${new Date(parentSelectedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })})`
+        : new Date(parentSelectedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+
+      // Daily Subject-by-Subject Breakdown for parentSelectedDate
+      const dailySubjectRows = state.subjects.map(subj => {
+        const sSessions = daySessions.filter(s => s.subject === subj);
+        const sMins = sSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+        const sPapers = dayPapers.filter(p => p.subject === subj);
+        const sProofs = dayProofs.filter(e => e.subject === subj);
+        const sDiary = dayDiary.filter(d => d.subject === subj);
+        const subTopics = state.topics.filter(t => t.subject === subj);
+        const g = subTopics.filter(t => t.status === "green").length;
+        const pct = subTopics.length ? Math.round((g / subTopics.length) * 100) : 0;
+        const topicsStudiedToday = Array.from(new Set(sSessions.map(s => s.topic || s.note).filter(Boolean)));
+        const hasActivityToday = sMins > 0 || sPapers.length > 0 || sProofs.length > 0 || sDiary.length > 0;
+
+        return `
+          <div class="proof-log-item" style="flex-direction:column;align-items:stretch;border-color:${hasActivityToday ? "rgba(0,255,136,0.38)" : "var(--line)"};opacity:${hasActivityToday ? "1" : "0.78"};">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+              <div>
+                <strong style="color:#fff;font-size:13.5px;">${escapeHtml(subj)}</strong>
+                <span class="uk-pill" style="margin-left:6px;${hasActivityToday ? "" : "color:var(--mu);border-color:var(--line);background:transparent;"}">${hasActivityToday ? `${sMins} mins on this day` : "0 mins on this day"}</span>
+              </div>
+              <span style="font:700 11px var(--font-mono);color:var(--mu);">Overall Syllabus: <strong style="color:var(--ac);">${pct}%</strong> (${g}/${subTopics.length} Green)</span>
+            </div>
+            <div class="bar-track" style="margin:5px 0;"><div class="bar-fill" style="width:${Math.min(100, sMins > 0 ? Math.max(12, Math.round((sMins / 60) * 100)) : 0)}%"></div></div>
+            <div style="font-size:11.5px;color:var(--mu);display:flex;flex-wrap:wrap;gap:10px;">
+              <span>⏱ Sessions: <strong style="color:#fff;">${sSessions.length}</strong></span>
+              <span>📝 Papers: <strong style="color:#fff;">${sPapers.length}</strong></span>
+              <span>📸 Proofs: <strong style="color:#fff;">${sProofs.length}</strong></span>
+              <span>📓 Diary: <strong style="color:#fff;">${sDiary.length}</strong></span>
+              ${topicsStudiedToday.length ? `<span style="color:var(--cyan);">✓ Studied: ${escapeHtml(topicsStudiedToday.join(", "))}</span>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Monthly & Yearly Stats Calculation
+      const monthSessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedMonth));
+      const monthMins = monthSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const monthActiveDays = new Set(monthSessions.map(s => String(s.date).slice(0, 10))).size;
+      const monthPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedMonth));
+      const monthPaperAvg = monthPapers.length
+        ? `${Math.round(monthPapers.reduce((a, p) => a + (Number(p.score) / Math.max(1, Number(p.max))) * 100, 0) / monthPapers.length)}%`
+        : "—";
+      const monthProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedMonth));
+
+      const yearSessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedYear));
+      const yearMins = yearSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const yearActiveDays = new Set(yearSessions.map(s => String(s.date).slice(0, 10))).size;
+      const yearPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedYear));
+      const yearPaperAvg = yearPapers.length
+        ? `${Math.round(yearPapers.reduce((a, p) => a + (Number(p.score) / Math.max(1, Number(p.max))) * 100, 0) / yearPapers.length)}%`
+        : "—";
+      const yearProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedYear));
+
+      // Monthly breakdown bars across the selected year (Jan - Dec)
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const monthlyTotals = monthNames.map((label, idx) => {
+        const ym = `${parentSelectedYear}-${String(idx + 1).padStart(2, "0")}`;
+        const mSessions = state.sessions.filter(s => String(s.date).startsWith(ym));
+        const mins = mSessions.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const papersCnt = state.papers.filter(p => String(p.date).startsWith(ym)).length;
+        return { ym, label, mins, sessions: mSessions.length, papersCnt };
+      });
+      const maxMonthMins = Math.max(60, ...monthlyTotals.map(m => m.mins));
+
+      // Yearly breakdown across all recorded years
+      const allYearsSet = new Set([parentSelectedYear, todayIso.slice(0, 4)]);
+      state.sessions.forEach(s => { if (s.date) allYearsSet.add(String(s.date).slice(0, 4)); });
+      state.papers.forEach(p => { if (p.date) allYearsSet.add(String(p.date).slice(0, 4)); });
+      state.evidence.forEach(e => { if (e.date) allYearsSet.add(String(e.date).slice(0, 4)); });
+      const sortedYears = Array.from(allYearsSet).filter(y => /^\d{4}$/.test(y)).sort();
+      const yearlyTotals = sortedYears.map(yr => {
+        const ySess = state.sessions.filter(s => String(s.date).startsWith(yr));
+        const mins = ySess.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const papersCnt = state.papers.filter(p => String(p.date).startsWith(yr)).length;
+        const proofsCnt = state.evidence.filter(e => String(e.date).startsWith(yr)).length;
+        return { yr, mins, sessions: ySess.length, papersCnt, proofsCnt };
+      });
+      const maxYearMins = Math.max(60, ...yearlyTotals.map(y => y.mins));
+
+      // Subject breakdown for selected Month or Year
+      const periodPrefix = parentStatsPeriod === "month" ? parentSelectedMonth : parentSelectedYear;
+      const periodSubjectSummary = state.subjects.map(subj => {
+        const pSess = state.sessions.filter(s => s.subject === subj && String(s.date).startsWith(periodPrefix));
+        const pMins = pSess.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const pPapers = state.papers.filter(p => p.subject === subj && String(p.date).startsWith(periodPrefix));
+        return `<span class="tag" style="margin:3px 4px 3px 0;">${escapeHtml(subj)}: ${(pMins / 60).toFixed(1)}h · ${pPapers.length} paper(s)</span>`;
+      }).join("");
+
+      const longitudinalHtml = `
+        <div style="background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:18px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <div class="seg-tabs no-print">
+              <button type="button" class="seg-btn ${parentStatsPeriod === "month" ? "active" : ""}" onclick="setParentStatsMode('month')">📅 Monthly Stats</button>
+              <button type="button" class="seg-btn ${parentStatsPeriod === "year" ? "active" : ""}" onclick="setParentStatsMode('year')">🗓 Yearly Stats</button>
+            </div>
+            <div class="no-print" style="display:flex;align-items:center;gap:6px;">
+              ${parentStatsPeriod === "month"
+                ? `<input type="month" value="${escapeHtml(parentSelectedMonth)}" onchange="if(this.value){parentSelectedMonth=this.value;parentSelectedYear=this.value.slice(0,4);renderParentOverviewContent();}" style="padding:5px 10px;font-size:12px;max-width:165px;" />`
+                : `<select onchange="parentSelectedYear=this.value;renderParentOverviewContent();" style="padding:5px 10px;font-size:12px;max-width:120px;">
+                    ${sortedYears.map(yr => `<option value="${yr}" ${yr === parentSelectedYear ? "selected" : ""}>${yr}</option>`).join("")}
+                  </select>`
+              }
+            </div>
+          </div>
+
+          ${parentStatsPeriod === "month" ? `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:12px;">
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Study Time (${escapeHtml(parentSelectedMonth)})</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${(monthMins / 60).toFixed(1)} hrs</strong>
+                <span class="note" style="margin:0;">${monthMins} mins · ${monthSessions.length} sessions</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Active Study Days</span>
+                <strong style="font:800 18px var(--font-mono);color:var(--ac);">${monthActiveDays} days</strong>
+                <span class="note" style="margin:0;">Days with logged study</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Past Paper Avg</span>
+                <strong style="font:800 18px var(--font-mono);color:var(--cyan);">${monthPaperAvg}</strong>
+                <span class="note" style="margin:0;">${monthPapers.length} paper(s) marked</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Work Proofs</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${monthProofs.length} files</strong>
+                <span class="note" style="margin:0;">Uploaded screenshots/docs</span>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--mu);margin-bottom:10px;">
+              <strong style="color:#fff;">Subject Hours in ${escapeHtml(parentSelectedMonth)}:</strong><br>
+              ${periodSubjectSummary}
+            </div>
+            <div style="font-size:11px;font-family:var(--font-mono);color:var(--mu);margin-bottom:6px;">${escapeHtml(parentSelectedYear)} MONTH-BY-MONTH STUDY ACTIVITY (CLICK A MONTH TO INSPECT):</div>
+            <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;align-items:end;height:86px;padding:8px 6px 4px;background:rgba(2,6,4,0.65);border-radius:12px;border:1px solid var(--line);">
+              ${monthlyTotals.map(m => {
+                const hPct = m.mins > 0 ? Math.max(12, Math.round((m.mins / maxMonthMins) * 100)) : 4;
+                const isSel = m.ym === parentSelectedMonth;
+                return `
+                  <div onclick="parentSelectedMonth='${m.ym}';renderParentOverviewContent();" title="${m.label} ${parentSelectedYear}: ${m.mins} mins (${m.sessions} sessions)" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;">
+                    <div style="width:100%;height:${hPct}%;border-radius:5px 5px 2px 2px;background:${isSel ? "var(--grad)" : m.mins > 0 ? "rgba(0,255,136,0.35)" : "rgba(255,255,255,0.08)"};border:${isSel ? "1px solid #fff" : "0"};"></div>
+                    <span style="font:700 9px var(--font-mono);color:${isSel ? "var(--ac)" : "var(--mu)"};">${m.label}</span>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          ` : `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:12px;">
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Annual Study (${escapeHtml(parentSelectedYear)})</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${(yearMins / 60).toFixed(1)} hrs</strong>
+                <span class="note" style="margin:0;">${yearMins} mins · ${yearSessions.length} sessions</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Active Days (${escapeHtml(parentSelectedYear)})</span>
+                <strong style="font:800 18px var(--font-mono);color:var(--ac);">${yearActiveDays} days</strong>
+                <span class="note" style="margin:0;">Consistent study days</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Annual Paper Avg</span>
+                <strong style="font:800 18px var(--font-mono);color:var(--cyan);">${yearPaperAvg}</strong>
+                <span class="note" style="margin:0;">${yearPapers.length} paper(s) marked</span>
+              </div>
+              <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
+                <span class="stat-label">Syllabus Mastered</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${readyPct}%</strong>
+                <span class="note" style="margin:0;">${greenCount}/${totalTopics} topics Green</span>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--mu);margin-bottom:10px;">
+              <strong style="color:#fff;">Subject Hours in ${escapeHtml(parentSelectedYear)}:</strong><br>
+              ${periodSubjectSummary}
+            </div>
+            <div style="font-size:11px;font-family:var(--font-mono);color:var(--mu);margin-bottom:6px;">YEAR-BY-YEAR COMPARISON:</div>
+            ${yearlyTotals.map(y => {
+              const wPct = y.mins > 0 ? Math.max(6, Math.round((y.mins / maxYearMins) * 100)) : 0;
+              return `
+                <div class="proof-log-item" style="flex-direction:column;align-items:stretch;margin-bottom:6px;cursor:pointer;" onclick="parentSelectedYear='${y.yr}';renderParentOverviewContent();">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <strong style="color:#fff;">Year ${escapeHtml(y.yr)}</strong>
+                    <span style="font:700 11px var(--font-mono);color:var(--ac);">${(y.mins / 60).toFixed(1)} hrs (${y.mins}m) · ${y.sessions} sessions · ${y.papersCnt} papers · ${y.proofsCnt} proofs</span>
+                  </div>
+                  <div class="bar-track" style="margin:5px 0 0;"><div class="bar-fill" style="width:${wPct}%"></div></div>
+                </div>
+              `;
+            }).join("")}
+          `}
+        </div>
+      `;
+
+      const evidenceHtml = state.evidence.length
+        ? `<div class="evidence-grid">${state.evidence.slice(0, 8).map(item => {
+            const isImg = item.mimeType && item.mimeType.startsWith("image/");
+            return `
+              <div class="evidence-card">
+                ${isImg
+                  ? `<img class="evidence-thumb" src="${item.dataUrl}" alt="${escapeHtml(item.caption)}" onclick="openEvidencePreview(${item.id})" />`
+                  : `<div class="evidence-file-box" onclick="openEvidencePreview(${item.id})" style="cursor:pointer;">📄<br>${escapeHtml(item.fileName)}</div>`
+                }
+                <div style="font-size:11.5px;font-weight:700;color:#fff;">${escapeHtml(item.caption)}</div>
+                <div style="font:600 10px var(--font-mono);color:var(--mu);">${escapeHtml(item.subject)} · ${escapeHtml(item.date)}</div>
+              </div>
+            `;
+          }).join("")}</div>`
+        : `<p class="note">No photos or files uploaded yet. Use the <strong>📸 Proof &amp; Files</strong> tab to attach work screenshots or pages.</p>`;
+
+      const recentSessionsHtml = state.sessions.slice(0, 8).map(s =>
+        `<div class="proof-log-item"><span><span class="tag">${escapeHtml(s.subject)}</span> <strong>${escapeHtml(s.topic || s.note || "Revision")}</strong> · ${s.minutes} mins</span><span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(s.date)}</span></div>`
+      ).join("") || `<p class="note">No stopwatch sessions recorded yet.</p>`;
+
+      const papersHtml = state.papers.map(p => {
+        const pct = Math.round((p.score / Math.max(1, p.max)) * 100);
+        const hasAttachment = Boolean(p.fileDataUrl || p.aiFeedback);
+        return `<div class="proof-log-item">
+          <span>
+            <span class="tag">${escapeHtml(p.subject)}</span>
+            <strong>${escapeHtml(p.title)}</strong> (${escapeHtml(p.date)})
+            ${p.fileName ? `<span class="uk-pill" style="margin-left:5px;color:var(--cyan);">📎 ${escapeHtml(p.fileName)}</span>` : ""}
+            ${p.aiFeedback ? `<span class="uk-pill" style="margin-left:4px;">✦ AI Marked</span>` : ""}
+          </span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="score-pill">${p.score}/${p.max} (${pct}%)${p.grade ? ` · Grade ${escapeHtml(p.grade)}` : ""}</span>
+            ${hasAttachment ? `<button type="button" class="b sm no-print" onclick="openPaperPreview(${p.id})">👁 View</button>` : ""}
+          </div>
+        </div>`;
+      }).join("") || `<p class="note">No mock or past papers logged yet.</p>`;
+
+      const diaryHtml = state.diary.slice(0, 5).map(d =>
+        `<div class="proof-log-item" style="flex-direction:column;align-items:stretch;">
+          <div style="display:flex;justify-content:space-between;"><span><span class="tag">${escapeHtml(d.subject)}</span> <strong>${escapeHtml(d.takeaway || "Daily Log")}</strong></span><span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(d.date)}</span></div>
+          ${d.body ? `<div class="note" style="margin:3px 0 0;color:var(--tx);">${escapeHtml(d.body)}</div>` : ""}
+        </div>`
+      ).join("") || `<p class="note">No diary entries recorded yet.</p>`;
+
+      const daySigned = state.parentSignOffs[selectedDayKey];
+      const weekSigned = state.parentSignOffs[weekKey];
+
+      document.getElementById("parentReportBody").innerHTML = `
+        <div class="parent-banner">
+          <div>
+            <div class="stat-label">SECOND LIFE UK · PARENT VERIFICATION &amp; HOME-ED REPORT</div>
+            <strong style="font-size:17px;color:#fff;">Year 10 GCSE Overview · ${escapeHtml(reportDate)}</strong>
+            <div class="note" style="margin:2px 0 0;">Overall Readiness: <strong style="color:var(--ac);">${readyPct}%</strong> · All-Time Study: <strong style="color:#fff;">${(totalMins / 60).toFixed(1)} hrs</strong> (${totalMins} mins) · Uploaded Proofs: <strong style="color:var(--cyan);">${state.evidence.length}</strong></div>
+          </div>
+          <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="b sm pri" onclick="copyParentSummary()">📋 Copy Summary</button>
+            <button type="button" class="b sm" onclick="window.print()">🖨 Print / Save PDF</button>
+          </div>
+        </div>
+
+        <!-- Daily & Weekly Parent Verification Check -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px;">
+          <div class="proof-log-item" style="flex-direction:column;align-items:stretch;padding:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="color:#fff;">📅 Day Check (${escapeHtml(parentSelectedDate)})</strong>
+              <span class="verify-badge ${daySigned ? "" : "pending"}">${daySigned ? "✓ CONFIRMED" : "⏳ UNCONFIRMED"}</span>
+            </div>
+            <div class="note"><strong>${dayMins} mins</strong> logged across <strong>${daySessions.length}</strong> session(s) · <strong>${dayProofs.length}</strong> proof(s) · <strong>${dayPapers.length}</strong> paper(s).</div>
+            <button type="button" class="b sm ${daySigned ? "" : "pri"} no-print" onclick="toggleParentConfirmation('${selectedDayKey}')">
+              ${daySigned ? `✓ Signed off (${daySigned}) — Undo` : `✓ Confirm ${parentSelectedDate === todayIso ? "Today's" : "Day's"} Work Done`}
+            </button>
+          </div>
+
+          <div class="proof-log-item" style="flex-direction:column;align-items:stretch;padding:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="color:#fff;">📆 Week of ${escapeHtml(weekIso)}</strong>
+              <span class="verify-badge ${weekSigned ? "" : "pending"}">${weekSigned ? "✓ CONFIRMED" : "⏳ UNCONFIRMED"}</span>
+            </div>
+            <div class="note"><strong>${weekMins} mins (${(weekMins / 60).toFixed(1)} hrs)</strong> across <strong>${weekDaysActive}</strong> active day(s) · <strong>${weekProofs.length}</strong> proof(s).</div>
+            <button type="button" class="b sm ${weekSigned ? "" : "pri"} no-print" onclick="toggleParentConfirmation('${weekKey}')">
+              ${weekSigned ? `✓ Signed off (${weekSigned}) — Undo` : "✓ Confirm Weekly Progress"}
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 8px;">
+          <h3 style="margin:0;font-size:13.5px;color:var(--ac);">1. Subject-by-Subject Activity — ${escapeHtml(selectedDateLabel)}</h3>
+          <div class="no-print" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+            <button type="button" class="b sm" onclick="shiftParentDate(-1)">◀ Prev Day</button>
+            <input type="date" value="${escapeHtml(parentSelectedDate)}" max="${escapeHtml(todayIso)}" onchange="setParentDate(this.value)" style="padding:4px 9px;font-size:11.5px;max-width:145px;" />
+            <button type="button" class="b sm" ${parentSelectedDate >= todayIso ? "disabled" : ""} onclick="shiftParentDate(1)">Next Day ▶</button>
+            ${parentSelectedDate !== todayIso ? `<button type="button" class="b sm pri" onclick="setParentDate('${todayIso}')">Today</button>` : ""}
+          </div>
+        </div>
+        ${dailySubjectRows}
+
+        <h3 style="margin:16px 0 8px;font-size:13.5px;color:var(--ac);">2. Monthly &amp; Yearly Longitudinal Progress Stats</h3>
+        ${longitudinalHtml}
+
+        <h3 style="margin:16px 0 8px;font-size:13.5px;color:var(--ac);">3. Physical Proof, Screenshots &amp; Saved Work Files</h3>
+        ${evidenceHtml}
+
+        <h3 style="margin:14px 0 8px;font-size:13.5px;color:var(--ac);">4. Completed Past Papers &amp; Assessment Scores</h3>
+        ${papersHtml}
+
+        <h3 style="margin:14px 0 8px;font-size:13.5px;color:var(--ac);">5. Student Learning Diary</h3>
+        ${diaryHtml}
+
+        <h3 style="margin:14px 0 8px;font-size:13.5px;color:var(--ac);">6. Timestamped Stopwatch Study Sessions</h3>
+        ${recentSessionsHtml}
+      `;
+      const parentDlg = document.getElementById("parentDialog");
+      if (parentDlg && !parentDlg.open) {
+        parentDlg.showModal();
+      }
+    }
+
+    async function copyParentSummary() {
+      const greenCount = state.topics.filter(t => t.status === "green").length;
+      const totalTopics = state.topics.length;
+      const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
+      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+      const subjLines = state.subjects.map(s => {
+        const st = state.topics.filter(t => t.subject === s);
+        const g = st.filter(t => t.status === "green").length;
+        const pct = st.length ? Math.round((g / st.length) * 100) : 0;
+        return `• ${s}: ${pct}% Exam-Ready (${g}/${st.length} topics) | ${Number(state.minutes[s]) || 0} mins studied`;
+      }).join("\n");
+
+      const summary = `SECOND LIFE UK — YEAR 10 GCSE PROGRESS SUMMARY (${new Date().toLocaleDateString("en-GB")})
+Overall Exam Readiness: ${readyPct}% (${greenCount}/${totalTopics} topics mastered)
+Total Focus Time Logged: ${totalMins} mins (${(totalMins / 60).toFixed(1)} hrs across ${state.sessions.length} sessions)
+Past Papers Logged: ${state.papers.length}
+
+SUBJECT BREAKDOWN:
+${subjLines}`;
+
+      try {
+        await navigator.clipboard.writeText(summary);
+        showToast("Parent summary copied to clipboard!");
+      } catch {
+        showToast("Unable to access clipboard");
+      }
+    }
+
+    function renderLinks() {
+      const linksEl = document.getElementById("linksContainer");
+      linksEl.innerHTML = state.links.map(l =>
+        `<a class="link-chip" href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">↗ ${escapeHtml(l.name)}</a>`
+      ).join("") || `<span class="note">No links saved yet.</span>`;
+    }
+
+    function setSubjectFilter(subj) {
+      activeSubjectFilter = subj;
+      if (subj !== "ALL") {
+        document.getElementById("timerSubjectSelect").value = subj;
+        syncStopwatchTopics();
+      }
+      render();
+    }
+
+    function toggleSubjectFilter(subj) {
+      setSubjectFilter(activeSubjectFilter === subj ? "ALL" : subj);
+    }
+
+    function clearTopicSearch() {
+      const searchInput = document.getElementById("topicSearchInput");
+      const statusSel = document.getElementById("statusFilterSelect");
+      if (searchInput) searchInput.value = "";
+      if (statusSel) statusSel.value = "ALL";
+      activeSubjectFilter = "ALL";
+      render();
+    }
+
+    function cycleTopicRag(id) {
+      const order = ["red", "amber", "green"];
+      const t = state.topics.find(x => x.id === id);
+      if (!t) return;
+      t.status = order[(order.indexOf(t.status) + 1) % order.length];
+      t.updatedAt = new Date().toISOString().slice(0, 10);
+      saveState();
+      render();
+    }
+
+    function deleteTopic(id) {
+      state.topics = state.topics.filter(x => x.id !== id);
+      saveState();
+      render();
+    }
+
+    function pickWeakTopic() {
+      const pool = state.topics.filter(t => t.status === "red");
+      const fallback = state.topics.filter(t => t.status === "amber");
+      const list = pool.length ? pool : fallback.length ? fallback : state.topics;
+      if (!list.length) return showToast("Add some topics first!");
+      const chosen = list[Math.floor(Math.random() * list.length)];
+      setSubjectFilter(chosen.subject);
+      showToast(`🎯 Revise: [${chosen.subject}] ${chosen.name}`);
+    }
+
+    function saveScratchpad() {
+      state.scratchpad = document.getElementById("scratchpadInput").value;
+      saveState();
+    }
+
+    function clearScratchpad() {
+      state.scratchpad = "";
+      document.getElementById("scratchpadInput").value = "";
+      saveState();
+    }
+
+    // =========================================================================
+    // DRIFT-FREE COUNT-UP LIVE STOPWATCH
+    // =========================================================================
+    function formatStopwatch(sec) {
+      const total = Math.max(0, Math.floor(sec));
+      const h = String(Math.floor(total / 3600)).padStart(2, "0");
+      const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function getLiveStopwatchSeconds() {
+      if (!stopwatchStartTimestamp) return stopwatchElapsedSec;
+      return stopwatchElapsedSec + (Date.now() - stopwatchStartTimestamp) / 1000;
+    }
+
+    function updateTimerUi() {
+      document.getElementById("timerDisplay").textContent = formatStopwatch(getLiveStopwatchSeconds());
+      const card = document.getElementById("timerCard");
+      const badge = document.getElementById("timerStateBadge");
+      if (stopwatchStartTimestamp) {
+        card.classList.add("timer-running");
+        badge.textContent = "RECORDING";
+        badge.style.color = "var(--ac)";
+      } else {
+        card.classList.remove("timer-running");
+        badge.textContent = stopwatchElapsedSec > 0 ? "PAUSED" : "READY";
+        badge.style.color = stopwatchElapsedSec > 0 ? "#fbbf24" : "var(--mu)";
+      }
+    }
+
+    function startStopwatch(subjectOverride, topicOverride) {
+      if (subjectOverride && state.subjects.includes(subjectOverride)) {
+        document.getElementById("timerSubjectSelect").value = subjectOverride;
+        syncStopwatchTopics();
+      }
+      if (topicOverride) {
+        const topicSel = document.getElementById("timerTopicSelect");
+        if (![...topicSel.options].some(o => o.value === topicOverride)) {
+          const opt = document.createElement("option");
+          opt.value = topicOverride;
+          opt.textContent = topicOverride;
+          topicSel.appendChild(opt);
+        }
+        topicSel.value = topicOverride;
+      }
+      if (stopwatchStartTimestamp) return;
+      stopwatchStartTimestamp = Date.now();
+      updateTimerUi();
+      stopwatchTickHandle = setInterval(updateTimerUi, 250);
+    }
+
+    function pauseStopwatch() {
+      if (stopwatchStartTimestamp) {
+        stopwatchElapsedSec += (Date.now() - stopwatchStartTimestamp) / 1000;
+        stopwatchStartTimestamp = null;
+      }
+      clearInterval(stopwatchTickHandle);
+      stopwatchTickHandle = null;
+      updateTimerUi();
+    }
+
+    function resetStopwatch() {
+      pauseStopwatch();
+      stopwatchElapsedSec = 0;
+      updateTimerUi();
+    }
+
+    function finishAndLogStopwatch() {
+      pauseStopwatch();
+      if (stopwatchElapsedSec < 5) {
+        return showToast("Run the stopwatch for at least a few seconds before logging");
+      }
+      const mins = Math.max(1, Math.round(stopwatchElapsedSec / 60));
+      const subj = document.getElementById("timerSubjectSelect").value || state.subjects[0] || "General";
+      const topic = document.getElementById("timerTopicSelect")?.value || `General ${subj} Revision`;
+      state.minutes[subj] = (Number(state.minutes[subj]) || 0) + mins;
+      const nowStr = new Date().toISOString().slice(0, 16).replace("T", " ");
+      state.sessions.unshift({
+        id: Date.now(),
+        date: nowStr,
+        subject: subj,
+        topic,
+        minutes: mins,
+        note: topic
+      });
+      stopwatchElapsedSec = 0;
+      saveState();
+      updateTimerUi();
+      render();
+      showToast(`✓ Logged ${mins} min(s) on "${topic}" to Parent Overview!`);
+    }
+
+    // Backwards-compatible wrappers for Gemini tool calls
+    function startTimer(subjectOverride, _mins, topicOverride) {
+      startStopwatch(subjectOverride, topicOverride);
+    }
+    function pauseTimer() { pauseStopwatch(); }
+    function resetTimer() { resetStopwatch(); }
+    // =========================================================================
+    // SETTINGS, AI PROMPT GENERATOR & JSON IMPORT (CTRL+SHIFT+A)
+    // =========================================================================
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        openSettings("gemini");
+      }
+    });
+
+    function openSettings(tabName = "gemini") {
+      loadGeminiSettingsUI();
+      renderSettingsSubjects();
+      renderSettingsLinks();
+      updateAiPromptText();
+      switchSettingsTab(tabName);
+      document.getElementById("settingsDialog").showModal();
+    }
+
+    function closeSettings() {
+      document.getElementById("settingsDialog").close();
+    }
+
+    function switchSettingsTab(tabName) {
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".dlg-tabs .b").forEach(b => b.classList.remove("pri"));
+      const pane = document.getElementById(`pane-${tabName}`);
+      const btn = document.getElementById(`tabBtn-${tabName}`);
+      if (pane) pane.classList.add("active");
+      if (btn) btn.classList.add("pri");
+      if (tabName === "aiprompt") updateAiPromptText();
+    }
+
+    function sanitizeApiKey(raw) {
+      return String(raw || "").replace(/[\s"'`]/g, "").trim();
+    }
+
+    function loadGeminiSettingsUI() {
+      document.getElementById("geminiKeyInput").value = state.gemini.apiKey || "";
+      const sel = document.getElementById("geminiModelSelect");
+      if (!state.gemini.model || state.gemini.model === "auto" || ![...sel.options].some(o => o.value === state.gemini.model)) {
+        state.gemini.model = "gemini-4-hydrogen";
+      }
+      sel.value = state.gemini.model;
+      document.getElementById("geminiToolsEnabled").checked = state.gemini.toolsEnabled !== false;
+      document.getElementById("geminiConfirmActions").checked = Boolean(state.gemini.confirmActions);
+    }
+
+    function toggleApiKeyVisibility() {
+      const inp = document.getElementById("geminiKeyInput");
+      const btn = document.getElementById("toggleKeyVisBtn");
+      if (inp.type === "password") {
+        inp.type = "text";
+        btn.textContent = "🙈 Hide";
+      } else {
+        inp.type = "password";
+        btn.textContent = "👁 Show";
+      }
+    }
+
+    function saveGeminiSettings(silent = false) {
+      state.gemini.apiKey = sanitizeApiKey(document.getElementById("geminiKeyInput").value);
+      document.getElementById("geminiKeyInput").value = state.gemini.apiKey;
+      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-4-hydrogen";
+      state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
+      state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
+      saveState();
+      render();
+      renderGeminiWelcome();
+      if (!silent) showToast("Gemini AI settings saved");
+    }
+
+    function updateGeminiBadge() {
+      const dot = document.getElementById("geminiStatusDot");
+      const txt = document.getElementById("geminiStatusText");
+      if (!dot || !txt) return;
+      if (state.gemini && state.gemini.apiKey) {
+        dot.classList.add("connected");
+        txt.textContent = `${state.gemini.model || "gemini-4-hydrogen"} · Ready`;
+      } else {
+        dot.classList.remove("connected");
+        txt.textContent = "No API Key";
+      }
+    }
+
+    function renderSettingsSubjects() {
+      const box = document.getElementById("settingsSubjectList");
+      box.innerHTML = state.subjects.map(s => `
+        <span class="tag" style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;font-size:12px;">
+          ${escapeHtml(s)}
+          <button type="button" style="background:none;border:0;color:var(--red);cursor:pointer;font-weight:800;" onclick="removeSubject('${escapeHtml(s).replace(/'/g, "\\'")}')">✕</button>
+        </span>
+      `).join("");
+    }
+
+    function addSubject() {
+      const inp = document.getElementById("newSubjectInput");
+      const name = inp.value.trim();
+      if (!name) return;
+      if (!state.subjects.includes(name)) {
+        state.subjects.push(name);
+        if (state.minutes[name] == null) state.minutes[name] = 0;
+        saveState();
+        render();
+        renderSettingsSubjects();
+        updateAiPromptText();
+      }
+      inp.value = "";
+    }
+
+    function removeSubject(name) {
+      if (state.subjects.length <= 1) return showToast("Keep at least one subject");
+      state.subjects = state.subjects.filter(s => s !== name);
+      if (activeSubjectFilter === name) activeSubjectFilter = "ALL";
+      saveState();
+      render();
+      renderSettingsSubjects();
+      updateAiPromptText();
+    }
+
+    function updateAiPromptText() {
+      const board = document.getElementById("examBoardInput")?.value.trim() || "UK GCSE";
+      const scopeSel = document.getElementById("aiPromptScopeSelect");
+      const badgesBox = document.getElementById("aiPromptSubjectBadges");
+      const activeSubjects = state.subjects.length ? [...state.subjects] : ["Maths"];
+
+      if (scopeSel) {
+        const prevScope = scopeSel.value || "ALL";
+        scopeSel.innerHTML = [
+          `<option value="ALL">All Active Subjects (${activeSubjects.length})</option>`,
+          ...activeSubjects.map(s => `<option value="${escapeHtml(s)}">Only: ${escapeHtml(s)}</option>`)
+        ].join("");
+        scopeSel.value = (prevScope === "ALL" || activeSubjects.includes(prevScope)) ? prevScope : "ALL";
+      }
+
+      const selectedScope = scopeSel?.value || "ALL";
+      const targetSubjects = selectedScope === "ALL" ? activeSubjects : [selectedScope];
+
+      if (badgesBox) {
+        badgesBox.innerHTML = activeSubjects.map(s => {
+          const count = state.topics.filter(t => t.subject === s).length;
+          const isTargeted = targetSubjects.includes(s);
+          return `<span class="tag" style="opacity:${isTargeted ? "1" : "0.45"};border-color:${isTargeted ? "var(--ac)" : "var(--line)"};">${escapeHtml(s)} (${count} topics)</span>`;
+        }).join("");
+      }
+
+      const subjectList = targetSubjects.join(", ");
+      const existingBySubject = targetSubjects.map(s => {
+        const existing = state.topics.filter(t => t.subject === s).map(t => t.name);
+        return existing.length
+          ? `- ${s}: Already has ${existing.length} topic(s) (${existing.slice(0, 5).join(", ")}${existing.length > 5 ? "..." : ""}) — include all remaining missing specification topics.`
+          : `- ${s}: Currently empty (0 topics) — generate the COMPLETE specification from start to finish.`;
+      }).join("\n");
+
+      const prompt = `Generate a complete, exhaustive Year 10 & Year 11 UK GCSE revision syllabus in valid raw JSON format ONLY (no markdown code fences, no commentary) tailored specifically to the subjects I am currently learning: ${subjectList}.
+
+Exam board context: ${board}.
+
+CURRENT SYLLABUS COVERAGE TO ADAPT TO:
+${existingBySubject}
+
+CRITICAL RULES:
+1. Only generate topics for these exact subject names: ${targetSubjects.map(s => `"${s}"`).join(", ")}. Do NOT include any other subjects.
+2. Cover EVERY SINGLE specification unit, paper, required practical, and sub-topic for each targeted subject so zero exam topics are missed.
+3. Output a single JSON array of objects using this exact schema:
+[
+  {
+    "subject": "Exact subject name from [${subjectList}]",
+    "name": "Clear, specific topic title",
+    "requirement": "Spec code, paper number, or required practical details",
+    "status": "red"
+  }
+]`;
+      const out = document.getElementById("aiPromptOutput");
+      if (out) out.textContent = prompt;
+    }
+
+    async function copyAiPrompt() {
+      const text = document.getElementById("aiPromptOutput").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("AI Syllabus Prompt copied!");
+      } catch {
+        showToast("Select and copy the prompt box text");
+      }
+    }
+
+    function handleJsonFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById("jsonPasteInput").value = String(reader.result || "");
+        importJsonFromText(false);
+      };
+      reader.readAsText(file);
+    }
+
+    function resolveImportedSubject(rawSubj, keepExistingOnly) {
+      const cleaned = String(rawSubj || "").trim();
+      if (!cleaned) return state.subjects[0] || "General";
+
+      // 1. Exact case-insensitive match
+      const exact = state.subjects.find(s => s.toLowerCase() === cleaned.toLowerCase());
+      if (exact) return exact;
+
+      // 2. Prefix / containment match (e.g. "Maths Paper 1" -> "Maths", "Biology" -> "Combined Science")
+      const partial = state.subjects.find(s => {
+        const sl = s.toLowerCase();
+        const cl = cleaned.toLowerCase();
+        return cl.startsWith(sl) || sl.startsWith(cl) || cl.includes(sl);
+      });
+      if (partial) return partial;
+
+      // 3. Science discipline alias mapping if user has Combined Science
+      if (/^(biology|chemistry|physics)\b/i.test(cleaned)) {
+        const sci = state.subjects.find(s => /science/i.test(s));
+        if (sci) return sci;
+      }
+
+      if (keepExistingOnly) {
+        return state.subjects[0] || "General";
+      }
+
+      state.subjects.push(cleaned);
+      if (state.minutes[cleaned] == null) state.minutes[cleaned] = 0;
+      return cleaned;
+    }
+
+    function importJsonFromText(replaceAll) {
+      let raw = document.getElementById("jsonPasteInput").value.trim();
+      if (!raw) return showToast("Paste or upload JSON first");
+      raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+      const keepExistingOnly = document.getElementById("importKeepSubjectsOnly")?.checked !== false;
+
+      try {
+        const parsed = JSON.parse(raw);
+
+        // If the JSON is a full exported backup object (has subjects/topics/minutes), import topics safely without overwriting layout structure
+        let items = [];
+        if (Array.isArray(parsed)) {
+          items = parsed;
+        } else if (parsed && Array.isArray(parsed.topics)) {
+          items = parsed.topics;
+        } else if (parsed && typeof parsed === "object") {
+          Object.entries(parsed).forEach(([subjKey, val]) => {
+            if (Array.isArray(val)) {
+              val.forEach(entry => {
+                if (typeof entry === "string") {
+                  items.push({ subject: subjKey, name: entry, status: "red" });
+                } else if (entry && typeof entry === "object") {
+                  items.push({ subject: entry.subject || subjKey, ...entry });
+                }
+              });
+            }
+          });
+        }
+
+        if (!items.length) throw new Error("Expected a JSON array of topic objects.");
+
+        const validItems = items
+          .filter(x => x && typeof (x.name || x.title || x.topic) === "string" && (x.name || x.title || x.topic).trim())
+          .map((x, idx) => {
+            const rawName = String(x.name || x.title || x.topic).trim();
+            const rawSubj = String(x.subject || "").trim();
+            const subj = resolveImportedSubject(rawSubj, keepExistingOnly);
+            const subLabel = rawSubj && rawSubj.toLowerCase() !== subj.toLowerCase() ? `[${rawSubj}] ` : "";
+            const reqText = `${subLabel}${String(x.requirement || x.spec || x.examReq || "").trim()}`.trim();
+            const st = ["red", "amber", "green"].includes(String(x.status).toLowerCase())
+              ? String(x.status).toLowerCase()
+              : "red";
+            return {
+              id: Date.now() + idx,
+              subject: subj,
+              name: rawName,
+              requirement: reqText,
+              status: st
+            };
+          });
+
+        if (!validItems.length) throw new Error("No valid topic objects found in JSON.");
+        state.topics = replaceAll ? validItems : [...validItems, ...state.topics];
+        activeSubjectFilter = "ALL";
+        document.getElementById("jsonFileInput").value = "";
+        document.getElementById("jsonPasteInput").value = "";
+        saveState();
+        switchWorkspaceTab("syllabus");
+        render();
+        closeSettings();
+        showToast(`Imported ${validItems.length} topics!`);
+      } catch (err) {
+        showToast("JSON Import Error: " + err.message);
+      }
+    }
+
+    function exportSyllabusJson() {
+      const blob = new Blob([JSON.stringify(state.topics, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "second-life-uk-gcse-syllabus.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderSettingsLinks() {
+      const box = document.getElementById("settingsLinksList");
+      box.innerHTML = state.links.map((l, idx) => `
+        <div class="topic-item" style="margin-bottom:6px;">
+          <div><strong>${escapeHtml(l.name)}</strong> <span class="note">(${escapeHtml(l.url)})</span></div>
+          <button type="button" class="b red sm" onclick="removeStudyLink(${idx})">✕</button>
+        </div>
+      `).join("");
+    }
+
+    function addStudyLink() {
+      const name = document.getElementById("newLinkName").value.trim();
+      let url = document.getElementById("newLinkUrl").value.trim();
+      if (!name || !url) return;
+      if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+      state.links.push({ name, url });
+      document.getElementById("newLinkName").value = "";
+      document.getElementById("newLinkUrl").value = "";
+      saveState();
+      render();
+      renderSettingsLinks();
+    }
+
+    function removeStudyLink(idx) {
+      state.links.splice(idx, 1);
+      saveState();
+      render();
+      renderSettingsLinks();
+    }
+
+    function promptWipeAllData() {
+      const box = document.getElementById("wipeDataBox");
+      if (!box) return;
+      box.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.4);">
+          <span style="font-size:12px;color:#fda4af;font-weight:700;">Are you sure? This permanently erases all progress.</span>
+          <button type="button" class="b red sm" onclick="executeWipeAllData()">Yes, Wipe Everything</button>
+          <button type="button" class="b sm" onclick="cancelWipeAllData()">Cancel</button>
+        </div>
+      `;
+    }
+
+    function cancelWipeAllData() {
+      const box = document.getElementById("wipeDataBox");
+      if (!box) return;
+      box.innerHTML = `<button type="button" class="b red" onclick="promptWipeAllData()">🗑 Wipe All Progress &amp; Data</button>`;
+    }
+
+    function executeWipeAllData() {
+      resetStopwatch();
+      const preservedKey = state.gemini?.apiKey || "";
+      const preservedModel = state.gemini?.model || "gemini-4-hydrogen";
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("sluk_gcse_hub_v4");
+      state = structuredClone(DEFAULT_STATE);
+      state.gemini.apiKey = preservedKey;
+      state.gemini.model = preservedModel;
+      activeSubjectFilter = "ALL";
+      improvementSubjectFilter = "ALL";
+      geminiHistory = [];
+      clearPendingPaperFile();
+      clearPendingProofFiles();
+      saveState();
+      cancelWipeAllData();
+      renderGeminiWelcome();
+      render();
+      closeSettings();
+      showToast("All progress wiped — ready for a new user!");
+    }
+
+    // =========================================================================
+    // GOOGLE GEMINI AI INTEGRATION WITH FUNCTION CALLING
+    // =========================================================================
+    async function testGeminiConnection() {
+      saveGeminiSettings(true);
+      const statusEl = document.getElementById("geminiTestResult");
+      const btn = document.getElementById("testGeminiBtn");
+
+      if (!state.gemini.apiKey) {
+        statusEl.style.color = "#fda4af";
+        statusEl.textContent = "✕ Please enter your Google Gemini API key first.";
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.style.color = "var(--cyan)";
+      statusEl.textContent = `Testing ${state.gemini.model || "gemini-4-hydrogen"}...`;
+
+      geminiStatusCallback = msg => {
+        statusEl.style.color = "#fcd34d";
+        statusEl.textContent = `⏳ ${msg}`;
+      };
+
+      try {
+        const res = await callGeminiRaw({
+          contents: [{ role: "user", parts: [{ text: "Reply with: Connected!" }] }]
+        });
+        const reply = res?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim() || "Connected!";
+        statusEl.style.color = "var(--ac)";
+        statusEl.textContent = `✓ Success (${res._usedModel}): ${reply}`;
+        updateGeminiBadge();
+      } catch (err) {
+        statusEl.style.color = "#fda4af";
+        const isNetwork = /failed to fetch|networkerror|load failed/i.test(err.message);
+        statusEl.textContent = isNetwork
+          ? '✕ Network/CORS block ("Failed to fetch"). Check your internet connection or ad-blocker/VPN for generativelanguage.googleapis.com.'
+          : `✕ Connection failed: ${err.message}`;
+      } finally {
+        geminiStatusCallback = null;
+        btn.disabled = false;
+      }
+    }
+
+    function focusGeminiChat() {
+      if (window.innerWidth <= 768) {
+        switchMobileView("ai");
+      }
+      const card = document.getElementById("geminiCopilotCard");
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("geminiPromptInput").focus();
+    }
+
+    function clearGeminiChat() {
+      geminiHistory = [];
+      renderGeminiWelcome();
+      showToast("Gemini chat cleared");
+    }
+
+    function renderGeminiWelcome() {
+      const log = document.getElementById("geminiChatLog");
+      if (!log) return;
+      const hasKey = Boolean(state.gemini && state.gemini.apiKey);
+      log.innerHTML = `
+        <div class="chat-msg ai">
+          <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);font-weight:800;margin-bottom:4px;">✦ SECOND LIFE UK · GEMINI STUDY COPILOT</div>
+          I have live access to all <strong>${state.topics.length}</strong> topics across your <strong>${getAllSubjects().length}</strong> GCSE subjects, your focus timer logs, scratchpad notes, and revision links.<br><br>
+          ${hasKey
+            ? `Ask me what to revise, get quizzed on weak topics, or tell me to <code>start a 25m timer</code>, <code>open a revision site</code>, <code>mark a topic green</code>, or <code>write a study plan to your scratchpad</code>.`
+            : `<span style="color:#fcd34d;">⚠ Add your Google Gemini API key in <strong>Settings (Ctrl+Shift+A)</strong> to activate live AI responses and app controls.</span>`}
+        </div>
+      `;
+    }
+
+    function buildLiveSiteContext() {
+      const subjects = getAllSubjects();
+      const red = state.topics.filter(t => t.status === "red");
+      const amber = state.topics.filter(t => t.status === "amber");
+      const green = state.topics.filter(t => t.status === "green");
+      const totalMins = Object.values(state.minutes || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+
+      const snapshot = {
+        activeFilter: activeSubjectFilter,
+        stopwatchState: {
+          selectedSubject: document.getElementById("timerSubjectSelect")?.value || subjects[0],
+          selectedTopic: document.getElementById("timerTopicSelect")?.value || "",
+          elapsedSeconds: Math.round(getLiveStopwatchSeconds()),
+          isRunning: Boolean(stopwatchStartTimestamp)
+        },
+        summary: {
+          totalTopics: state.topics.length,
+          greenExamReady: green.length,
+          amberPractising: amber.length,
+          redNeedsWork: red.length,
+          readinessPercent: state.topics.length ? Math.round((green.length / state.topics.length) * 100) : 0,
+          totalFocusMinutesLogged: totalMins
+        },
+        subjects,
+        focusMinutesBySubject: state.minutes,
+        topics: state.topics.map(t => ({
+          id: t.id,
+          subject: t.subject,
+          name: t.name,
+          requirement: t.requirement || "",
+          status: t.status
+        })),
+        savedLearningLinks: state.links.map(l => ({ name: l.name, url: l.url })),
+        improvementAreas: state.improvements.map(i => ({ subject: i.subject, area: i.area, advice: i.advice, resolved: i.resolved })),
+        scratchpadNotes: state.scratchpad || ""
+      };
+
+      return `You are the Second Life UK Year 10 GCSE Study Hub Copilot—an encouraging, sharp UK GCSE tutor and productivity assistant.
+You have complete real-time visibility into the student's entire Study Hub state below (JSON).
+When the student asks you to take an action (such as starting/pausing/resetting the focus timer, opening a revision website, adding a topic, updating a topic's RAG status, filtering by a subject, saving a learning link, or writing notes/plans to their scratchpad), call the appropriate tool function immediately.
+Keep explanations concise, structured, and tailored to UK GCSE specifications (AQA, Edexcel, OCR).
+
+LIVE STUDY HUB DATA:
+${JSON.stringify(snapshot, null, 2)}`;
+    }
+
+    const GEMINI_TOOL_DECLARATIONS = [
+      {
+        functionDeclarations: [
+          {
+            name: "start_focus_timer",
+            description: "Selects the GCSE subject and topic on the live study stopwatch and immediately starts counting study time.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                subject: { type: "STRING", description: "The GCSE subject to log focus time under." },
+                topic: { type: "STRING", description: "Optional topic name being studied." }
+              },
+              required: ["subject"]
+            }
+          },
+          {
+            name: "pause_or_reset_timer",
+            description: "Pauses, resets, or finishes & logs the active study stopwatch.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                action: { type: "STRING", description: 'One of "pause", "reset", or "finish".' }
+              },
+              required: ["action"]
+            }
+          },
+          {
+            name: "open_website",
+            description: "Opens a helpful GCSE revision website or saved learning link in a new browser tab.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                url: { type: "STRING", description: "Full https:// URL to open." },
+                label: { type: "STRING", description: "Human-readable site title." }
+              },
+              required: ["url", "label"]
+            }
+          },
+          {
+            name: "add_topic",
+            description: "Adds a new GCSE syllabus topic and optional exam requirement to the tracker.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                subject: { type: "STRING", description: "GCSE subject name." },
+                title: { type: "STRING", description: "Topic title." },
+                examReq: { type: "STRING", description: "Exam board spec code, paper, or mark-scheme requirement." },
+                status: { type: "STRING", description: 'RAG status: "red", "amber", or "green".' }
+              },
+              required: ["subject", "title"]
+            }
+          },
+          {
+            name: "update_topic_status",
+            description: "Updates the RAG readiness status (red, amber, or green) of an existing syllabus topic matched by ID or topic name.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                topicIdOrName: { type: "STRING", description: "The numeric topic ID or partial/full topic name." },
+                status: { type: "STRING", description: 'New RAG status: "red", "amber", or "green".' }
+              },
+              required: ["topicIdOrName", "status"]
+            }
+          },
+          {
+            name: "filter_by_subject",
+            description: 'Filters the syllabus topic view to a specific subject or "ALL".',
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                subject: { type: "STRING", description: 'Exact subject name or "ALL".' }
+              },
+              required: ["subject"]
+            }
+          },
+          {
+            name: "append_to_scratchpad",
+            description: "Writes revision notes, blurting questions, or a study checklist into the Blurting & Revision Scratchpad.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                text: { type: "STRING", description: "Text content to write into the scratchpad." },
+                replace: { type: "BOOLEAN", description: "True to replace existing notes; false to append." }
+              },
+              required: ["text"]
+            }
+          },
+          {
+            name: "add_learning_link",
+            description: "Saves a new useful revision website into the Useful Revision & Learning Links grid.",
+            parameters: {
+              type: "OBJECT",
+              properties: {
+                name: { type: "STRING", description: "Display name of the site." },
+                url: { type: "STRING", description: "Full https:// URL." }
+              },
+              required: ["name", "url"]
+            }
+          }
+        ]
+      }
+    ];
+
+    function requestUserConfirmation(toolName, args) {
+      return new Promise(resolve => {
+        const log = document.getElementById("geminiChatLog");
+        const box = document.createElement("div");
+        box.className = "chat-msg ai";
+        box.innerHTML = `
+          <div style="font-family:var(--font-mono);font-size:11px;color:#fcd34d;font-weight:800;margin-bottom:6px;">
+            ⚠ PERMISSION REQUEST: ${escapeHtml(toolName)}
+          </div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--mu);margin-bottom:8px;">
+            ${escapeHtml(JSON.stringify(args))}
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="b sm pri" data-act="yes">✓ Allow</button>
+            <button type="button" class="b sm" data-act="no">✕ Deny</button>
+          </div>
+        `;
+        box.querySelector('[data-act="yes"]').onclick = () => {
+          box.remove();
+          resolve(true);
+        };
+        box.querySelector('[data-act="no"]').onclick = () => {
+          box.remove();
+          resolve(false);
+        };
+        log.appendChild(box);
+        log.scrollTop = log.scrollHeight;
+      });
+    }
+
+    async function executeGeminiToolCall(call) {
+      const { name, args = {} } = call;
+      const needsConfirm = Boolean(state.gemini.confirmActions) &&
+        ["open_website", "add_topic", "update_topic_status", "append_to_scratchpad"].includes(name);
+
+      if (needsConfirm) {
+        const approved = await requestUserConfirmation(name, args);
+        if (!approved) {
+          return {
+            badge: `✕ Cancelled: ${name}`,
+            result: { status: "cancelled_by_user", message: "User declined permission for this action." }
+          };
+        }
+      }
+
+      if (name === "start_focus_timer") {
+        const subjects = getAllSubjects();
+        const matchedSubj = subjects.find(s => s.toLowerCase() === String(args.subject || "").toLowerCase()) || args.subject || subjects[0];
+        if (!state.subjects.includes(matchedSubj)) {
+          state.subjects.push(matchedSubj);
+          if (!(matchedSubj in state.minutes)) state.minutes[matchedSubj] = 0;
+        }
+        syncSubjectDropdowns();
+        const topicLabel = args.topic ? String(args.topic).trim() : "";
+        startStopwatch(matchedSubj, topicLabel);
+        render();
+        return {
+          badge: `⏱ Started stopwatch: ${matchedSubj}${topicLabel ? ` (${topicLabel})` : ""}`,
+          result: { status: "started", subject: matchedSubj, topic: topicLabel || "General Revision" }
+        };
+      }
+
+      if (name === "pause_or_reset_timer") {
+        const act = String(args.action || "pause").toLowerCase();
+        if (act === "finish") {
+          finishAndLogStopwatch();
+          return { badge: "✓ Stopwatch logged", result: { status: "logged" } };
+        }
+        if (act === "reset") {
+          resetStopwatch();
+          return { badge: "↺ Stopwatch reset", result: { status: "reset" } };
+        }
+        pauseStopwatch();
+        return { badge: "⏸ Stopwatch paused", result: { status: "paused", elapsedSeconds: Math.round(getLiveStopwatchSeconds()) } };
+      }
+
+      if (name === "open_website") {
+        let url = String(args.url || "").trim();
+        if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+        const label = String(args.label || url);
+        let opened = false;
+        try {
+          const win = window.open(url, "_blank", "noopener,noreferrer");
+          opened = Boolean(win);
+        } catch (e) {
+          opened = false;
+        }
+        return {
+          badge: `↗ Opened ${label}`,
+          linkCard: { url, label },
+          result: { status: opened ? "opened_in_new_tab" : "popup_blocked_link_provided", url, label }
+        };
+      }
+
+      if (name === "add_topic") {
+        const subject = String(args.subject || getAllSubjects()[0]).trim();
+        const title = String(args.title || "").trim();
+        const examReq = String(args.examReq || "").trim();
+        const st = ["red", "amber", "green"].includes(String(args.status || "").toLowerCase())
+          ? String(args.status).toLowerCase()
+          : "red";
+        if (!state.subjects.includes(subject)) state.subjects.push(subject);
+        if (!(subject in state.minutes)) state.minutes[subject] = 0;
+        const newTopic = { id: Date.now() + Math.floor(Math.random() * 1000), subject, name: title, requirement: examReq, status: st };
+        state.topics.unshift(newTopic);
+        saveState();
+        render();
+        return {
+          badge: `+ Added topic: ${title}`,
+          result: { status: "added", topic: newTopic }
+        };
+      }
+
+      if (name === "update_topic_status") {
+        const query = String(args.topicIdOrName || "").trim().toLowerCase();
+        const st = ["red", "amber", "green"].includes(String(args.status || "").toLowerCase())
+          ? String(args.status).toLowerCase()
+          : "amber";
+        const match = state.topics.find(t => String(t.id) === query || t.name.toLowerCase().includes(query));
+        if (!match) {
+          return {
+            badge: "⚠ Topic not found",
+            result: { status: "not_found", query }
+          };
+        }
+        match.status = st;
+        saveState();
+        render();
+        return {
+          badge: `● ${match.name} → ${st.toUpperCase()}`,
+          result: { status: "updated", topic: match.name, newStatus: st }
+        };
+      }
+
+      if (name === "filter_by_subject") {
+        const raw = String(args.subject || "ALL").trim();
+        if (raw.toUpperCase() === "ALL") {
+          setSubjectFilter("ALL");
+          return { badge: "🔍 Showing all subjects", result: { status: "filtered", subject: "ALL" } };
+        }
+        const matched = getAllSubjects().find(s => s.toLowerCase() === raw.toLowerCase()) || raw;
+        setSubjectFilter(matched);
+        return { badge: `🔍 Filtered: ${matched}`, result: { status: "filtered", subject: matched } };
+      }
+
+      if (name === "append_to_scratchpad") {
+        const text = String(args.text || "").trim();
+        const replace = Boolean(args.replace);
+        state.scratchpad = replace || !state.scratchpad ? text : `${state.scratchpad.trim()}\n\n${text}`;
+        saveState();
+        document.getElementById("scratchpadInput").value = state.scratchpad;
+        return {
+          badge: replace ? "📝 Replaced scratchpad" : "📝 Added to scratchpad",
+          result: { status: "updated_scratchpad", length: state.scratchpad.length }
+        };
+      }
+
+      if (name === "add_learning_link") {
+        const linkName = String(args.name || "").trim();
+        let url = String(args.url || "").trim();
+        if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+        if (!linkName || !url) {
+          return { badge: "⚠ Invalid link", result: { status: "invalid_link" } };
+        }
+        state.links.push({ name: linkName, url });
+        saveState();
+        renderLinks();
+        return {
+          badge: `🔗 Saved link: ${linkName}`,
+          result: { status: "added_link", name: linkName, url }
+        };
+      }
+
+      return {
+        badge: `⚠ Unknown tool: ${name}`,
+        result: { status: "unknown_tool", name }
+      };
+    }
+
+    const GEMINI_FALLBACK_CHAIN = [
+      "gemini-4-hydrogen",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-4-neon",
+      "gemini-4-carbon"
+    ];
+    let geminiStatusCallback = null;
+    const waitMs = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    async function callGeminiRaw(payload) {
+      const apiKey = state.gemini.apiKey;
+      const preferred = (!state.gemini.model || state.gemini.model === "auto")
+        ? "gemini-4-hydrogen"
+        : state.gemini.model;
+
+      const modelsToTry = [preferred, ...GEMINI_FALLBACK_CHAIN.filter(m => m !== preferred)];
+      const MAX_RETRIES_PER_MODEL = 3;
+      let lastError = null;
+      let experiencedHighDemand = false;
+
+      for (const modelId of modelsToTry) {
+        for (let attempt = 0; attempt < MAX_RETRIES_PER_MODEL; attempt++) {
+          let err = null;
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
+            const res = await fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-goog-api-key": apiKey
+              },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+              data._usedModel = modelId;
+              return data;
+            }
+            err = new Error(data?.error?.message || `HTTP ${res.status}`);
+            err.status = res.status;
+          } catch (networkErr) {
+            err = networkErr;
+            err.isNetwork = true;
+          }
+
+          lastError = err;
+          const isTransient =
+            err.status === 429 ||
+            err.status === 500 ||
+            err.status === 502 ||
+            err.status === 503 ||
+            err.status === 504 ||
+            /high demand|overloaded|temporarily unavailable|try again later|quota|rate limit/i.test(err.message || "");
+
+          if (isTransient) {
+            experiencedHighDemand = true;
+            if (attempt < MAX_RETRIES_PER_MODEL - 1) {
+              const delay = Math.round(1200 * Math.pow(2, attempt) + Math.random() * 450);
+              if (geminiStatusCallback) {
+                geminiStatusCallback(`${modelId} experiencing high demand — retrying (${attempt + 1}/${MAX_RETRIES_PER_MODEL - 1})...`);
+              }
+              await waitMs(delay);
+              continue;
+            }
+            if (geminiStatusCallback) {
+              geminiStatusCallback(`${modelId} busy — switching to backup Gemini model...`);
+            }
+            break;
+          }
+
+          const isMissingModel =
+            err.status === 404 ||
+            (err.status === 400 && /model/i.test(err.message || "") && !/api key/i.test(err.message || ""));
+          if (isMissingModel) {
+            break;
+          }
+
+          throw err;
+        }
+      }
+
+      if (experiencedHighDemand) {
+        throw new Error("All available Gemini models are experiencing a temporary spike in demand right now. Please wait 15–30 seconds and click AI Mark again.");
+      }
+      throw lastError || new Error("No compatible Gemini model responded.");
+    }
+
+    function appendGeminiChatBubble(role, htmlContent) {
+      const log = document.getElementById("geminiChatLog");
+      const div = document.createElement("div");
+      div.className = `chat-msg ${role}`;
+      div.innerHTML = htmlContent;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+      return div;
+    }
+
+    function sendGeminiQuickPrompt(text) {
+      document.getElementById("geminiPromptInput").value = text;
+      sendGeminiMessage();
+    }
+
+    async function sendGeminiMessage() {
+      const inp = document.getElementById("geminiPromptInput");
+      const sendBtn = document.getElementById("geminiSendBtn");
+      const userText = inp.value.trim();
+      if (!userText) return;
+
+      if (!state.gemini || !state.gemini.apiKey) {
+        appendGeminiChatBubble("user", escapeHtml(userText));
+        appendGeminiChatBubble("ai", `<span style="color:#fda4af;">Please add your Google Gemini API key in <strong>Settings (Ctrl+Shift+A)</strong> first.</span>`);
+        inp.value = "";
+        return;
+      }
+
+      inp.value = "";
+      appendGeminiChatBubble("user", escapeHtml(userText));
+      const thinkingEl = appendGeminiChatBubble("ai", `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Thinking &amp; checking your study hub...</span>`);
+      sendBtn.disabled = true;
+      geminiStatusCallback = msg => {
+        thinkingEl.innerHTML = `<span style="color:#fcd34d;font-family:var(--font-mono);font-size:11.5px;">⏳ ${escapeHtml(msg)}</span>`;
+      };
+
+      geminiHistory.push({ role: "user", parts: [{ text: userText }] });
+      const recentHistory = geminiHistory.slice(-12);
+
+      const basePayload = {
+        systemInstruction: { parts: [{ text: buildLiveSiteContext() }] },
+        contents: recentHistory
+      };
+      if (state.gemini.toolsEnabled !== false) {
+        basePayload.tools = GEMINI_TOOL_DECLARATIONS;
+      }
+
+      try {
+        let data = await callGeminiRaw(basePayload);
+        const badges = [];
+        const linkCards = [];
+
+        for (let step = 0; step < 4; step++) {
+          const modelContent = data?.candidates?.[0]?.content;
+          const parts = modelContent?.parts || [];
+          const fnCalls = parts.filter(p => p.functionCall);
+
+          if (!fnCalls.length) {
+            const replyText = parts.map(p => p.text || "").join("").trim() || "Done.";
+            geminiHistory.push({ role: "model", parts: [{ text: replyText }] });
+
+            const badgesHtml = badges.length
+              ? `<div class="tool-pill-list">${badges.map(b => `<span class="tool-exec-badge">${escapeHtml(b)}</span>`).join("")}</div>`
+              : "";
+            const linksHtml = linkCards.map(lc =>
+              `<div><a class="fallback-open-btn" href="${escapeHtml(lc.url)}" target="_blank" rel="noopener noreferrer">↗ Open ${escapeHtml(lc.label)}</a></div>`
+            ).join("");
+
+            thinkingEl.innerHTML = `${badgesHtml}<div>${escapeHtml(replyText).replace(/\n/g, "<br>")}</div>${linksHtml}`;
+            return;
+          }
+
+          recentHistory.push({ role: "model", parts });
+          const fnResponses = [];
+          for (const fc of fnCalls) {
+            const execOut = await executeGeminiToolCall(fc.functionCall);
+            if (execOut.badge) badges.push(execOut.badge);
+            if (execOut.linkCard) linkCards.push(execOut.linkCard);
+            fnResponses.push({
+              functionResponse: {
+                name: fc.functionCall.name,
+                response: execOut.result
+              }
+            });
+          }
+          recentHistory.push({ role: "user", parts: fnResponses });
+          data = await callGeminiRaw({
+            systemInstruction: { parts: [{ text: buildLiveSiteContext() }] },
+            contents: recentHistory,
+            ...(state.gemini.toolsEnabled !== false ? { tools: GEMINI_TOOL_DECLARATIONS } : {})
+          });
+        }
+
+        thinkingEl.innerHTML = `<div class="tool-pill-list">${badges.map(b => `<span class="tool-exec-badge">${escapeHtml(b)}</span>`).join("")}</div><div>Completed requested actions.</div>`;
+      } catch (err) {
+        thinkingEl.innerHTML = `<span style="color:#fda4af;">✕ Gemini Error: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        geminiStatusCallback = null;
+        sendBtn.disabled = false;
+      }
+    }
+
+    // Boot
+    document.body.setAttribute("data-mobile-view", "study");
+    updateTimerUi();
+    renderGeminiWelcome();
+    render();
+  </script>
+</body>
+</html>
