@@ -1007,7 +1007,7 @@
       <div class="card">
         <div class="stat-label">Gemini AI Copilot</div>
         <div class="stat-val" id="kpiAiStatus" style="font-size:17px;margin-top:7px;color:var(--amb);">No API Key</div>
-        <div class="note" id="kpiAiModel">Model: gemini-3.5-flash</div>
+        <div class="note" id="kpiAiModel">Model: gemini-4-hydrogen</div>
       </div>
     </div>
 
@@ -1317,7 +1317,8 @@
         </div>
         <div class="row">
           <select id="geminiModelSelect" onchange="saveGeminiSettings(true)">
-            <option value="gemini-3.5-flash">gemini-3.5-flash (Default)</option>
+            <option value="gemini-4-hydrogen">gemini-4-hydrogen (Default)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
             <option value="gemini-3.6-flash">gemini-3.6-flash</option>
             <option value="gemini-3.7-flash">gemini-3.7-flash</option>
             <option value="gemini-3.8-flash">gemini-3.8-flash</option>
@@ -1478,7 +1479,7 @@
       scratchpad: "",
       gemini: {
         apiKey: "",
-        model: "gemini-3.5-flash",
+        model: "gemini-4-hydrogen",
         toolsEnabled: true,
         confirmActions: false
       },
@@ -2044,7 +2045,7 @@
       delete snap.github;
       snap.gemini = {
         apiKey: state.gemini?.apiKey || "",
-        model: state.gemini?.model || "gemini-3.5-flash",
+        model: state.gemini?.model || "gemini-4-hydrogen",
         toolsEnabled: state.gemini?.toolsEnabled !== false,
         confirmActions: Boolean(state.gemini?.confirmActions)
       };
@@ -2477,7 +2478,7 @@
         aiStatusEl.style.color = "var(--amb)";
       }
       document.getElementById("kpiAiModel").textContent =
-        `Model: ${state.gemini.model || "gemini-3.5-flash"}`;
+        `Model: ${state.gemini.model || "gemini-4-hydrogen"}`;
 
       const breakdownEl = document.getElementById("subjectBreakdown");
       breakdownEl.innerHTML = state.subjects.map(subj => {
@@ -3997,7 +3998,7 @@ ${subjLines}`;
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey || "";
       const sel = document.getElementById("geminiModelSelect");
       if (!state.gemini.model || state.gemini.model === "auto" || ![...sel.options].some(o => o.value === state.gemini.model)) {
-        state.gemini.model = "gemini-3.5-flash";
+        state.gemini.model = "gemini-4-hydrogen";
       }
       sel.value = state.gemini.model;
       document.getElementById("geminiToolsEnabled").checked = state.gemini.toolsEnabled !== false;
@@ -4019,7 +4020,7 @@ ${subjLines}`;
     function saveGeminiSettings(silent = false) {
       state.gemini.apiKey = sanitizeApiKey(document.getElementById("geminiKeyInput").value);
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey;
-      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-3.5-flash";
+      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-4-hydrogen";
       state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
       state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
       if (state.github) state.github.lastHash = "";
@@ -4038,7 +4039,7 @@ ${subjLines}`;
       if (!dot || !txt) return;
       if (state.gemini && state.gemini.apiKey) {
         dot.classList.add("connected");
-        txt.textContent = `${state.gemini.model || "gemini-3.5-flash"} · Ready`;
+        txt.textContent = `${state.gemini.model || "gemini-4-hydrogen"} · Ready`;
       } else {
         dot.classList.remove("connected");
         txt.textContent = "No API Key";
@@ -4313,7 +4314,7 @@ CRITICAL RULES:
     function executeWipeAllData() {
       resetStopwatch();
       const preservedKey = state.gemini?.apiKey || "";
-      const preservedModel = state.gemini?.model || "gemini-3.5-flash";
+      const preservedModel = state.gemini?.model || "gemini-4-hydrogen";
       const preservedGithub = state.github ? { ...state.github, lastHash: "" } : null;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem("sluk_gcse_hub_v4");
@@ -4351,7 +4352,7 @@ CRITICAL RULES:
 
       btn.disabled = true;
       statusEl.style.color = "var(--cyan)";
-      statusEl.textContent = `Testing ${state.gemini.model || "gemini-3.5-flash"}...`;
+      statusEl.textContent = `Testing ${state.gemini.model || "gemini-4-hydrogen"}...`;
 
       geminiStatusCallback = msg => {
         statusEl.style.color = "#fcd34d";
@@ -4750,17 +4751,32 @@ ${JSON.stringify(snapshot, null, 2)}`;
     let geminiStatusCallback = null;
     const waitMs = ms => new Promise(resolve => setTimeout(resolve, ms));
     const geminiCooldown = {};
+    let geminiRateLimitUntil = 0;
 
     function parseRetryDelayMs(res, data) {
       try {
         const h = res.headers.get("retry-after");
-        if (h && !isNaN(Number(h))) return Math.min(Number(h) * 1000, 20000);
+        if (h) {
+          if (!isNaN(Number(h))) return Math.max(1500, Math.min(Number(h) * 1000, 30000));
+          const parsedDate = Date.parse(h);
+          if (!isNaN(parsedDate)) return Math.max(1500, Math.min(parsedDate - Date.now(), 30000));
+        }
         const details = data?.error?.details || [];
         for (const d of details) {
           if (d.retryDelay) {
             const sec = parseFloat(String(d.retryDelay));
-            if (!isNaN(sec)) return Math.min(sec * 1000, 20000);
+            if (!isNaN(sec)) return Math.max(1500, Math.min(sec * 1000, 30000));
           }
+          const m = JSON.stringify(d).match(/(\d+(?:\.\d+)?)\s*s(?:ec(?:ond)?s?)?/i);
+          if (m) {
+            const s = parseFloat(m[1]);
+            if (!isNaN(s)) return Math.max(1500, Math.min(s * 1000, 30000));
+          }
+        }
+        const msgMatch = String(data?.error?.message || "").match(/retry(?:\s+in|\s+after)?\s*(\d+(?:\.\d+)?)\s*s/i);
+        if (msgMatch) {
+          const s = parseFloat(msgMatch[1]);
+          if (!isNaN(s)) return Math.max(1500, Math.min(s * 1000, 30000));
         }
       } catch (_) {}
       return 0;
@@ -4773,15 +4789,18 @@ ${JSON.stringify(snapshot, null, 2)}`;
         : state.gemini.model;
 
       const modelsToTry = [preferred, ...GEMINI_FALLBACK_CHAIN.filter(m => m !== preferred)];
-      const MAX_ROUNDS = 3;
-      const ATTEMPTS_PER_MODEL = 2;
+      const MAX_ROUNDS = 2;
+      const ATTEMPTS_PER_MODEL = 1;
       let lastError = null;
       let sawOverload = false;
       let sawQuota = false;
+      let maxRetryMs = 0;
 
       for (let round = 0; round < MAX_ROUNDS; round++) {
+        let triedAnyThisRound = false;
         for (const modelId of modelsToTry) {
           if (geminiCooldown[modelId] && geminiCooldown[modelId] > Date.now()) continue;
+          triedAnyThisRound = true;
 
           for (let attempt = 0; attempt < ATTEMPTS_PER_MODEL; attempt++) {
             let err = null;
@@ -4800,6 +4819,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
                 if (hasContent || (finish && finish !== "OTHER")) {
                   data._usedModel = modelId;
                   delete geminiCooldown[modelId];
+                  geminiRateLimitUntil = 0;
                   return data;
                 }
                 err = new Error("Empty response from model");
@@ -4829,8 +4849,14 @@ ${JSON.stringify(snapshot, null, 2)}`;
 
             if (err.status === 429) {
               sawQuota = true;
-              geminiCooldown[modelId] = Date.now() + (retryMs || 20000);
-              if (geminiStatusCallback) geminiStatusCallback(`${modelId} rate limited — trying another Gemini model...`);
+              const waitDuration = retryMs || 8000;
+              maxRetryMs = Math.max(maxRetryMs, waitDuration);
+              geminiCooldown[modelId] = Date.now() + Math.max(waitDuration, 15000);
+              geminiRateLimitUntil = Math.max(geminiRateLimitUntil, Date.now() + waitDuration);
+              if (geminiStatusCallback) {
+                geminiStatusCallback(`Rate limited on ${modelId} — checking next model...`);
+              }
+              await waitMs(650);
               break;
             }
 
@@ -4856,21 +4882,25 @@ ${JSON.stringify(snapshot, null, 2)}`;
           }
         }
 
+        if (!triedAnyThisRound) break;
+
         if (round < MAX_ROUNDS - 1) {
-          const delay = 2500 * (round + 1);
-          if (geminiStatusCallback) geminiStatusCallback(`All models busy — waiting ${Math.round(delay / 1000)}s then trying again...`);
+          const delay = maxRetryMs ? Math.min(maxRetryMs, 8000) : 2500;
+          const secs = Math.max(1, Math.round(delay / 1000));
+          if (geminiStatusCallback) geminiStatusCallback(`Rate limit active — waiting ${secs}s before 1 final retry...`);
           await waitMs(delay);
           for (const k of Object.keys(geminiCooldown)) {
-            if (geminiCooldown[k] - Date.now() < 30000) delete geminiCooldown[k];
+            if (geminiCooldown[k] - Date.now() < 20000) delete geminiCooldown[k];
           }
         }
       }
 
       if (sawQuota && !sawOverload) {
-        throw new Error("Your Gemini API key has hit its rate/quota limit on every model. Wait a minute and try again, or check usage at aistudio.google.com.");
+        const secsLeft = Math.max(1, Math.ceil((geminiRateLimitUntil - Date.now()) / 1000));
+        throw new Error(`Rate limited by Gemini (429). Free/current tier requests per minute were hit — wait ~${secsLeft}s before sending again, or switch to a lite model in Settings.`);
       }
       if (sawOverload || sawQuota) {
-        throw new Error("Google's Gemini servers are overloaded right now (tried every model several times). Please try again in a minute.");
+        throw new Error("Google's Gemini servers are busy or rate-limiting right now. Please wait a moment and try again.");
       }
       throw lastError || new Error("No compatible Gemini model responded.");
     }
@@ -4896,7 +4926,8 @@ ${JSON.stringify(snapshot, null, 2)}`;
       const userText = inp.value.trim();
       if (!userText) return;
 
-      if (!state.gemini || !state.gemini.apiKey) {
+      const apiKey = sanitizeApiKey(state.gemini?.apiKey);
+      if (!apiKey) {
         appendGeminiChatBubble("user", escapeHtml(userText));
         appendGeminiChatBubble("ai", `<span style="color:#fda4af;">Please add your Google Gemini API key in <strong>Settings (Ctrl+Shift+A)</strong> first.</span>`);
         inp.value = "";
@@ -4907,12 +4938,16 @@ ${JSON.stringify(snapshot, null, 2)}`;
       appendGeminiChatBubble("user", escapeHtml(userText));
       const thinkingEl = appendGeminiChatBubble("ai", `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Thinking &amp; checking your study hub...</span>`);
       sendBtn.disabled = true;
+
+      // Remove the failed/cancelled user turn from history if the call does not succeed
+      const userTurn = { role: "user", parts: [{ text: userText }] };
+      geminiHistory.push(userTurn);
+      const recentHistory = geminiHistory.slice(-12);
+      let completedSuccessfully = false;
+
       geminiStatusCallback = msg => {
         thinkingEl.innerHTML = `<span style="color:#fcd34d;font-family:var(--font-mono);font-size:11.5px;">⏳ ${escapeHtml(msg)}</span>`;
       };
-
-      geminiHistory.push({ role: "user", parts: [{ text: userText }] });
-      const recentHistory = geminiHistory.slice(-12);
 
       const basePayload = {
         systemInstruction: { parts: [{ text: buildLiveSiteContext() }] },
@@ -4935,6 +4970,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
           if (!fnCalls.length) {
             const replyText = parts.map(p => p.text || "").join("").trim() || "Done.";
             geminiHistory.push({ role: "model", parts: [{ text: replyText }] });
+            completedSuccessfully = true;
 
             const badgesHtml = badges.length
               ? `<div class="tool-pill-list">${badges.map(b => `<span class="tool-exec-badge">${escapeHtml(b)}</span>`).join("")}</div>`
@@ -4968,10 +5004,15 @@ ${JSON.stringify(snapshot, null, 2)}`;
           });
         }
 
+        completedSuccessfully = true;
         thinkingEl.innerHTML = `<div class="tool-pill-list">${badges.map(b => `<span class="tool-exec-badge">${escapeHtml(b)}</span>`).join("")}</div><div>Completed requested actions.</div>`;
       } catch (err) {
         thinkingEl.innerHTML = `<span style="color:#fda4af;">✕ Gemini Error: ${escapeHtml(err.message)}</span>`;
       } finally {
+        if (!completedSuccessfully) {
+          const idx = geminiHistory.lastIndexOf(userTurn);
+          if (idx !== -1) geminiHistory.splice(idx, 1);
+        }
         geminiStatusCallback = null;
         sendBtn.disabled = false;
       }
