@@ -2240,16 +2240,33 @@
     }
 
     function applyGithubConfigObject(obj) {
-      const src = (obj && typeof obj.github === "object" && obj.github) ? obj.github : (obj || {});
-      const pick = (...keys) => { for (const k of keys) if (src[k] !== undefined && src[k] !== null && String(src[k]).trim() !== "") return String(src[k]).trim(); return ""; };
+      const root = (obj && typeof obj === "object") ? obj : {};
+      const src = (root.github && typeof root.github === "object") ? root.github : root;
+      const gemSrc = (root.gemini && typeof root.gemini === "object") ? root.gemini : root;
+      const pickFrom = (target, ...keys) => {
+        for (const k of keys) {
+          if (target[k] !== undefined && target[k] !== null && String(target[k]).trim() !== "") {
+            return String(target[k]).trim();
+          }
+        }
+        return "";
+      };
+
       const cfg = {
-        owner: pick("owner", "username", "user", "org"),
-        repo: pick("repo", "repository", "repoName").replace(/\.git$/i, ""),
-        branch: pick("branch") || "main",
-        dir: pick("dir", "folder", "path") || "study-data",
-        token: pick("token", "pat", "accessToken").replace(/\s/g, "")
+        owner: pickFrom(src, "owner", "username", "user", "org"),
+        repo: pickFrom(src, "repo", "repository", "repoName").replace(/\.git$/i, ""),
+        branch: pickFrom(src, "branch") || "main",
+        dir: pickFrom(src, "dir", "folder", "path") || "study-data",
+        token: pickFrom(src, "token", "pat", "accessToken").replace(/\s/g, "")
       };
       if (!cfg.owner || !cfg.repo) throw new Error('Config needs at least an "owner" and a "repo".');
+
+      const importedGeminiKey = sanitizeApiKey(
+        pickFrom(gemSrc, "geminiApiKey", "geminiKey", "gemini_api_key", "apiKey") ||
+        pickFrom(root, "geminiApiKey", "geminiKey", "gemini_api_key")
+      );
+      const importedGeminiModel = pickFrom(gemSrc, "geminiModel", "model");
+
       ghStateSha = null;
       state.github = {
         ...state.github,
@@ -2257,13 +2274,61 @@
         auto: src.auto === undefined ? state.github.auto !== false : Boolean(src.auto),
         lastHash: ""
       };
+      if (importedGeminiKey) {
+        state.gemini = {
+          ...state.gemini,
+          apiKey: importedGeminiKey,
+          ...(importedGeminiModel ? { model: importedGeminiModel } : {})
+        };
+      }
+
       persistSettings();
       saveStateLocal();
       loadGithubSettingsUI();
+      loadGeminiSettingsUI();
+      render();
+      renderGeminiWelcome();
+
       const g = state.github;
-      ghStatus(`✓ Imported: ${g.owner}/${g.repo} · branch ${g.branch}`, "#86efac");
-      showToast("GitHub config imported — pulling data...");
+      ghStatus(
+        `✓ Imported: ${g.owner}/${g.repo} · branch ${g.branch}${importedGeminiKey ? " (+ Gemini key)" : ""}`,
+        "#86efac"
+      );
+      showToast(importedGeminiKey ? "GitHub config & Gemini API key imported" : "GitHub config imported — pulling data...");
       if (g.token) githubPullNow(false);
+    }
+
+    function importGithubConfigFile(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { applyGithubConfigObject(JSON.parse(String(reader.result).replace(/^\uFEFF/, ""))); }
+        catch (err) { ghStatus("✕ " + (err.message.startsWith("Config") ? err.message : "That file isn't valid JSON."), "#fda4af"); }
+        input.value = "";
+      };
+      reader.onerror = () => ghStatus("✕ Couldn't read that file.", "#fda4af");
+      reader.readAsText(file);
+    }
+
+    function exportGithubConfig() {
+      const g = state.github || {};
+      const out = {
+        owner: g.owner || "",
+        repo: g.repo || "",
+        branch: g.branch || "main",
+        dir: g.dir || "study-data",
+        token: g.token || "",
+        auto: g.auto !== false,
+        geminiApiKey: state.gemini?.apiKey || ""
+      };
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "github-config.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      ghStatus("Downloaded github-config.json (includes Gemini API key) — keep it private.", "#fcd34d");
     }
 
     function importGithubConfigFile(input) {
