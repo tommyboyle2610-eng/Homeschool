@@ -357,7 +357,32 @@
       color: #fff;
       margin: 6px 0 12px;
       letter-spacing: -0.02em;
-      transition: color 0.3s, text-shadow 0.3s;
+      transition: color 0.3s, text-shadow 0.3s, background 0.2s, border-color 0.2s;
+      border-radius: 14px;
+      border: 1px dashed transparent;
+      padding: 2px 8px;
+    }
+    .timer-display.editable {
+      cursor: pointer;
+    }
+    .timer-display.editable:hover {
+      border-color: rgba(0, 255, 136, 0.45);
+      background: rgba(0, 255, 136, 0.05);
+      color: var(--ac);
+    }
+    .timer-inline-input {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font: 800 36px var(--font-mono);
+      color: var(--ac);
+      background: rgba(2, 6, 4, 0.92);
+      border: 1px solid var(--ac);
+      border-radius: 14px;
+      padding: 4px 10px;
+      margin: 6px 0 12px;
+      letter-spacing: -0.02em;
+      box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.16);
     }
     .timer-running {
       animation: pulseRing 2.2s infinite;
@@ -1130,21 +1155,33 @@
 
       <!-- Right Sticky Column: Live Study Stopwatch, Gemini Copilot & Quick Links -->
       <div class="sticky-col">
-        <!-- Count-Up Live Study Stopwatch -->
+        <!-- Count-Up Live Study Stopwatch / Countdown Timer -->
         <div class="card" id="timerCard">
           <h2>
-            <span>⏱ Live Study Stopwatch</span>
+            <span id="timerCardTitle">⏱ Live Study Stopwatch</span>
             <span class="uk-pill" id="timerStateBadge">READY</span>
           </h2>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div class="seg-tabs" style="padding:3px;">
+              <button type="button" class="seg-btn active" id="timerModeBtn-stopwatch" onclick="setTimerMode('stopwatch')" style="padding:4px 10px;font-size:11px;">⏱ Stopwatch</button>
+              <button type="button" class="seg-btn" id="timerModeBtn-timer" onclick="setTimerMode('timer')" style="padding:4px 10px;font-size:11px;">⏳ Timer</button>
+            </div>
+            <div id="countdownPresetBar" style="display:none;align-items:center;gap:4px;flex-wrap:wrap;">
+              <button type="button" class="b sm" onclick="setCountdownMinutes(15)">15m</button>
+              <button type="button" class="b sm" onclick="setCountdownMinutes(25)">25m</button>
+              <button type="button" class="b sm" onclick="setCountdownMinutes(45)">45m</button>
+              <input id="countdownCustomMins" type="number" min="1" max="300" value="25" onchange="setCountdownMinutes(this.value)" style="width:62px;padding:4px 7px;font-size:11px;text-align:center;" title="Timer minutes" />
+            </div>
+          </div>
           <div class="row" style="margin-bottom:8px;">
             <select id="timerSubjectSelect" onchange="syncStopwatchTopics()"></select>
             <select id="timerTopicSelect"></select>
           </div>
-          <div class="timer-display" id="timerDisplay">00:00:00</div>
+          <div class="timer-display editable" id="timerDisplay" onclick="openInlineTimerEdit()" title="Click to set time before starting">00:00:00</div>
           <div class="row" style="justify-content:center;margin-bottom:0;">
             <button type="button" class="b pri" onclick="startStopwatch()">▶ Start</button>
             <button type="button" class="b" onclick="pauseStopwatch()">⏸ Pause</button>
-            <button type="button" class="b" style="border-color:var(--ac);color:var(--ac);" onclick="finishAndLogStopwatch()">✓ Finish &amp; Log</button>
+            <button type="button" class="b" id="finishTimerBtn" style="border-color:var(--ac);color:var(--ac);" onclick="finishAndLogStopwatch()">✓ Finish &amp; Log</button>
             <button type="button" class="b red" onclick="resetStopwatch()">↺ Reset</button>
           </div>
         </div>
@@ -1528,9 +1565,89 @@
     let activeSubjectFilter = "ALL";
     let geminiHistory = [];
 
+    let timerMode = "stopwatch"; // "stopwatch" | "timer"
+    let countdownTotalSec = 25 * 60;
     let stopwatchElapsedSec = 0;
     let stopwatchStartTimestamp = null;
     let stopwatchTickHandle = null;
+
+    function getSessionSeconds(s) {
+      if (s && typeof s.seconds === "number" && !isNaN(s.seconds)) {
+        return Math.max(0, Math.round(s.seconds));
+      }
+      return Math.max(0, Math.round((Number(s?.minutes) || 0) * 60));
+    }
+
+    function getSubjectLoggedSeconds(subj) {
+      const subjSessions = (state.sessions || []).filter(s => s.subject === subj);
+      if (subjSessions.length > 0) {
+        return subjSessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
+      }
+      return Math.max(0, Math.round((Number(state.minutes?.[subj]) || 0) * 60));
+    }
+
+    function getTotalLoggedSeconds() {
+      const recordedSubjects = new Set((state.sessions || []).map(s => s.subject));
+      let total = (state.sessions || []).reduce((acc, s) => acc + getSessionSeconds(s), 0);
+      Object.entries(state.minutes || {}).forEach(([subj, mins]) => {
+        if (!recordedSubjects.has(subj)) {
+          total += Math.max(0, Math.round((Number(mins) || 0) * 60));
+        }
+      });
+      return total;
+    }
+
+    function formatDurationFromSeconds(totalSec) {
+      const sec = Math.max(0, Math.round(Number(totalSec) || 0));
+      if (sec < 60) return `${sec}s`;
+      const totalMins = Math.floor(sec / 60);
+      const remSec = sec % 60;
+      if (totalMins < 60) {
+        return remSec > 0 ? `${totalMins}m ${remSec}s` : `${totalMins} min${totalMins === 1 ? "" : "s"}`;
+      }
+      const hrs = Math.floor(totalMins / 60);
+      const remMins = totalMins % 60;
+      const hrStr = `${hrs} hr${hrs === 1 ? "" : "s"}`;
+      return remMins > 0 ? `${hrStr} ${remMins} min${remMins === 1 ? "" : "s"}` : hrStr;
+    }
+
+    function formatDurationHuman(totalMins) {
+      return formatDurationFromSeconds((Number(totalMins) || 0) * 60);
+    }
+
+    function playTimerCompletionChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === "suspended") ctx.resume();
+        // Extended two-phrase harmonic chime (C5 -> E5 -> G5 -> C6, pause, G5 -> E5 -> G5 -> C6)
+        const sequence = [
+          { freq: 523.25, offset: 0.00, dur: 1.05, gain: 0.22 },
+          { freq: 659.25, offset: 0.20, dur: 1.05, gain: 0.22 },
+          { freq: 783.99, offset: 0.40, dur: 1.05, gain: 0.22 },
+          { freq: 1046.50, offset: 0.60, dur: 1.35, gain: 0.25 },
+          { freq: 783.99, offset: 1.45, dur: 0.95, gain: 0.20 },
+          { freq: 659.25, offset: 1.68, dur: 0.95, gain: 0.20 },
+          { freq: 783.99, offset: 1.91, dur: 1.05, gain: 0.22 },
+          { freq: 1046.50, offset: 2.15, dur: 1.75, gain: 0.26 }
+        ];
+        sequence.forEach(note => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const start = ctx.currentTime + note.offset;
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(note.freq, start);
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(note.gain, start + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + note.dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + note.dur + 0.05);
+        });
+      } catch (_) {}
+    }
 
     function saveState() {
       state._savedAt = Date.now();
@@ -2330,12 +2447,13 @@
       const greenCount = state.topics.filter(t => t.status === "green").length;
       const totalTopics = state.topics.length;
       const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
-      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+      const totalSec = getTotalLoggedSeconds();
+      const totalMins = Math.round(totalSec / 60);
 
       document.getElementById("kpiReady").textContent = `${readyPct}%`;
       document.getElementById("kpiTopicsCount").textContent = `${greenCount} / ${totalTopics} topics Green`;
-      document.getElementById("kpiMins").textContent = `${totalMins} mins`;
-      document.getElementById("kpiHours").textContent = `${(totalMins / 60).toFixed(1)} hrs · ${state.sessions.length} verified sessions`;
+      document.getElementById("kpiMins").textContent = formatDurationFromSeconds(totalSec);
+      document.getElementById("kpiHours").textContent = `${(totalSec / 3600).toFixed(2)} hrs · ${state.sessions.length} verified sessions`;
 
       const papers = state.papers || [];
       if (papers.length) {
@@ -2348,7 +2466,7 @@
       }
 
       document.getElementById("overallStats").textContent =
-        `${readyPct}% Exam-Ready · ${totalMins} mins logged · Press Ctrl+Shift+A for Settings & AI`;
+        `${readyPct}% Exam-Ready · ${formatDurationFromSeconds(totalSec)} logged · Press Ctrl+Shift+A for Settings & AI`;
 
       const aiStatusEl = document.getElementById("kpiAiStatus");
       if (state.gemini && state.gemini.apiKey) {
@@ -2368,7 +2486,7 @@
         const a = subTopics.filter(t => t.status === "amber").length;
         const r = subTopics.filter(t => t.status === "red").length;
         const pct = subTopics.length ? Math.round((g / subTopics.length) * 100) : 0;
-        const mins = Number(state.minutes[subj]) || 0;
+        const subjSec = getSubjectLoggedSeconds(subj);
         const isActive = activeSubjectFilter === subj;
         return `
           <div class="subj-card ${isActive ? "active" : ""}" onclick="toggleSubjectFilter('${escapeHtml(subj).replace(/'/g, "\\'")}')">
@@ -2379,7 +2497,7 @@
             <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
             <div style="display:flex;justify-content:space-between;font:600 11px var(--font-mono);color:var(--mu);">
               <span>🟢${g} 🟡${a} 🔴${r}</span>
-              <span>${mins}m</span>
+              <span>${formatDurationFromSeconds(subjSec)}</span>
             </div>
           </div>
         `;
@@ -2842,7 +2960,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
                 <div>
                   <span class="tag">${escapeHtml(s.subject)}</span>
                   <strong style="color:#fff;">${escapeHtml(s.topic || s.note || "Focused revision")}</strong>
-                  <span class="note"> · ${s.minutes} mins</span>
+                  <span class="note"> · ${formatDurationFromSeconds(getSessionSeconds(s))}</span>
                 </div>
                 <span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(s.date)}</span>
               </div>
@@ -3151,21 +3269,21 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const weekKey = `week_${weekIso}`;
 
       const daySessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedDate));
-      const dayMins = daySessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const daySec = daySessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
       const dayProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedDate));
       const dayPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedDate));
       const dayDiary = state.diary.filter(d => String(d.date).startsWith(parentSelectedDate));
 
       const weekEndIso = new Date(new Date(weekIso + "T12:00:00").getTime() + 6 * 86400000).toISOString().slice(0, 10);
       const weekSessions = state.sessions.filter(s => String(s.date).slice(0, 10) >= weekIso && String(s.date).slice(0, 10) <= weekEndIso);
-      const weekMins = weekSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const weekSec = weekSessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
       const weekProofs = state.evidence.filter(e => String(e.date).slice(0, 10) >= weekIso);
       const weekDaysActive = new Set(weekSessions.map(s => String(s.date).slice(0, 10))).size;
 
       const greenCount = state.topics.filter(t => t.status === "green").length;
       const totalTopics = state.topics.length;
       const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
-      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+      const totalSec = getTotalLoggedSeconds();
       const reportDate = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
       const selectedDateLabel = parentSelectedDate === todayIso
         ? `Today (${new Date(parentSelectedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })})`
@@ -3173,7 +3291,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
 
       const dailySubjectRows = state.subjects.map(subj => {
         const sSessions = daySessions.filter(s => s.subject === subj);
-        const sMins = sSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+        const sSec = sSessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
         const sPapers = dayPapers.filter(p => p.subject === subj);
         const sProofs = dayProofs.filter(e => e.subject === subj);
         const sDiary = dayDiary.filter(d => d.subject === subj);
@@ -3181,18 +3299,18 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         const g = subTopics.filter(t => t.status === "green").length;
         const pct = subTopics.length ? Math.round((g / subTopics.length) * 100) : 0;
         const topicsStudiedToday = Array.from(new Set(sSessions.map(s => s.topic || s.note).filter(Boolean)));
-        const hasActivityToday = sMins > 0 || sPapers.length > 0 || sProofs.length > 0 || sDiary.length > 0;
+        const hasActivityToday = sSec > 0 || sPapers.length > 0 || sProofs.length > 0 || sDiary.length > 0;
 
         return `
           <div class="proof-log-item" style="flex-direction:column;align-items:stretch;border-color:${hasActivityToday ? "rgba(0,255,136,0.38)" : "var(--line)"};opacity:${hasActivityToday ? "1" : "0.78"};">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
               <div>
                 <strong style="color:#fff;font-size:13.5px;">${escapeHtml(subj)}</strong>
-                <span class="uk-pill" style="margin-left:6px;${hasActivityToday ? "" : "color:var(--mu);border-color:var(--line);background:transparent;"}">${hasActivityToday ? `${sMins} mins on this day` : "0 mins on this day"}</span>
+                <span class="uk-pill" style="margin-left:6px;${hasActivityToday ? "" : "color:var(--mu);border-color:var(--line);background:transparent;"}">${hasActivityToday ? `${formatDurationFromSeconds(sSec)} on this day` : "0s on this day"}</span>
               </div>
               <span style="font:700 11px var(--font-mono);color:var(--mu);">Overall Syllabus: <strong style="color:var(--ac);">${pct}%</strong> (${g}/${subTopics.length} Green)</span>
             </div>
-            <div class="bar-track" style="margin:5px 0;"><div class="bar-fill" style="width:${Math.min(100, sMins > 0 ? Math.max(12, Math.round((sMins / 60) * 100)) : 0)}%"></div></div>
+            <div class="bar-track" style="margin:5px 0;"><div class="bar-fill" style="width:${Math.min(100, sSec > 0 ? Math.max(12, Math.round((sSec / 3600) * 100)) : 0)}%"></div></div>
             <div style="font-size:11.5px;color:var(--mu);display:flex;flex-wrap:wrap;gap:10px;">
               <span>⏱ Sessions: <strong style="color:#fff;">${sSessions.length}</strong></span>
               <span>📝 Papers: <strong style="color:#fff;">${sPapers.length}</strong></span>
@@ -3205,7 +3323,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       }).join("");
 
       const monthSessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedMonth));
-      const monthMins = monthSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const monthSec = monthSessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
       const monthActiveDays = new Set(monthSessions.map(s => String(s.date).slice(0, 10))).size;
       const monthPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedMonth));
       const monthPaperAvg = monthPapers.length
@@ -3214,7 +3332,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const monthProofs = state.evidence.filter(e => String(e.date).startsWith(parentSelectedMonth));
 
       const yearSessions = state.sessions.filter(s => String(s.date).startsWith(parentSelectedYear));
-      const yearMins = yearSessions.reduce((acc, s) => acc + (Number(s.minutes) || 0), 0);
+      const yearSec = yearSessions.reduce((acc, s) => acc + getSessionSeconds(s), 0);
       const yearActiveDays = new Set(yearSessions.map(s => String(s.date).slice(0, 10))).size;
       const yearPapers = state.papers.filter(p => String(p.date).startsWith(parentSelectedYear));
       const yearPaperAvg = yearPapers.length
@@ -3226,11 +3344,11 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const monthlyTotals = monthNames.map((label, idx) => {
         const ym = `${parentSelectedYear}-${String(idx + 1).padStart(2, "0")}`;
         const mSessions = state.sessions.filter(s => String(s.date).startsWith(ym));
-        const mins = mSessions.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const sec = mSessions.reduce((a, s) => a + getSessionSeconds(s), 0);
         const papersCnt = state.papers.filter(p => String(p.date).startsWith(ym)).length;
-        return { ym, label, mins, sessions: mSessions.length, papersCnt };
+        return { ym, label, sec, sessions: mSessions.length, papersCnt };
       });
-      const maxMonthMins = Math.max(60, ...monthlyTotals.map(m => m.mins));
+      const maxMonthSec = Math.max(3600, ...monthlyTotals.map(m => m.sec));
 
       const allYearsSet = new Set([parentSelectedYear, todayIso.slice(0, 4)]);
       state.sessions.forEach(s => { if (s.date) allYearsSet.add(String(s.date).slice(0, 4)); });
@@ -3239,19 +3357,19 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const sortedYears = Array.from(allYearsSet).filter(y => /^\d{4}$/.test(y)).sort();
       const yearlyTotals = sortedYears.map(yr => {
         const ySess = state.sessions.filter(s => String(s.date).startsWith(yr));
-        const mins = ySess.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const sec = ySess.reduce((a, s) => a + getSessionSeconds(s), 0);
         const papersCnt = state.papers.filter(p => String(p.date).startsWith(yr)).length;
         const proofsCnt = state.evidence.filter(e => String(e.date).startsWith(yr)).length;
-        return { yr, mins, sessions: ySess.length, papersCnt, proofsCnt };
+        return { yr, sec, sessions: ySess.length, papersCnt, proofsCnt };
       });
-      const maxYearMins = Math.max(60, ...yearlyTotals.map(y => y.mins));
+      const maxYearSec = Math.max(3600, ...yearlyTotals.map(y => y.sec));
 
       const periodPrefix = parentStatsPeriod === "month" ? parentSelectedMonth : parentSelectedYear;
       const periodSubjectSummary = state.subjects.map(subj => {
         const pSess = state.sessions.filter(s => s.subject === subj && String(s.date).startsWith(periodPrefix));
-        const pMins = pSess.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+        const pSec = pSess.reduce((a, s) => a + getSessionSeconds(s), 0);
         const pPapers = state.papers.filter(p => p.subject === subj && String(p.date).startsWith(periodPrefix));
-        return `<span class="tag" style="margin:3px 4px 3px 0;">${escapeHtml(subj)}: ${(pMins / 60).toFixed(1)}h · ${pPapers.length} paper(s)</span>`;
+        return `<span class="tag" style="margin:3px 4px 3px 0;">${escapeHtml(subj)}: ${formatDurationFromSeconds(pSec)} · ${pPapers.length} paper(s)</span>`;
       }).join("");
 
       const longitudinalHtml = `
@@ -3275,8 +3393,8 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:12px;">
               <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
                 <span class="stat-label">Study Time (${escapeHtml(parentSelectedMonth)})</span>
-                <strong style="font:800 18px var(--font-mono);color:#fff;">${(monthMins / 60).toFixed(1)} hrs</strong>
-                <span class="note" style="margin:0;">${monthMins} mins · ${monthSessions.length} sessions</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${formatDurationFromSeconds(monthSec)}</strong>
+                <span class="note" style="margin:0;">${monthSessions.length} session(s)</span>
               </div>
               <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
                 <span class="stat-label">Active Study Days</span>
@@ -3295,17 +3413,17 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
               </div>
             </div>
             <div style="font-size:11.5px;color:var(--mu);margin-bottom:10px;">
-              <strong style="color:#fff;">Subject Hours in ${escapeHtml(parentSelectedMonth)}:</strong><br>
+              <strong style="color:#fff;">Subject Time in ${escapeHtml(parentSelectedMonth)}:</strong><br>
               ${periodSubjectSummary}
             </div>
             <div style="font-size:11px;font-family:var(--font-mono);color:var(--mu);margin-bottom:6px;">${escapeHtml(parentSelectedYear)} MONTH-BY-MONTH STUDY ACTIVITY (CLICK A MONTH TO INSPECT):</div>
             <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;align-items:end;height:86px;padding:8px 6px 4px;background:rgba(2,6,4,0.65);border-radius:12px;border:1px solid var(--line);">
               ${monthlyTotals.map(m => {
-                const hPct = m.mins > 0 ? Math.max(12, Math.round((m.mins / maxMonthMins) * 100)) : 4;
+                const hPct = m.sec > 0 ? Math.max(12, Math.round((m.sec / maxMonthSec) * 100)) : 4;
                 const isSel = m.ym === parentSelectedMonth;
                 return `
-                  <div onclick="parentSelectedMonth='${m.ym}';renderParentOverviewContent();" title="${m.label} ${parentSelectedYear}: ${m.mins} mins (${m.sessions} sessions)" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;">
-                    <div style="width:100%;height:${hPct}%;border-radius:5px 5px 2px 2px;background:${isSel ? "var(--grad)" : m.mins > 0 ? "rgba(0,255,136,0.35)" : "rgba(255,255,255,0.08)"};border:${isSel ? "1px solid #fff" : "0"};"></div>
+                  <div onclick="parentSelectedMonth='${m.ym}';renderParentOverviewContent();" title="${m.label} ${parentSelectedYear}: ${formatDurationFromSeconds(m.sec)} (${m.sessions} sessions)" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;">
+                    <div style="width:100%;height:${hPct}%;border-radius:5px 5px 2px 2px;background:${isSel ? "var(--grad)" : m.sec > 0 ? "rgba(0,255,136,0.35)" : "rgba(255,255,255,0.08)"};border:${isSel ? "1px solid #fff" : "0"};"></div>
                     <span style="font:700 9px var(--font-mono);color:${isSel ? "var(--ac)" : "var(--mu)"};">${m.label}</span>
                   </div>
                 `;
@@ -3315,8 +3433,8 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:12px;">
               <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
                 <span class="stat-label">Annual Study (${escapeHtml(parentSelectedYear)})</span>
-                <strong style="font:800 18px var(--font-mono);color:#fff;">${(yearMins / 60).toFixed(1)} hrs</strong>
-                <span class="note" style="margin:0;">${yearMins} mins · ${yearSessions.length} sessions</span>
+                <strong style="font:800 18px var(--font-mono);color:#fff;">${formatDurationFromSeconds(yearSec)}</strong>
+                <span class="note" style="margin:0;">${yearSessions.length} session(s)</span>
               </div>
               <div class="proof-log-item" style="flex-direction:column;align-items:flex-start;margin:0;">
                 <span class="stat-label">Active Days (${escapeHtml(parentSelectedYear)})</span>
@@ -3335,17 +3453,17 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
               </div>
             </div>
             <div style="font-size:11.5px;color:var(--mu);margin-bottom:10px;">
-              <strong style="color:#fff;">Subject Hours in ${escapeHtml(parentSelectedYear)}:</strong><br>
+              <strong style="color:#fff;">Subject Time in ${escapeHtml(parentSelectedYear)}:</strong><br>
               ${periodSubjectSummary}
             </div>
             <div style="font-size:11px;font-family:var(--font-mono);color:var(--mu);margin-bottom:6px;">YEAR-BY-YEAR COMPARISON:</div>
             ${yearlyTotals.map(y => {
-              const wPct = y.mins > 0 ? Math.max(6, Math.round((y.mins / maxYearMins) * 100)) : 0;
+              const wPct = y.sec > 0 ? Math.max(6, Math.round((y.sec / maxYearSec) * 100)) : 0;
               return `
                 <div class="proof-log-item" style="flex-direction:column;align-items:stretch;margin-bottom:6px;cursor:pointer;" onclick="parentSelectedYear='${y.yr}';renderParentOverviewContent();">
                   <div style="display:flex;justify-content:space-between;font-size:12px;">
                     <strong style="color:#fff;">Year ${escapeHtml(y.yr)}</strong>
-                    <span style="font:700 11px var(--font-mono);color:var(--ac);">${(y.mins / 60).toFixed(1)} hrs (${y.mins}m) · ${y.sessions} sessions · ${y.papersCnt} papers · ${y.proofsCnt} proofs</span>
+                    <span style="font:700 11px var(--font-mono);color:var(--ac);">${formatDurationFromSeconds(y.sec)} · ${y.sessions} sessions · ${y.papersCnt} papers · ${y.proofsCnt} proofs</span>
                   </div>
                   <div class="bar-track" style="margin:5px 0 0;"><div class="bar-fill" style="width:${wPct}%"></div></div>
                 </div>
@@ -3371,8 +3489,17 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
           }).join("")}</div>`
         : `<p class="note">No photos or files uploaded yet. Use the <strong>📸 Proof &amp; Files</strong> tab to attach work screenshots or pages.</p>`;
 
-      const recentSessionsHtml = state.sessions.slice(0, 8).map(s =>
-        `<div class="proof-log-item"><span><span class="tag">${escapeHtml(s.subject)}</span> <strong>${escapeHtml(s.topic || s.note || "Revision")}</strong> · ${s.minutes} mins</span><span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(s.date)}</span></div>`
+      const recentSessionsHtml = state.sessions.slice(0, 20).map(s =>
+        `<div class="proof-log-item">
+          <div>
+            <span class="tag">${escapeHtml(s.subject)}</span>
+            <strong>${escapeHtml(s.topic || s.note || "Revision")}</strong> · ${formatDurationFromSeconds(getSessionSeconds(s))}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+            <span style="font:600 11px var(--font-mono);color:var(--mu);">${escapeHtml(s.date)}</span>
+            <button type="button" class="b red sm no-print" style="padding:2px 7px;" title="Delete session" onclick="deleteStopwatchSession(${s.id})">✕</button>
+          </div>
+        </div>`
       ).join("") || `<p class="note">No stopwatch sessions recorded yet.</p>`;
 
       const papersHtml = state.papers.map(p => {
@@ -3407,7 +3534,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
           <div>
             <div class="stat-label">SECOND LIFE UK · PARENT VERIFICATION &amp; HOME-ED REPORT</div>
             <strong style="font-size:17px;color:#fff;">Year 10 GCSE Overview · ${escapeHtml(reportDate)}</strong>
-            <div class="note" style="margin:2px 0 0;">Overall Readiness: <strong style="color:var(--ac);">${readyPct}%</strong> · All-Time Study: <strong style="color:#fff;">${(totalMins / 60).toFixed(1)} hrs</strong> (${totalMins} mins) · Uploaded Proofs: <strong style="color:var(--cyan);">${state.evidence.length}</strong></div>
+            <div class="note" style="margin:2px 0 0;">Overall Readiness: <strong style="color:var(--ac);">${readyPct}%</strong> · All-Time Study: <strong style="color:#fff;">${formatDurationFromSeconds(totalSec)}</strong> · Uploaded Proofs: <strong style="color:var(--cyan);">${state.evidence.length}</strong></div>
           </div>
           <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" class="b sm pri" onclick="copyParentSummary()">📋 Copy Summary</button>
@@ -3421,7 +3548,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
               <strong style="color:#fff;">📅 Day Check (${escapeHtml(parentSelectedDate)})</strong>
               <span class="verify-badge ${daySigned ? "" : "pending"}">${daySigned ? "✓ CONFIRMED" : "⏳ UNCONFIRMED"}</span>
             </div>
-            <div class="note"><strong>${dayMins} mins</strong> logged across <strong>${daySessions.length}</strong> session(s) · <strong>${dayProofs.length}</strong> proof(s) · <strong>${dayPapers.length}</strong> paper(s).</div>
+            <div class="note"><strong>${formatDurationFromSeconds(daySec)}</strong> logged across <strong>${daySessions.length}</strong> session(s) · <strong>${dayProofs.length}</strong> proof(s) · <strong>${dayPapers.length}</strong> paper(s).</div>
             <button type="button" class="b sm ${daySigned ? "" : "pri"} no-print" onclick="toggleParentConfirmation('${selectedDayKey}')">
               ${daySigned ? `✓ Signed off (${daySigned}) — Undo` : `✓ Confirm ${parentSelectedDate === todayIso ? "Today's" : "Day's"} Work Done`}
             </button>
@@ -3432,7 +3559,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
               <strong style="color:#fff;">📆 Week of ${escapeHtml(weekIso)}</strong>
               <span class="verify-badge ${weekSigned ? "" : "pending"}">${weekSigned ? "✓ CONFIRMED" : "⏳ UNCONFIRMED"}</span>
             </div>
-            <div class="note"><strong>${weekMins} mins (${(weekMins / 60).toFixed(1)} hrs)</strong> across <strong>${weekDaysActive}</strong> active day(s) · <strong>${weekProofs.length}</strong> proof(s).</div>
+            <div class="note"><strong>${formatDurationFromSeconds(weekSec)}</strong> across <strong>${weekDaysActive}</strong> active day(s) · <strong>${weekProofs.length}</strong> proof(s).</div>
             <button type="button" class="b sm ${weekSigned ? "" : "pri"} no-print" onclick="toggleParentConfirmation('${weekKey}')">
               ${weekSigned ? `✓ Signed off (${weekSigned}) — Undo` : "✓ Confirm Weekly Progress"}
             </button>
@@ -3475,17 +3602,17 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const greenCount = state.topics.filter(t => t.status === "green").length;
       const totalTopics = state.topics.length;
       const readyPct = totalTopics ? Math.round((greenCount / totalTopics) * 100) : 0;
-      const totalMins = Object.values(state.minutes).reduce((a, b) => a + (Number(b) || 0), 0);
+      const totalSec = getTotalLoggedSeconds();
       const subjLines = state.subjects.map(s => {
         const st = state.topics.filter(t => t.subject === s);
         const g = st.filter(t => t.status === "green").length;
         const pct = st.length ? Math.round((g / st.length) * 100) : 0;
-        return `• ${s}: ${pct}% Exam-Ready (${g}/${st.length} topics) | ${Number(state.minutes[s]) || 0} mins studied`;
+        return `• ${s}: ${pct}% Exam-Ready (${g}/${st.length} topics) | ${formatDurationFromSeconds(getSubjectLoggedSeconds(s))} studied`;
       }).join("\n");
 
       const summary = `SECOND LIFE UK — YEAR 10 GCSE PROGRESS SUMMARY (${new Date().toLocaleDateString("en-GB")})
 Overall Exam Readiness: ${readyPct}% (${greenCount}/${totalTopics} topics mastered)
-Total Focus Time Logged: ${totalMins} mins (${(totalMins / 60).toFixed(1)} hrs across ${state.sessions.length} sessions)
+Total Focus Time Logged: ${formatDurationFromSeconds(totalSec)} (across ${state.sessions.length} sessions)
 Past Papers Logged: ${state.papers.length}
 
 SUBJECT BREAKDOWN:
@@ -3566,10 +3693,10 @@ ${subjLines}`;
     }
 
     // =========================================================================
-    // DRIFT-FREE COUNT-UP LIVE STOPWATCH
+    // DRIFT-FREE COUNT-UP LIVE STOPWATCH & COUNTDOWN TIMER
     // =========================================================================
     function formatStopwatch(sec) {
-      const total = Math.max(0, Math.floor(sec));
+      const total = Math.max(0, Math.ceil(sec));
       const h = String(Math.floor(total / 3600)).padStart(2, "0");
       const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
       const s = String(total % 60).padStart(2, "0");
@@ -3581,19 +3708,192 @@ ${subjLines}`;
       return stopwatchElapsedSec + (Date.now() - stopwatchStartTimestamp) / 1000;
     }
 
+    function setTimerMode(mode) {
+      pauseStopwatch();
+      stopwatchElapsedSec = 0;
+      timerMode = mode === "timer" ? "timer" : "stopwatch";
+      document.getElementById("timerModeBtn-stopwatch")?.classList.toggle("active", timerMode === "stopwatch");
+      document.getElementById("timerModeBtn-timer")?.classList.toggle("active", timerMode === "timer");
+      const presetBar = document.getElementById("countdownPresetBar");
+      if (presetBar) presetBar.style.display = timerMode === "timer" ? "flex" : "none";
+      const titleEl = document.getElementById("timerCardTitle");
+      if (titleEl) titleEl.textContent = timerMode === "timer" ? "⏳ Countdown Study Timer" : "⏱ Live Study Stopwatch";
+      updateTimerUi();
+    }
+
+    function setCountdownMinutes(mins) {
+      const m = Math.max(1, Math.min(300, Math.round(Number(mins) || 25)));
+      countdownTotalSec = m * 60;
+      const inp = document.getElementById("countdownCustomMins");
+      if (inp) inp.value = m;
+      if (!stopwatchStartTimestamp) {
+        stopwatchElapsedSec = 0;
+        updateTimerUi();
+      }
+    }
+
+    function logRecordedStudySession(exactSeconds, subjOverride, topicOverride) {
+      const cleanSec = Math.max(1, Math.round(Number(exactSeconds) || 1));
+      const subj = subjOverride || document.getElementById("timerSubjectSelect")?.value || state.subjects[0] || "General";
+      const topic = topicOverride || document.getElementById("timerTopicSelect")?.value || `General ${subj} Revision`;
+      const nowStr = new Date().toISOString().slice(0, 16).replace("T", " ");
+      state.sessions.unshift({
+        id: Date.now(),
+        date: nowStr,
+        subject: subj,
+        topic,
+        seconds: cleanSec,
+        minutes: Number((cleanSec / 60).toFixed(2)),
+        note: topic
+      });
+      const updatedTotalSec = getSubjectLoggedSeconds(subj);
+      state.minutes[subj] = Number((updatedTotalSec / 60).toFixed(2));
+      saveState();
+      render();
+      return { seconds: cleanSec, subj, topic };
+    }
+
+    function deleteStopwatchSession(id) {
+      const idx = state.sessions.findIndex(s => s.id === id);
+      if (idx === -1) return;
+      const removed = state.sessions[idx];
+      state.sessions.splice(idx, 1);
+      if (removed.subject) {
+        const remainingSec = getSubjectLoggedSeconds(removed.subject);
+        state.minutes[removed.subject] = Number((remainingSec / 60).toFixed(2));
+      }
+      saveState();
+      render();
+      if (document.getElementById("parentDialog")?.open) {
+        renderParentOverviewContent();
+      }
+      showToast("Session deleted & synced to GitHub");
+    }
+
+    function handleCountdownFinished() {
+      pauseStopwatch();
+      const loggedSec = Math.max(1, Math.round(countdownTotalSec));
+      stopwatchElapsedSec = 0;
+      const info = logRecordedStudySession(loggedSec);
+      updateTimerUi();
+      playTimerCompletionChime();
+      showToast(`🔔 Timer done! Logged ${formatDurationFromSeconds(info.seconds)} on "${info.topic}"`);
+    }
+
     function updateTimerUi() {
-      document.getElementById("timerDisplay").textContent = formatStopwatch(getLiveStopwatchSeconds());
+      const displayEl = document.getElementById("timerDisplay");
+      if (!displayEl || displayEl.style.display === "none") return;
+      const elapsed = getLiveStopwatchSeconds();
+      if (timerMode === "timer") {
+        const remaining = Math.max(0, countdownTotalSec - elapsed);
+        displayEl.textContent = formatStopwatch(remaining);
+        if (stopwatchStartTimestamp && remaining <= 0) {
+          handleCountdownFinished();
+          return;
+        }
+      } else {
+        displayEl.textContent = formatStopwatch(Math.floor(elapsed));
+      }
+
       const card = document.getElementById("timerCard");
       const badge = document.getElementById("timerStateBadge");
       if (stopwatchStartTimestamp) {
         card.classList.add("timer-running");
-        badge.textContent = "RECORDING";
+        displayEl.classList.remove("editable");
+        displayEl.title = "Pause to edit time";
+        badge.textContent = timerMode === "timer" ? "COUNTING DOWN" : "RECORDING";
         badge.style.color = "var(--ac)";
       } else {
         card.classList.remove("timer-running");
-        badge.textContent = stopwatchElapsedSec > 0 ? "PAUSED" : "READY";
-        badge.style.color = stopwatchElapsedSec > 0 ? "#fbbf24" : "var(--mu)";
+        displayEl.classList.add("editable");
+        displayEl.title = "Click to edit time directly (e.g. 45 or 0:10)";
+        badge.textContent = elapsed > 0 ? "PAUSED" : "READY · CLICK TIME";
+        badge.style.color = elapsed > 0 ? "#fbbf24" : "var(--mu)";
       }
+    }
+
+    function parseFlexibleTimeInput(raw) {
+      const clean = String(raw || "").trim();
+      if (!clean) return null;
+      if (clean.includes(":")) {
+        const parts = clean.split(":").map(p => Number(p.trim()));
+        if (parts.some(n => isNaN(n) || n < 0)) return null;
+        if (parts.length === 2) return parts[0] * 60 + parts[1];
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        return null;
+      }
+      const num = Number(clean);
+      if (isNaN(num) || num <= 0) return null;
+      return Math.round(num * 60);
+    }
+
+    function openInlineTimerEdit() {
+      if (stopwatchStartTimestamp) {
+        return showToast("Pause the timer first to edit the time");
+      }
+      const displayEl = document.getElementById("timerDisplay");
+      if (!displayEl || displayEl.style.display === "none") return;
+
+      const currentSec = timerMode === "timer"
+        ? Math.max(0, countdownTotalSec - stopwatchElapsedSec)
+        : Math.floor(stopwatchElapsedSec);
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "timer-inline-input";
+      input.value = currentSec > 0 ? formatStopwatch(currentSec) : "00:25:00";
+      input.placeholder = "MM or HH:MM:SS";
+      input.setAttribute("aria-label", "Edit timer duration");
+
+      displayEl.style.display = "none";
+      displayEl.parentNode.insertBefore(input, displayEl.nextSibling);
+      input.focus();
+      input.select();
+
+      let committed = false;
+      const finishEdit = apply => {
+        if (committed) return;
+        committed = true;
+        const val = input.value;
+        input.remove();
+        displayEl.style.display = "";
+
+        if (!apply) {
+          updateTimerUi();
+          return;
+        }
+        const parsedSec = parseFlexibleTimeInput(val);
+        if (parsedSec === null || parsedSec < 0) {
+          showToast("Enter minutes (e.g. 45) or HH:MM:SS (e.g. 01:15:00)");
+          updateTimerUi();
+          return;
+        }
+        if (parsedSec === 0) {
+          stopwatchElapsedSec = 0;
+          updateTimerUi();
+          return;
+        }
+        if (timerMode === "stopwatch") {
+          setTimerMode("timer");
+        }
+        countdownTotalSec = parsedSec;
+        stopwatchElapsedSec = 0;
+        const presetInp = document.getElementById("countdownCustomMins");
+        if (presetInp) presetInp.value = Math.max(1, Math.round(parsedSec / 60));
+        updateTimerUi();
+        showToast(`⏳ Timer set to ${formatStopwatch(parsedSec)}`);
+      };
+
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finishEdit(true);
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          finishEdit(false);
+        }
+      });
+      input.addEventListener("blur", () => finishEdit(true));
     }
 
     function startStopwatch(subjectOverride, topicOverride) {
@@ -3635,30 +3935,21 @@ ${subjLines}`;
 
     function finishAndLogStopwatch() {
       pauseStopwatch();
-      if (stopwatchElapsedSec < 5) {
-        return showToast("Run the stopwatch for at least a few seconds before logging");
+      if (stopwatchElapsedSec < 1) {
+        return showToast(`Run the ${timerMode === "timer" ? "timer" : "stopwatch"} for at least 1 second before logging`);
       }
-      const mins = Math.max(1, Math.round(stopwatchElapsedSec / 60));
-      const subj = document.getElementById("timerSubjectSelect").value || state.subjects[0] || "General";
-      const topic = document.getElementById("timerTopicSelect")?.value || `General ${subj} Revision`;
-      state.minutes[subj] = (Number(state.minutes[subj]) || 0) + mins;
-      const nowStr = new Date().toISOString().slice(0, 16).replace("T", " ");
-      state.sessions.unshift({
-        id: Date.now(),
-        date: nowStr,
-        subject: subj,
-        topic,
-        minutes: mins,
-        note: topic
-      });
+      const exactSec = Math.max(1, Math.round(stopwatchElapsedSec));
+      const info = logRecordedStudySession(exactSec);
       stopwatchElapsedSec = 0;
-      saveState();
       updateTimerUi();
-      render();
-      showToast(`✓ Logged ${mins} min(s) on "${topic}" & synced to GitHub!`);
+      showToast(`✓ Logged ${formatDurationFromSeconds(info.seconds)} on "${info.topic}" & synced to GitHub!`);
     }
 
-    function startTimer(subjectOverride, _mins, topicOverride) {
+    function startTimer(subjectOverride, minsOverride, topicOverride) {
+      if (minsOverride && Number(minsOverride) > 0) {
+        setTimerMode("timer");
+        setCountdownMinutes(minsOverride);
+      }
       startStopwatch(subjectOverride, topicOverride);
     }
     function pauseTimer() { pauseStopwatch(); }
@@ -4006,7 +4297,7 @@ CRITICAL RULES:
       if (!box) return;
       box.innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.4);">
-          <span style="font-size:12px;color:#fda4af;font-weight:700;">Are you sure? This permanently erases all progress & syncs the wipe to GitHub.</span>
+          <span style="font-size:12px;color:#fda4af;font-weight:700;">Are you sure? This permanently erases all progress.</span>
           <button type="button" class="b red sm" onclick="executeWipeAllData()">Yes, Wipe Everything</button>
           <button type="button" class="b sm" onclick="cancelWipeAllData()">Cancel</button>
         </div>
@@ -4127,6 +4418,7 @@ CRITICAL RULES:
       const snapshot = {
         activeFilter: activeSubjectFilter,
         stopwatchState: {
+          mode: timerMode,
           selectedSubject: document.getElementById("timerSubjectSelect")?.value || subjects[0],
           selectedTopic: document.getElementById("timerTopicSelect")?.value || "",
           elapsedSeconds: Math.round(getLiveStopwatchSeconds()),
