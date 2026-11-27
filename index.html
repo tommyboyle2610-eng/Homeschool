@@ -573,6 +573,25 @@
       border-radius: 5px;
       color: var(--ac);
     }
+    .md-body > :first-child { margin-top: 0; }
+    .md-body > :last-child { margin-bottom: 0; }
+    .md-p { margin: 0 0 8px; }
+    .md-h { margin: 12px 0 5px; font-weight: 800; line-height: 1.3; color: var(--cyan); }
+    h3.md-h { font-size: 14.5px; } h4.md-h { font-size: 13.5px; } h5.md-h, h6.md-h { font-size: 12.5px; }
+    .md-list { margin: 0 0 8px; padding-left: 20px; }
+    .md-list li { margin: 3px 0; }
+    .md-sub { margin: 2px 0 0 4px; opacity: 0.9; }
+    .md-quote { margin: 0 0 8px; padding: 4px 10px; border-left: 3px solid var(--cyan); background: rgba(34,211,238,0.07); border-radius: 0 8px 8px 0; }
+    .md-pre { margin: 0 0 8px; padding: 9px 11px; background: rgba(0,0,0,0.5); border-radius: 9px; overflow-x: auto; font-family: var(--font-mono); font-size: 11px; line-height: 1.5; }
+    .md-body code { font-family: var(--font-mono); font-size: 11px; background: rgba(0,0,0,0.45); padding: 1px 5px; border-radius: 5px; color: var(--ac); }
+    .md-pre code { background: none; padding: 0; color: var(--tx); }
+    .md-body a { color: var(--cyan); text-decoration: underline; }
+    .md-body hr { border: 0; border-top: 1px solid rgba(255,255,255,0.15); margin: 10px 0; }
+    .md-body strong { color: #fff; }
+    .md-table-wrap { overflow-x: auto; margin: 0 0 8px; }
+    .md-table { border-collapse: collapse; font-size: 11.5px; min-width: 60%; }
+    .md-table th, .md-table td { border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; text-align: left; }
+    .md-table th { background: rgba(34,211,238,0.12); }
     .tool-pill-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
     .tool-exec-badge {
       font-family: var(--font-mono);
@@ -1154,7 +1173,7 @@
       <div class="card">
         <div class="stat-label">Gemini AI Copilot</div>
         <div class="stat-val" id="kpiAiStatus" style="font-size:17px;margin-top:7px;color:var(--amb);">No API Key</div>
-        <div class="note" id="kpiAiModel">Model: gemini-4-hydrogen</div>
+        <div class="note" id="kpiAiModel">Model: gemini-3.5-flash</div>
       </div>
     </div>
 
@@ -1447,11 +1466,12 @@
         </div>
         <div class="row">
           <select id="geminiModelSelect" onchange="saveGeminiSettings(true)">
-            <option value="gemini-4-hydrogen">gemini-4-hydrogen (Default)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash (Default)</option>
+            <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+            <option value="gemini-3.7-flash">gemini-3.7-flash</option>
             <option value="gemini-3.8-flash">gemini-3.8-flash</option>
             <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
-            <option value="gemini-4-neon">gemini-4-neon</option>
-            <option value="gemini-4-carbon">gemini-4-carbon</option>
+            <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
           </select>
           <button type="button" class="b sm" id="testGeminiBtn" onclick="testGeminiConnection()">⚡ Test Connection</button>
         </div>
@@ -1569,7 +1589,7 @@
       scratchpad: "",
       gemini: {
         apiKey: "",
-        model: "gemini-4-hydrogen",
+        model: "gemini-3.5-flash",
         toolsEnabled: true,
         confirmActions: false
       }
@@ -1646,6 +1666,101 @@
       return String(str ?? "").replace(/[&<>"']/g, ch => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       }[ch]));
+    }
+
+    // Safe Markdown renderer for AI replies (escapes HTML first, then formats)
+    function renderAiMarkdown(raw) {
+      const text = String(raw ?? "").replace(/\r\n?/g, "\n");
+      const inline = str => {
+        let t = escapeHtml(str);
+        const codes = [];
+        t = t.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
+        t = t.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        t = t.replace(/\*\*\*([^*\n]+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+        t = t.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+        t = t.replace(/__([^_\n]+?)__/g, "<strong>$1</strong>");
+        t = t.replace(/(^|[^\w*])\*([^*\s][^*\n]*?)\*(?!\w)/g, "$1<em>$2</em>");
+        t = t.replace(/(^|[^\w_])_([^_\s][^_\n]*?)_(?!\w)/g, "$1<em>$2</em>");
+        t = t.replace(/~~([^~\n]+?)~~/g, "<del>$1</del>");
+        t = t.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codes[+i]}</code>`);
+        return t;
+      };
+
+      const lines = text.split("\n");
+      const out = [];
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i];
+
+        // fenced code block
+        if (/^\s*```/.test(line)) {
+          const buf = [];
+          i++;
+          while (i < lines.length && !/^\s*```/.test(lines[i])) buf.push(lines[i++]);
+          i++;
+          out.push(`<pre class="md-pre"><code>${escapeHtml(buf.join("\n"))}</code></pre>`);
+          continue;
+        }
+        // blank line
+        if (!line.trim()) { i++; continue; }
+        // horizontal rule
+        if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
+        // heading
+        const h = line.match(/^\s*(#{1,6})\s+(.*)$/);
+        if (h) {
+          const lvl = Math.min(h[1].length + 2, 6);
+          out.push(`<h${lvl} class="md-h">${inline(h[2].replace(/\s*#+\s*$/, ""))}</h${lvl}>`);
+          i++; continue;
+        }
+        // blockquote
+        if (/^\s*>/.test(line)) {
+          const buf = [];
+          while (i < lines.length && /^\s*>/.test(lines[i])) buf.push(lines[i++].replace(/^\s*>\s?/, ""));
+          out.push(`<blockquote class="md-quote">${buf.map(inline).join("<br>")}</blockquote>`);
+          continue;
+        }
+        // table
+        if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])) {
+          const cells = l => l.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+          const head = cells(line);
+          i += 2;
+          const rows = [];
+          while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) rows.push(cells(lines[i++]));
+          out.push(`<div class="md-table-wrap"><table class="md-table"><thead><tr>${head.map(c => `<th>${inline(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+          continue;
+        }
+        // lists
+        const li = line.match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+        if (li) {
+          const ordered = /\d/.test(li[2]);
+          const tag = ordered ? "ol" : "ul";
+          const items = [];
+          while (i < lines.length) {
+            const m = lines[i].match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+            if (m) {
+              const nested = m[1].length >= 2 && items.length;
+              if (nested) items[items.length - 1] += `<div class="md-sub">• ${inline(m[3])}</div>`;
+              else items.push(inline(m[3]));
+              i++;
+            } else if (/^\s{2,}\S/.test(lines[i]) && items.length && lines[i].trim()) {
+              items[items.length - 1] += "<br>" + inline(lines[i].trim());
+              i++;
+            } else break;
+          }
+          out.push(`<${tag} class="md-list">${items.map(x => `<li>${x}</li>`).join("")}</${tag}>`);
+          continue;
+        }
+        // paragraph (consecutive plain lines)
+        const buf = [];
+        while (i < lines.length && lines[i].trim() &&
+               !/^\s*(```|#{1,6}\s|>|([-*+]|\d+[.)])\s)/.test(lines[i]) &&
+               !/^\s*([-*_])(\s*\1){2,}\s*$/.test(lines[i])) {
+          buf.push(inline(lines[i++]));
+        }
+        if (!buf.length) { buf.push(inline(lines[i++])); }
+        out.push(`<p class="md-p">${buf.join("<br>")}</p>`);
+      }
+      return out.join("");
     }
 
     function getAllSubjects() {
@@ -1800,7 +1915,7 @@
         aiStatusEl.style.color = "var(--amb)";
       }
       document.getElementById("kpiAiModel").textContent =
-        `Model: ${state.gemini.model || "gemini-4-hydrogen"}`;
+        `Model: ${state.gemini.model || "gemini-3.5-flash"}`;
 
       // Subject Breakdown Cards
       const breakdownEl = document.getElementById("subjectBreakdown");
@@ -2069,7 +2184,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
             </div>
             <button type="button" class="b sm pri" onclick="commitAiMarkedPaper()">✓ Log Verified Past Paper</button>
           </div>
-          <div>${escapeHtml(cleanFeedback).replace(/\*\*([^\n]+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}</div>
+          <div class="md-body">${renderAiMarkdown(cleanFeedback)}</div>
           ${impPreviewHtml}
         `;
         showToast(`AI marked paper: ${parsedScore}/${parsedMax} (${pct}%)`);
@@ -2209,7 +2324,7 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         }
       }
       const feedbackHtml = paper.aiFeedback
-        ? `<div class="chat-msg ai" style="text-align:left;max-width:100%;"><div style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);font-weight:800;margin-bottom:4px;">✦ AI MARKING FEEDBACK</div>${escapeHtml(paper.aiFeedback).replace(/\*\*([^\n]+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>")}</div>`
+        ? `<div class="chat-msg ai" style="text-align:left;max-width:100%;"><div style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);font-weight:800;margin-bottom:4px;">✦ AI MARKING FEEDBACK</div><div class="md-body">${renderAiMarkdown(paper.aiFeedback)}</div></div>`
         : "";
       body.innerHTML = `${mediaHtml}${feedbackHtml || (!mediaHtml ? `<p class="note">No file or AI feedback attached to this paper entry.</p>` : "")}`;
       document.getElementById("proofPreviewDialog").showModal();
@@ -3123,7 +3238,7 @@ ${subjLines}`;
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey || "";
       const sel = document.getElementById("geminiModelSelect");
       if (!state.gemini.model || state.gemini.model === "auto" || ![...sel.options].some(o => o.value === state.gemini.model)) {
-        state.gemini.model = "gemini-4-hydrogen";
+        state.gemini.model = "gemini-3.5-flash";
       }
       sel.value = state.gemini.model;
       document.getElementById("geminiToolsEnabled").checked = state.gemini.toolsEnabled !== false;
@@ -3145,7 +3260,7 @@ ${subjLines}`;
     function saveGeminiSettings(silent = false) {
       state.gemini.apiKey = sanitizeApiKey(document.getElementById("geminiKeyInput").value);
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey;
-      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-4-hydrogen";
+      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-3.5-flash";
       state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
       state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
       saveState();
@@ -3160,7 +3275,7 @@ ${subjLines}`;
       if (!dot || !txt) return;
       if (state.gemini && state.gemini.apiKey) {
         dot.classList.add("connected");
-        txt.textContent = `${state.gemini.model || "gemini-4-hydrogen"} · Ready`;
+        txt.textContent = `${state.gemini.model || "gemini-3.5-flash"} · Ready`;
       } else {
         dot.classList.remove("connected");
         txt.textContent = "No API Key";
@@ -3438,7 +3553,7 @@ CRITICAL RULES:
     function executeWipeAllData() {
       resetStopwatch();
       const preservedKey = state.gemini?.apiKey || "";
-      const preservedModel = state.gemini?.model || "gemini-4-hydrogen";
+      const preservedModel = state.gemini?.model || "gemini-3.5-flash";
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem("sluk_gcse_hub_v4");
       state = structuredClone(DEFAULT_STATE);
@@ -3473,7 +3588,7 @@ CRITICAL RULES:
 
       btn.disabled = true;
       statusEl.style.color = "var(--cyan)";
-      statusEl.textContent = `Testing ${state.gemini.model || "gemini-4-hydrogen"}...`;
+      statusEl.textContent = `Testing ${state.gemini.model || "gemini-3.5-flash"}...`;
 
       geminiStatusCallback = msg => {
         statusEl.style.color = "#fcd34d";
@@ -3859,89 +3974,143 @@ ${JSON.stringify(snapshot, null, 2)}`;
     }
 
     const GEMINI_FALLBACK_CHAIN = [
-      "gemini-4-hydrogen",
+      "gemini-3.5-flash",
+      "gemini-3.6-flash",
+      "gemini-3.7-flash",
       "gemini-3.8-flash",
       "gemini-3.5-flash-lite",
-      "gemini-4-neon",
-      "gemini-4-carbon"
+      "gemini-3.1-flash-lite",
+      "gemini-2.5-flash"
     ];
     let geminiStatusCallback = null;
     const waitMs = ms => new Promise(resolve => setTimeout(resolve, ms));
+    // Models that recently failed are skipped for a short cooldown so we don't keep hammering them
+    const geminiCooldown = {};
+
+    function parseRetryDelayMs(res, data) {
+      try {
+        const h = res.headers.get("retry-after");
+        if (h && !isNaN(Number(h))) return Math.min(Number(h) * 1000, 20000);
+        const details = data?.error?.details || [];
+        for (const d of details) {
+          if (d.retryDelay) {
+            const sec = parseFloat(String(d.retryDelay));
+            if (!isNaN(sec)) return Math.min(sec * 1000, 20000);
+          }
+        }
+      } catch (_) {}
+      return 0;
+    }
 
     async function callGeminiRaw(payload) {
       const apiKey = state.gemini.apiKey;
-      const preferred = (!state.gemini.model || state.gemini.model === "auto")
-        ? "gemini-4-hydrogen"
+      const preferred = (!state.gemini.model || state.gemini.model === "auto" || !GEMINI_FALLBACK_CHAIN.includes(state.gemini.model))
+        ? GEMINI_FALLBACK_CHAIN[0]
         : state.gemini.model;
 
       const modelsToTry = [preferred, ...GEMINI_FALLBACK_CHAIN.filter(m => m !== preferred)];
-      const MAX_RETRIES_PER_MODEL = 3;
+      const MAX_ROUNDS = 3;            // full sweeps across all models
+      const ATTEMPTS_PER_MODEL = 2;    // quick retry, then move on to a different model
       let lastError = null;
-      let experiencedHighDemand = false;
+      let sawOverload = false;
+      let sawQuota = false;
 
-      for (const modelId of modelsToTry) {
-        for (let attempt = 0; attempt < MAX_RETRIES_PER_MODEL; attempt++) {
-          let err = null;
-          try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
-            const res = await fetch(url, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": apiKey
-              },
-              body: JSON.stringify(payload)
-            });
-            const data = await res.json().catch(() => ({}));
-            if (res.ok) {
-              data._usedModel = modelId;
-              return data;
-            }
-            err = new Error(data?.error?.message || `HTTP ${res.status}`);
-            err.status = res.status;
-          } catch (networkErr) {
-            err = networkErr;
-            err.isNetwork = true;
-          }
+      for (let round = 0; round < MAX_ROUNDS; round++) {
+        for (const modelId of modelsToTry) {
+          if (geminiCooldown[modelId] && geminiCooldown[modelId] > Date.now()) continue;
 
-          lastError = err;
-          const isTransient =
-            err.status === 429 ||
-            err.status === 500 ||
-            err.status === 502 ||
-            err.status === 503 ||
-            err.status === 504 ||
-            /high demand|overloaded|temporarily unavailable|try again later|quota|rate limit/i.test(err.message || "");
-
-          if (isTransient) {
-            experiencedHighDemand = true;
-            if (attempt < MAX_RETRIES_PER_MODEL - 1) {
-              const delay = Math.round(1200 * Math.pow(2, attempt) + Math.random() * 450);
-              if (geminiStatusCallback) {
-                geminiStatusCallback(`${modelId} experiencing high demand — retrying (${attempt + 1}/${MAX_RETRIES_PER_MODEL - 1})...`);
+          for (let attempt = 0; attempt < ATTEMPTS_PER_MODEL; attempt++) {
+            let err = null;
+            let retryMs = 0;
+            try {
+              const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+                body: JSON.stringify(payload)
+              });
+              const data = await res.json().catch(() => ({}));
+              if (res.ok) {
+                const finish = data?.candidates?.[0]?.finishReason;
+                const hasContent = data?.candidates?.[0]?.content?.parts?.length;
+                if (hasContent || (finish && finish !== "OTHER")) {
+                  data._usedModel = modelId;
+                  delete geminiCooldown[modelId];
+                  return data;
+                }
+                err = new Error("Empty response from model");
+                err.status = 503; // treat blank replies as transient
+              } else {
+                err = new Error(data?.error?.message || `HTTP ${res.status}`);
+                err.status = res.status;
+                retryMs = parseRetryDelayMs(res, data);
               }
-              await waitMs(delay);
-              continue;
+            } catch (networkErr) {
+              err = networkErr;
+              err.status = 0;
+              err.isNetwork = true;
             }
-            if (geminiStatusCallback) {
-              geminiStatusCallback(`${modelId} busy — switching to backup Gemini model...`);
+
+            lastError = err;
+            const msg = err.message || "";
+
+            // Bad key / bad request: no point trying other models
+            if (err.status === 401 || err.status === 403 || (err.status === 400 && /api key|permission/i.test(msg))) {
+              throw err;
             }
-            break;
-          }
 
-          const isMissingModel =
-            err.status === 404 ||
-            (err.status === 400 && /model/i.test(err.message || "") && !/api key/i.test(err.message || ""));
-          if (isMissingModel) {
-            break;
-          }
+            // Model doesn't exist for this key: skip it permanently this session
+            if (err.status === 404 || (err.status === 400 && /model/i.test(msg))) {
+              geminiCooldown[modelId] = Date.now() + 10 * 60 * 1000;
+              break;
+            }
 
-          throw err;
+            // Quota exhausted on this model (limits are per-model): switch model immediately
+            if (err.status === 429) {
+              sawQuota = true;
+              geminiCooldown[modelId] = Date.now() + (retryMs || 20000);
+              if (geminiStatusCallback) geminiStatusCallback(`${modelId} rate limited — trying another Gemini model...`);
+              break;
+            }
+
+            const isOverload =
+              [500, 502, 503, 504].includes(err.status) ||
+              err.isNetwork ||
+              /high demand|overloaded|temporarily unavailable|try again later/i.test(msg);
+
+            if (isOverload) {
+              sawOverload = true;
+              if (attempt < ATTEMPTS_PER_MODEL - 1) {
+                const delay = retryMs || Math.round(700 + Math.random() * 500);
+                if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — quick retry...`);
+                await waitMs(delay);
+                continue;
+              }
+              geminiCooldown[modelId] = Date.now() + 15000;
+              if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — switching to another Gemini model...`);
+              break;
+            }
+
+            throw err;
+          }
+        }
+
+        if (round < MAX_ROUNDS - 1) {
+          const delay = 2500 * (round + 1);
+          if (geminiStatusCallback) geminiStatusCallback(`All models busy — waiting ${Math.round(delay / 1000)}s then trying again...`);
+          await waitMs(delay);
+          // Clear short cooldowns so the next sweep can retry everything
+          for (const k of Object.keys(geminiCooldown)) {
+            if (geminiCooldown[k] - Date.now() < 30000) delete geminiCooldown[k];
+          }
         }
       }
 
-      if (experiencedHighDemand) {
-        throw new Error("All available Gemini models are experiencing a temporary spike in demand right now. Please wait 15–30 seconds and click AI Mark again.");
+      if (sawQuota && !sawOverload) {
+        throw new Error("Your Gemini API key has hit its rate/quota limit on every model. Wait a minute and try again, or check usage at aistudio.google.com.");
+      }
+      if (sawOverload || sawQuota) {
+        throw new Error("Google's Gemini servers are overloaded right now (tried every model several times). Please try again in a minute.");
       }
       throw lastError || new Error("No compatible Gemini model responded.");
     }
@@ -4014,7 +4183,7 @@ ${JSON.stringify(snapshot, null, 2)}`;
               `<div><a class="fallback-open-btn" href="${escapeHtml(lc.url)}" target="_blank" rel="noopener noreferrer">↗ Open ${escapeHtml(lc.label)}</a></div>`
             ).join("");
 
-            thinkingEl.innerHTML = `${badgesHtml}<div>${escapeHtml(replyText).replace(/\n/g, "<br>")}</div>${linksHtml}`;
+            thinkingEl.innerHTML = `${badgesHtml}<div class="md-body">${renderAiMarkdown(replyText)}</div>${linksHtml}`;
             return;
           }
 
