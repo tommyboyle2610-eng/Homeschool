@@ -1310,8 +1310,8 @@
         </div>
         <div class="toggle-row">
           <div>
-            <div style="font-weight:700;color:#fff;font-size:13px;">Instant Auto-Sync to GitHub</div>
-            <div style="font-size:11.5px;color:var(--mu);">Immediately pushes all changes to GitHub whenever anything updates, and auto-pulls on load.</div>
+            <div style="font-weight:700;color:#fff;font-size:13px;">Instant Auto-Sync &amp; 1-Minute Auto-Pull</div>
+            <div style="font-size:11.5px;color:var(--mu);">Immediately pushes all changes to GitHub whenever anything updates, and auto-pulls on load &amp; every 60 seconds.</div>
           </div>
           <input type="checkbox" id="ghAuto" checked onchange="saveGithubSettings(true)" />
         </div>
@@ -1433,7 +1433,7 @@
         repo: "schooldata",
         branch: "main",
         dir: "study-data",
-        token: "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",
+        token: "",
         auto: true,
         lastPushAt: 0,
         lastHash: ""
@@ -1495,7 +1495,7 @@
       repo: "schooldata",
       branch: "main",
       dir: "study-data",
-      token: "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",
+      token: "",
       auto: true
     };
     function applyEmbeddedGithubDefaults(st) {
@@ -1692,12 +1692,16 @@
     })();
 
     // =========================================================================
-    // GITHUB LIVE SYNC ENGINE (INSTANT PUSH ON UPDATE + AUTO-PULL ON LOAD)
+    // GITHUB LIVE SYNC ENGINE (INSTANT PUSH + PULL ON LOAD & EVERY 1 MINUTE)
     // =========================================================================
     let ghPushTimer = null;
+    let ghPollInterval = null;
     let ghPushing = false;
+    let ghPulling = false;
     let ghPushQueued = false;
     let ghBootPullComplete = false;
+    let ghStateSha = null;
+    let ghPendingDeletes = [];
 
     function ghConfigured() {
       const g = state.github || {};
@@ -1755,15 +1759,44 @@
     }
 
     async function ghGetRawBlob(path) {
+      const cleanPath = String(path || "").replace(/^\/+/, "");
       const res = await fetch(
-        ghUrl(path) + `?ref=${encodeURIComponent(state.github.branch || "main")}&_t=${Date.now()}`,
+        ghUrl(cleanPath) + `?ref=${encodeURIComponent(state.github.branch || "main")}&_t=${Date.now()}`,
         {
           headers: ghHeaders({ "Accept": "application/vnd.github.raw+json" }),
           cache: "no-store"
         }
       );
-      if (!res.ok) throw await ghErr(res);
-      return res.blob();
+      if (res.ok) return res.blob();
+
+      // Fallback: fetch JSON metadata (handles large/base64 payloads or raw header quirks)
+      const meta = await ghGetMeta(cleanPath);
+      if (!meta) throw await ghErr(res);
+      if (meta.content && meta.encoding === "base64") {
+        const b64 = meta.content.replace(/\s+/g, "");
+        const bin = atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new Blob([bytes]);
+      }
+      if (meta.sha) {
+        const g = state.github;
+        const blobRes = await fetch(
+          `https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/git/blobs/${encodeURIComponent(meta.sha)}`,
+          { headers: ghHeaders(), cache: "no-store" }
+        );
+        if (blobRes.ok) {
+          const blobJson = await blobRes.json();
+          if (blobJson.content) {
+            const b64 = blobJson.content.replace(/\s+/g, "");
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes]);
+          }
+        }
+      }
+      throw await ghErr(res);
     }
 
     async function ghPut(path, b64, message, sha) {
@@ -1780,6 +1813,28 @@
       }
       if (!res.ok) throw await ghErr(res);
       return res.json();
+    }
+
+    async function ghDeleteFile(path, message) {
+      if (!path || !ghConfigured()) return;
+      const cleanPath = String(path).replace(/^\/+/, "");
+      const meta = await ghGetMeta(cleanPath);
+      if (!meta || !meta.sha) return;
+      const res = await fetch(ghUrl(cleanPath), {
+        method: "DELETE",
+        headers: ghHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({
+          message: message || `Delete ${cleanPath}`,
+          sha: meta.sha,
+          branch: state.github.branch || "main"
+        })
+      });
+      if (!res.ok && res.status !== 404) throw await ghErr(res);
+    }
+
+    function queueGithubFileDelete(path) {
+      if (!path) return;
+      if (!ghPendingDeletes.includes(path)) ghPendingDeletes.push(path);
     }
 
     function utf8ToB64(str) {
@@ -1814,7 +1869,6 @@
         toolsEnabled: state.gemini?.toolsEnabled !== false,
         confirmActions: Boolean(state.gemini?.confirmActions)
       };
-      // Binary attachments are uploaded separately into files/ to keep state.json fast & clean
       snap.evidence = (snap.evidence || []).map(e => ({ ...e, dataUrl: "" }));
       snap.papers = (snap.papers || []).map(p => ({ ...p, fileDataUrl: "" }));
       return snap;
@@ -1841,11 +1895,10 @@
       return uploaded;
     }
 
-    // Instant push triggered on every state update (coalesced across synchronous microtasks)
     function scheduleGithubPush() {
       if (!ghConfigured() || state.github.auto === false) return;
       clearTimeout(ghPushTimer);
-      ghPushTimer = setTimeout(() => githubPushNow(false), 60);
+      ghPushTimer = setTimeout(() => githubPushNow(false), 0);
     }
 
     async function githubPushNow(manual) {
@@ -1860,44 +1913,64 @@
       ghPushing = true;
       try {
         ghStatus("Syncing to GitHub...", "#fcd34d");
+        while (ghPendingDeletes.length) {
+          const delPath = ghPendingDeletes.shift();
+          try {
+            await ghDeleteFile(delPath, `Remove deleted attachment ${delPath}`);
+          } catch (_) {}
+        }
         await ghUploadAttachments();
         const snapshot = buildGithubSnapshot();
-        const json = JSON.stringify(snapshot, null, 2);
+        const json = JSON.stringify(snapshot);
         const path = ghPath("state.json");
-        const meta = await ghGetMeta(path);
-        await ghPut(
+        if (!ghStateSha) {
+          const meta = await ghGetMeta(path);
+          ghStateSha = meta?.sha || null;
+        }
+        const putRes = await ghPut(
           path,
           utf8ToB64(json),
           `Sync study data (${new Date().toISOString().slice(0, 19).replace("T", " ")})`,
-          meta?.sha
+          ghStateSha
         );
+        if (putRes?.content?.sha) ghStateSha = putRes.content.sha;
         state.github.lastPushAt = Date.now();
         saveStateLocal();
         ghStatus(`✓ Synced ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`, "#86efac");
         if (manual) showToast("✓ All data & progress synced to GitHub");
       } catch (err) {
+        ghStateSha = null;
         ghStatus("✕ Sync error: " + err.message, "#fda4af");
         if (manual) showToast("GitHub save failed — see Settings");
       } finally {
         ghPushing = false;
         if (ghPushQueued) {
           ghPushQueued = false;
-          scheduleGithubPush();
+          githubPushNow(false);
         }
       }
     }
 
     async function ghHydrateFiles() {
       const items = [];
-      (state.evidence || []).forEach(it => { if (it.ghPath && !it.dataUrl) items.push({ it, key: "dataUrl" }); });
-      (state.papers || []).forEach(it => { if (it.ghPath && !it.fileDataUrl) items.push({ it, key: "fileDataUrl" }); });
+      (state.evidence || []).forEach(it => {
+        const expectedPath = it.ghPath || (it.id && it.fileName && it.fileName !== "Work Note" ? ghPath(`files/evidence-${it.id}.${mimeToExt(it.mimeType, it.fileName)}`) : "");
+        if (expectedPath && !it.dataUrl) items.push({ it, key: "dataUrl", path: expectedPath, mimeKey: "mimeType" });
+      });
+      (state.papers || []).forEach(it => {
+        const expectedPath = it.ghPath || (it.id && it.fileName ? ghPath(`files/paper-${it.id}.${mimeToExt(it.fileMime, it.fileName)}`) : "");
+        if (expectedPath && !it.fileDataUrl) items.push({ it, key: "fileDataUrl", path: expectedPath, mimeKey: "fileMime" });
+      });
       if (!items.length) return;
       let n = 0;
-      for (const { it, key } of items) {
+      for (const { it, key, path, mimeKey } of items) {
         try {
-          const blob = await ghGetRawBlob(it.ghPath);
-          const typed = new Blob([blob], { type: it.ghMime || blob.type || "application/octet-stream" });
+          const blob = await ghGetRawBlob(path);
+          const resolvedMime = it.ghMime || it[mimeKey] || blob.type || (/\.pdf$/i.test(path) ? "application/pdf" : "image/jpeg");
+          const typed = new Blob([blob], { type: resolvedMime });
           it[key] = await blobToDataUrl(typed);
+          it.ghPath = path;
+          it.ghMime = resolvedMime;
           n++;
         } catch (_) {}
       }
@@ -1912,16 +1985,28 @@
         ghStatus("Add your owner, repo and token first.", "#fda4af");
         return false;
       }
+      if (ghPushing || ghPulling) return false;
+      ghPulling = true;
       try {
         ghStatus("Pulling latest from GitHub...", "#fcd34d");
         const meta = await ghGetMeta(ghPath("state.json"));
         if (!meta) {
+          ghStateSha = null;
           ghStatus("No remote state yet — pushing local state...", "#fcd34d");
+          ghPulling = false;
           await githubPushNow(false);
           return false;
         }
+        ghStateSha = meta.sha || ghStateSha;
         const rawText = await (await ghGetRawBlob(ghPath("state.json"))).text();
         const remote = JSON.parse(rawText);
+
+        if (!manual && ghBootPullComplete && Number(state._savedAt || 0) > Number(remote._savedAt || 0) + 1500) {
+          ghPulling = false;
+          await githubPushNow(false);
+          return true;
+        }
+
         const base = structuredClone(DEFAULT_STATE);
         const keep = {
           gemini: {
@@ -1949,15 +2034,17 @@
         saveStateLocal();
         render();
         renderGeminiWelcome();
-        ghStatus("Hydrating attached files...", "#fcd34d");
+        ghStatus("Hydrating attached papers & proofs...", "#fcd34d");
         await ghHydrateFiles();
         ghStatus(`✓ Synced ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`, "#86efac");
-        if (manual) showToast("✓ Pulled newest data from GitHub");
+        if (manual) showToast("✓ Pulled newest data & past papers from GitHub");
         return true;
       } catch (err) {
         ghStatus("✕ Pull failed: " + err.message, "#fda4af");
         if (manual) showToast("GitHub pull failed: " + err.message);
         return false;
+      } finally {
+        ghPulling = false;
       }
     }
 
@@ -2081,10 +2168,19 @@
       }
     }
 
-    // Automatically pull newest data from GitHub on initial load (and when tab regains focus)
+    function startGithubAutoPoll() {
+      clearInterval(ghPollInterval);
+      ghPollInterval = setInterval(() => {
+        if (ghConfigured() && state.github.auto !== false && !ghPushing && !ghPulling) {
+          githubPullNow(false);
+        }
+      }, 60 * 1000);
+    }
+
     async function githubBootSync() {
+      startGithubAutoPoll();
       if (!ghConfigured()) {
-        ghStatus("Offline (No GitHub)", "#94a3b8");
+        ghStatus("Set Token in Settings", "#fcd34d");
         return;
       }
       await githubPullNow(false);
@@ -2092,7 +2188,7 @@
     }
 
     document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && ghBootPullComplete && ghConfigured() && !ghPushing) {
+      if (document.visibilityState === "visible" && ghBootPullComplete && ghConfigured() && !ghPushing && !ghPulling) {
         githubPullNow(false);
       }
     });
@@ -2593,6 +2689,16 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
       const pct = Math.round((paper.score / Math.max(1, paper.max)) * 100);
       document.getElementById("proofPreviewTitle").textContent = `[${paper.subject}] ${paper.title} — ${paper.score}/${paper.max} (${pct}%)`;
       const body = document.getElementById("proofPreviewBody");
+
+      if (!paper.fileDataUrl && (paper.ghPath || paper.fileName) && ghConfigured()) {
+        body.innerHTML = `<p class="note" style="color:var(--cyan);">⏳ Downloading attached file from GitHub...</p>`;
+        if (!document.getElementById("proofPreviewDialog").open) {
+          document.getElementById("proofPreviewDialog").showModal();
+        }
+        ghHydrateFiles().then(() => openPaperPreview(id));
+        return;
+      }
+
       let mediaHtml = "";
       if (paper.fileDataUrl) {
         if (paper.fileMime && paper.fileMime.startsWith("image/")) {
@@ -2610,13 +2716,21 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
         ? `<div class="chat-msg ai" style="text-align:left;max-width:100%;"><div style="font-family:var(--font-mono);font-size:10.5px;color:var(--cyan);font-weight:800;margin-bottom:4px;">✦ AI MARKING FEEDBACK</div><div class="md-body">${renderAiMarkdown(paper.aiFeedback)}</div></div>`
         : "";
       body.innerHTML = `${mediaHtml}${feedbackHtml || (!mediaHtml ? `<p class="note">No file or AI feedback attached to this paper entry.</p>` : "")}`;
-      document.getElementById("proofPreviewDialog").showModal();
+      if (!document.getElementById("proofPreviewDialog").open) {
+        document.getElementById("proofPreviewDialog").showModal();
+      }
     }
 
     function deletePaperScore(id) {
+      const target = state.papers.find(p => p.id === id);
+      if (target) {
+        const filePath = target.ghPath || (target.fileName ? ghPath(`files/paper-${target.id}.${mimeToExt(target.fileMime, target.fileName)}`) : "");
+        queueGithubFileDelete(filePath);
+      }
       state.papers = state.papers.filter(p => p.id !== id);
       saveState();
       render();
+      showToast("Past paper deleted & removing from GitHub...");
     }
 
     function renderProofAndPapers() {
@@ -2784,6 +2898,11 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
     }
 
     function deleteEvidenceItem(id) {
+      const target = state.evidence.find(e => e.id === id);
+      if (target) {
+        const filePath = target.ghPath || (target.fileName && target.fileName !== "Work Note" ? ghPath(`files/evidence-${target.id}.${mimeToExt(target.mimeType, target.fileName)}`) : "");
+        queueGithubFileDelete(filePath);
+      }
       state.evidence = state.evidence.filter(e => e.id !== id);
       saveState();
       render();
