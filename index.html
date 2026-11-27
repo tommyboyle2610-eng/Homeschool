@@ -226,28 +226,45 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 14px;
     }
     .seg-tabs {
       display: inline-flex;
-      gap: 4px;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 3px;
       padding: 4px;
-      border-radius: 999px;
+      border-radius: 16px;
       background: rgba(8, 16, 12, 0.9);
       border: 1px solid var(--line);
     }
     .seg-btn {
-      padding: 6px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
       border-radius: 999px;
       border: 0;
       background: transparent;
       color: var(--mu);
-      font: 700 12px var(--font-main);
+      font: 700 11.5px var(--font-main);
+      line-height: 1.1;
+      white-space: nowrap;
       cursor: pointer;
       transition: all 0.22s var(--ease-out);
     }
-    .seg-btn:hover { color: #fff; }
+    .seg-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .seg-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
     .seg-btn.active {
       background: var(--grad);
       color: #030705;
@@ -453,6 +470,47 @@
       color: #fbbf24;
     }
 
+    .flashcard-stage {
+      perspective: 1000px;
+      margin: 12px 0;
+    }
+    .flashcard-box {
+      min-height: 170px;
+      padding: 22px 20px;
+      border-radius: 18px;
+      background: linear-gradient(155deg, rgba(10, 26, 20, 0.95), rgba(4, 12, 9, 0.96));
+      border: 1px solid rgba(0, 255, 136, 0.35);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.25s var(--ease-spring), border-color 0.25s;
+    }
+    .flashcard-box:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+    .flashcard-box.flipped {
+      border-color: var(--cyan);
+      background: linear-gradient(155deg, rgba(6, 24, 30, 0.95), rgba(4, 12, 16, 0.96));
+    }
+
+    .tt-day-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .tt-day-card.today {
+      border-color: var(--ac);
+      background: rgba(0, 255, 136, 0.06);
+    }
+
     .typing-dots span {
       display: inline-block;
       width: 5px; height: 5px;
@@ -606,7 +664,12 @@
     .md-body code { font-family: var(--font-mono); font-size: 11px; background: rgba(0,0,0,0.45); padding: 1px 5px; border-radius: 5px; color: var(--ac); }
     .md-pre code { background: none; padding: 0; color: var(--tx); }
     .md-body a { color: var(--cyan); text-decoration: underline; }
-    .md-body hr { border: 0; border-top: 1px solid rgba(255,255,255,0.15); margin: 10px 0; }
+    .md-body hr {
+      border: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.45), rgba(34, 211, 238, 0.45), transparent);
+      margin: 12px 0;
+    }
     .md-body strong { color: #fff; }
     .md-mark-pill {
       display: inline-block;
@@ -623,10 +686,30 @@
     .md-c-amber { color: #fbbf24; font-weight: 700; }
     .md-c-red { color: #fda4af; font-weight: 700; }
     .md-c-cyan { color: var(--cyan); font-weight: 700; }
+    .md-c-lime { color: var(--lime); font-weight: 700; }
+    .md-c-purple { color: #c084fc; font-weight: 700; }
     .md-table-wrap { overflow-x: auto; margin: 0 0 8px; }
     .md-table { border-collapse: collapse; font-size: 11.5px; min-width: 60%; }
     .md-table th, .md-table td { border: 1px solid rgba(255,255,255,0.15); padding: 4px 8px; text-align: left; }
     .md-table th { background: rgba(34,211,238,0.12); }
+    .md-details {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: rgba(0, 255, 136, 0.06);
+      border: 1px solid rgba(0, 255, 136, 0.28);
+    }
+    .md-details summary {
+      cursor: pointer;
+      font: 700 11.5px var(--font-mono);
+      color: var(--ac);
+      user-select: none;
+    }
+    .md-details[open] summary {
+      margin-bottom: 6px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.18);
+    }
     .tool-pill-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
     .tool-exec-badge {
       font-family: var(--font-mono);
@@ -1002,7 +1085,7 @@
       <div class="card">
         <div class="stat-label">Gemini AI Copilot</div>
         <div class="stat-val" id="kpiAiStatus" style="font-size:17px;margin-top:7px;color:var(--amb);">No API Key</div>
-        <div class="note" id="kpiAiModel">Model: gemini-4-hydrogen</div>
+        <div class="note" id="kpiAiModel">Model: gemini-3-flash-preview</div>
       </div>
     </div>
 
@@ -1011,17 +1094,19 @@
     <div class="main-grid">
       <div>
         <div class="workspace-bar">
-          <div class="seg-tabs">
-            <button type="button" class="seg-btn active" id="wsBtn-syllabus" onclick="switchWorkspaceTab('syllabus')">📚 Syllabus</button>
-            <button type="button" class="seg-btn" id="wsBtn-papers" onclick="switchWorkspaceTab('papers')">📝 Past Papers</button>
-            <button type="button" class="seg-btn" id="wsBtn-improvement" onclick="switchWorkspaceTab('improvement')">🎯 Improvement</button>
-            <button type="button" class="seg-btn" id="wsBtn-proof" onclick="switchWorkspaceTab('proof')">📸 Proof &amp; Files</button>
-            <button type="button" class="seg-btn" id="wsBtn-diary" onclick="switchWorkspaceTab('diary')">📓 Study Diary</button>
+          <div class="seg-tabs" role="tablist" aria-label="Study Workspace">
+            <button type="button" class="seg-btn active" id="wsBtn-syllabus" onclick="switchWorkspaceTab('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Syllabus</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-flashcards" onclick="switchWorkspaceTab('flashcards')"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="16" rx="2.5"/><path d="M7 2h12a2 2 0 0 1 2 2v14"/></svg><span>Cards</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-timetable" onclick="switchWorkspaceTab('timetable')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2.5"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Schedule</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-papers" onclick="switchWorkspaceTab('papers')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg><span>Papers</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-improvement" onclick="switchWorkspaceTab('improvement')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><span>Focus Gaps</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-proof" onclick="switchWorkspaceTab('proof')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span>Proof</span></button>
+            <button type="button" class="seg-btn" id="wsBtn-diary" onclick="switchWorkspaceTab('diary')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Diary</span></button>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
             <button type="button" class="b sm" onclick="githubPullNow(true)" title="Pull newest data from GitHub">⬇ Pull</button>
             <button type="button" class="b sm" onclick="githubPushNow(true)" title="Push all data to GitHub now">⬆ Sync</button>
-            <button type="button" class="b sm" onclick="exportSyllabusJson()">⬇ Export JSON</button>
+            <button type="button" class="b sm" onclick="exportSyllabusJson()">⬇ JSON</button>
           </div>
         </div>
 
@@ -1049,6 +1134,49 @@
           </div>
         </div>
 
+        <div id="wsPane-flashcards" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>🃏 Active Recall Flashcards</span>
+              <span class="uk-pill" id="flashcardDeckBadge">0 cards</span>
+            </h2>
+            <p class="note">Generate a 5-card active recall deck from any Red/Amber topic, or create custom cards. Marking <strong>✓ Got It</strong> automatically boosts that topic's RAG status (Red → Amber → Green).</p>
+            <div class="row">
+              <select id="fcSubjectSelect" onchange="syncFlashcardTopics()"></select>
+              <select id="fcTopicSelect"></select>
+              <button type="button" class="b pri" id="fcGenerateBtn" onclick="generateAiFlashcards()">✦ AI Generate 5 Cards</button>
+            </div>
+            <div id="flashcardPlayerArea"></div>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);">
+              <strong style="font-size:13px;color:#fff;">+ Add Custom Flashcard</strong>
+              <div class="row" style="margin-top:8px;">
+                <input id="fcCustomFront" placeholder="Front: Exam question or key term...">
+                <input id="fcCustomBack" placeholder="Back: Mark-scheme answer or formula...">
+                <button type="button" class="b sm pri" onclick="addCustomFlashcard()">+ Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="wsPane-timetable" style="display:none;">
+          <div class="card">
+            <h2>
+              <span>🗓 Weekly Study Timetable &amp; AI Daily Plan</span>
+              <span class="uk-pill" id="ttTodayBadge">Today</span>
+            </h2>
+            <p class="note">Assign subjects to each day of the week (e.g. Monday – Maths, Combined Science) and ask Gemini AI to recommend the exact topics to revise today based on your Red/Amber gaps.</p>
+            <div id="timetableAiRecBox" class="chat-msg ai" style="margin-bottom:14px;max-width:100%;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--cyan);font-weight:800;">✦ TODAY'S AI STUDY RECOMMENDATION</span>
+                <button type="button" class="b sm pri" id="ttRecommendBtn" onclick="recommendTodayTimetableWork()">✦ Get AI Plan for Today</button>
+              </div>
+              <div id="timetableAiRecBody" class="md-body" style="margin-top:8px;"><p class="note" style="margin:0;">Click <strong>Get AI Plan for Today</strong> to get tailored topic recommendations for today's scheduled subjects.</p></div>
+            </div>
+            <div id="timetableDaysContainer"></div>
+          </div>
+        </div>
+
         <div id="wsPane-papers" style="display:none;">
           <div class="card">
             <h2>
@@ -1062,10 +1190,20 @@
               <input id="paperMaxInput" type="number" min="1" placeholder="Optional max marks hint" style="max-width:190px;">
             </div>
             <div class="row" style="align-items:center;">
-              <input type="file" id="paperFileInput" accept="image/*,application/pdf" onchange="handlePaperFileSelect(event)">
+              <div style="flex:1;min-width:210px;">
+                <div style="font:700 11px var(--font-mono);color:var(--ac);margin-bottom:4px;">1. Student Worksheet / Past Paper (Required)</div>
+                <input type="file" id="paperFileInput" accept="image/*,application/pdf" onchange="handlePaperFileSelect(event)" style="width:100%;">
+              </div>
+              <div style="flex:1;min-width:210px;">
+                <div style="font:700 11px var(--font-mono);color:var(--cyan);margin-bottom:4px;">2. Official Mark Scheme (Optional · Highly Recommended)</div>
+                <input type="file" id="markSchemeFileInput" accept="image/*,application/pdf" onchange="handleMarkSchemeFileSelect(event)" style="width:100%;">
+              </div>
+            </div>
+            <div class="row" style="align-items:center;">
               <button type="button" class="b pri" id="aiMarkPaperBtn" onclick="aiMarkUploadedPaper()">✦ AI Mark Worksheet / Paper</button>
             </div>
             <div id="paperUploadPreviewBar" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:14px;background:rgba(34,211,238,0.07);border:1px solid rgba(34,211,238,0.28);font-size:12px;"></div>
+            <div id="markSchemePreviewBar" style="display:none;margin-bottom:10px;padding:10px 12px;border-radius:14px;background:rgba(163,230,53,0.08);border:1px solid rgba(163,230,53,0.32);font-size:12px;"></div>
             <div id="aiMarkerOutputBox" style="display:none;margin-bottom:12px;" class="chat-msg ai"></div>
             <div id="paperScoresList"><p class="note">No past papers logged yet. Upload a completed worksheet above and run the AI Marker.</p></div>
           </div>
@@ -1295,13 +1433,10 @@
         </div>
         <div class="row">
           <select id="geminiModelSelect" onchange="saveGeminiSettings(true)">
-            <option value="gemini-4-hydrogen">gemini-4-hydrogen (Default)</option>
-            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-            <option value="gemini-3.6-flash">gemini-3.6-flash</option>
-            <option value="gemini-3.7-flash">gemini-3.7-flash</option>
-            <option value="gemini-3.8-flash">gemini-3.8-flash</option>
-            <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
-            <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
+            <option value="gemini-3-flash-preview">gemini-3-flash-preview (Latest · Default)</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash (Fast &amp; Multimodal)</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro (Deep Exam Grading)</option>
+            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (Ultra-Light)</option>
           </select>
           <button type="button" class="b sm" id="testGeminiBtn" onclick="testGeminiConnection()">⚡ Test Connection</button>
         </div>
@@ -1439,6 +1574,17 @@
       improvements: [],
       diary: [],
       evidence: [],
+      flashcards: [],
+      timetable: {
+        Monday: ["Maths", "Combined Science"],
+        Tuesday: ["English Lang", "History"],
+        Wednesday: ["Computer Science", "Maths"],
+        Thursday: ["Combined Science", "English Lit"],
+        Friday: ["Maths", "Computer Science"],
+        Saturday: ["Combined Science"],
+        Sunday: []
+      },
+      timetableAiPlan: null,
       parentSignOffs: {},
       studentName: "Year 10 Student",
       links: [
@@ -1452,7 +1598,7 @@
       scratchpad: "",
       gemini: {
         apiKey: "",
-        model: "gemini-4-hydrogen",
+        model: "gemini-3-flash-preview",
         toolsEnabled: true,
         confirmActions: false
       },
@@ -1484,6 +1630,9 @@
           improvements: Array.isArray(parsed.improvements) ? parsed.improvements : [...DEFAULT_STATE.improvements],
           diary: Array.isArray(parsed.diary) ? parsed.diary : [...DEFAULT_STATE.diary],
           evidence: Array.isArray(parsed.evidence) ? parsed.evidence : [],
+          flashcards: Array.isArray(parsed.flashcards) ? parsed.flashcards : [],
+          timetable: typeof parsed.timetable === "object" && parsed.timetable ? { ...DEFAULT_STATE.timetable, ...parsed.timetable } : structuredClone(DEFAULT_STATE.timetable),
+          timetableAiPlan: parsed.timetableAiPlan || null,
           parentSignOffs: typeof parsed.parentSignOffs === "object" && parsed.parentSignOffs ? parsed.parentSignOffs : {},
           links: Array.isArray(parsed.links) ? parsed.links : [...DEFAULT_STATE.links],
           gemini: {
@@ -1668,9 +1817,24 @@
 
     function cleanMathNotation(str) {
       let s = String(str ?? "");
-      for (let k = 0; k < 3; k++) {
-        s = s.replace(/\\(?:d|t)?frac\{([^{}]+)\}\{([^{}]+)\}/g, "$1/$2");
-        s = s.replace(/\\(?:mathbf|textbf|text|mathrm|mathit)\{([^{}]+)\}/g, "$1");
+      const supMap = {
+        "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+        "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+        "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾",
+        "n": "ⁿ", "i": "ⁱ", "x": "ˣ", "y": "ʸ"
+      };
+      const subMap = {
+        "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
+        "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+        "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
+        "a": "ₐ", "e": "ₑ", "o": "ₒ", "x": "ₓ", "n": "ₙ"
+      };
+      const toSup = exp => String(exp).split("").map(ch => supMap[ch] || ch).join("");
+      const toSub = sub => String(sub).split("").map(ch => subMap[ch] || ch).join("");
+
+      for (let k = 0; k < 4; k++) {
+        s = s.replace(/\\(?:d|t)?frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, "($1) / ($2)");
+        s = s.replace(/\\(?:mathbf|textbf|text|mathrm|mathit)\s*\{([^{}]+)\}/g, "$1");
       }
       s = s
         .replace(/\\times/g, "×")
@@ -1682,12 +1846,19 @@
         .replace(/\\geq/g, "≥")
         .replace(/\\implies/g, "→")
         .replace(/\\rightarrow/g, "→")
+        .replace(/\\leftarrow/g, "←")
+        .replace(/\\degree|\\circ/g, "°")
+        .replace(/\\pi/g, "π")
+        .replace(/\\theta/g, "θ")
+        .replace(/\\Delta/g, "Δ")
         .replace(/\\left|\\right/g, "")
         .replace(/\\%/g, "%")
         .replace(/\\£/g, "£")
-        .replace(/\\sqrt\{([^{}]+)\}/g, "√($1)")
-        .replace(/\^2\b/g, "²")
-        .replace(/\^3\b/g, "³");
+        .replace(/\\sqrt\s*\{([^{}]+)\}/g, "√($1)")
+        .replace(/\^\{([0-9+\-=()nixy]+)\}/g, (_, exp) => toSup(exp))
+        .replace(/\^(-?[0-9]+)\b/g, (_, exp) => toSup(exp))
+        .replace(/_\{([0-9+\-=()aeoxn]+)\}/g, (_, sub) => toSub(sub))
+        .replace(/_([0-9]+)\b/g, (_, sub) => toSub(sub));
       s = s.replace(/\$\$([^$]+)\$\$/g, "$1").replace(/\$([^$\n]+)\$/g, "$1");
       return s;
     }
@@ -1695,21 +1866,50 @@
     function renderAiMarkdown(raw) {
       const cleaned = cleanMathNotation(raw)
         .replace(/\r\n?/g, "\n")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<hr\s*\/?>/gi, "\n---\n")
         .replace(/^\s*[-*+]\s*$/gm, "")
-        .replace(/([^\n])(\bQ\d+[:.)])/g, "$1\n- **$2**");
+        .replace(/([^\n])(\bQ\d+[:.)])/g, "$1\n- **$2**")
+        // Split inline headings like "text ### Heading" or "--- ### Heading" onto separate blocks
+        .replace(/([^\n#])\s+(#{1,6}\s+)/g, "$1\n\n$2")
+        // Split inline horizontal rules onto their own line
+        .replace(/([^\n-])\s+---(?:\s+|$)/g, "$1\n---\n");
 
-      const text = cleaned;
+      const detailBlocks = [];
+      const text = cleaned.replace(
+        /<details>\s*(?:<summary>([\s\S]*?)<\/summary>)?([\s\S]*?)<\/details>/gi,
+        (_, sum, body) => {
+          const idx = detailBlocks.length;
+          detailBlocks.push({
+            summary: (sum || "Click to check answer").trim(),
+            body: (body || "").trim()
+          });
+          return `\n\u0001DETAIL_${idx}\u0001\n`;
+        }
+      );
+
       const inline = str => {
-        let t = escapeHtml(str);
+        // Normalize safe HTML colour/font tags from AI into bracketed colour tokens before escaping
+        let pre = String(str ?? "")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#00ff88|green|emerald|#22c55e|#4ade80)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[green]$1[/green]")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#f59e0b|#fbbf24|amber|orange|yellow)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[amber]$1[/amber]")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#f43f5e|#fda4af|red|rose|crimson)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[red]$1[/red]")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#22d3ee|cyan|aqua|blue|#38bdf8)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[cyan]$1[/cyan]")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#a3e635|lime)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[lime]$1[/lime]")
+          .replace(/<(?:span|font)[^>]*color\s*[:=]\s*["']?(?:#c084fc|purple|violet)["']?[^>]*>([\s\S]*?)<\/(?:span|font)>/gi, "[purple]$1[/purple]")
+          .replace(/<\/?(?:span|font|div|p|b|i|u)[^>]*>/gi, "");
+
+        let t = escapeHtml(pre);
         const codes = [];
         t = t.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
         t = t.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        t = t.replace(/\[(green|amber|red|cyan)\]([\s\S]*?)\[\/\1\]/gi, (_, col, inner) => `<span class="md-c-${col.toLowerCase()}">${inner}</span>`);
-        t = t.replace(/\[(\d+(?:\/\d+)?\s*Marks?)\]/gi, (_, lbl) => {
-          const isZero = /^0(?:\D|$)/.test(lbl.trim());
-          const isPartial = /\//.test(lbl) && !/^(\d+)\/\1\b/.test(lbl.trim());
-          const cls = isZero ? "md-mark-zero" : isPartial ? "md-mark-part" : "md-mark-full";
-          return `<span class="md-mark-pill ${cls}">${lbl}</span>`;
+        t = t.replace(/\[(green|amber|red|cyan|lime|purple)\]([\s\S]*?)\[\/\1\]/gi, (_, col, inner) => `<span class="md-c-${col.toLowerCase()}">${inner}</span>`);
+        t = t.replace(/\[([^\[\]\n]{1,36}?)\]/g, (full, lbl) => {
+          const low = lbl.trim().toLowerCase();
+          if (/^(green|amber|red|cyan|lime|purple|\/green|\/amber|\/red|\/cyan|\/lime|\/purple)$/.test(low)) return full;
+          if (/^0(?:\D|$)|dropped|missed|wrong|incorrect/.test(low)) return `<span class="md-mark-pill md-mark-zero">${lbl}</span>`;
+          if (/^\d+\/\d+/.test(low) && !/^(\d+)\/\1\b/.test(low)) return `<span class="md-mark-pill md-mark-part">${lbl}</span>`;
+          return `<span class="md-mark-pill md-mark-full">${lbl}</span>`;
         });
         t = t.replace(/\*\*\*([^*\n]+?)\*\*\*/g, "<strong><em>$1</em></strong>");
         t = t.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
@@ -1736,6 +1936,14 @@
           continue;
         }
         if (!line.trim()) { i++; continue; }
+        const detMatch = line.trim().match(/^\u0001DETAIL_(\d+)\u0001$/);
+        if (detMatch) {
+          const blk = detailBlocks[+detMatch[1]];
+          if (blk) {
+            out.push(`<details class="md-details"><summary>${inline(blk.summary)}</summary><div>${renderAiMarkdown(blk.body)}</div></details>`);
+          }
+          i++; continue;
+        }
         if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
         const h = line.match(/^\s*(#{1,6})\s+(.*)$/);
         if (h) {
@@ -2024,7 +2232,7 @@
       delete snap.github;
       snap.gemini = {
         apiKey: state.gemini?.apiKey || "",
-        model: state.gemini?.model || "gemini-4-hydrogen",
+        model: state.gemini?.model || "gemini-3-flash-preview",
         toolsEnabled: state.gemini?.toolsEnabled !== false,
         confirmActions: Boolean(state.gemini?.confirmActions)
       };
@@ -2186,9 +2394,10 @@
         (state.papers || []).forEach(p => { if (p.fileDataUrl) oldFiles["p" + p.id] = p.fileDataUrl; });
 
         const merged = { ...base, ...remote, ...keep };
-        ["subjects", "topics", "sessions", "papers", "improvements", "diary", "evidence", "links"].forEach(k => {
+        ["subjects", "topics", "sessions", "papers", "improvements", "diary", "evidence", "flashcards", "links"].forEach(k => {
           if (!Array.isArray(merged[k])) merged[k] = Array.isArray(base[k]) ? base[k] : [];
         });
+        if (!merged.timetable || typeof merged.timetable !== "object") merged.timetable = structuredClone(DEFAULT_STATE.timetable);
         if (!merged.minutes || typeof merged.minutes !== "object") merged.minutes = {};
         if (!merged.parentSignOffs || typeof merged.parentSignOffs !== "object") merged.parentSignOffs = {};
         merged.evidence.forEach(e => { if (!e.dataUrl && oldFiles["e" + e.id]) e.dataUrl = oldFiles["e" + e.id]; });
@@ -2265,7 +2474,7 @@
         pickFrom(gemSrc, "geminiApiKey", "geminiKey", "gemini_api_key", "apiKey") ||
         pickFrom(root, "geminiApiKey", "geminiKey", "gemini_api_key")
       );
-      const importedGeminiModel = pickFrom(gemSrc, "geminiModel", "model");
+      const importedGeminiModel = pickFrom(gemSrc, "geminiModel", "model") || pickFrom(root, "geminiModel");
 
       ghStateSha = null;
       state.github = {
@@ -2313,6 +2522,11 @@
 
     function exportGithubConfig() {
       const g = state.github || {};
+      const currentGeminiKey = sanitizeApiKey(
+        document.getElementById("geminiKeyInput")?.value || state.gemini?.apiKey || ""
+      );
+      const currentGeminiModel =
+        document.getElementById("geminiModelSelect")?.value || state.gemini?.model || "gemini-3-flash-preview";
       const out = {
         owner: g.owner || "",
         repo: g.repo || "",
@@ -2320,7 +2534,8 @@
         dir: g.dir || "study-data",
         token: g.token || "",
         auto: g.auto !== false,
-        geminiApiKey: state.gemini?.apiKey || ""
+        geminiApiKey: currentGeminiKey,
+        geminiModel: currentGeminiModel
       };
       const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
@@ -2328,32 +2543,12 @@
       a.download = "github-config.json";
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      ghStatus("Downloaded github-config.json (includes Gemini API key) — keep it private.", "#fcd34d");
-    }
-
-    function importGithubConfigFile(input) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try { applyGithubConfigObject(JSON.parse(String(reader.result).replace(/^\uFEFF/, ""))); }
-        catch (err) { ghStatus("✕ " + (err.message.startsWith("Config") ? err.message : "That file isn't valid JSON."), "#fda4af"); }
-        input.value = "";
-      };
-      reader.onerror = () => ghStatus("✕ Couldn't read that file.", "#fda4af");
-      reader.readAsText(file);
-    }
-
-    function exportGithubConfig() {
-      const g = state.github || {};
-      const out = { owner: g.owner || "", repo: g.repo || "", branch: g.branch || "main", dir: g.dir || "study-data", token: g.token || "", auto: g.auto !== false };
-      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "github-config.json";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      ghStatus("Downloaded github-config.json — keep it private.", "#fcd34d");
+      ghStatus(
+        currentGeminiKey
+          ? "Downloaded github-config.json (includes Gemini API key) — keep it private."
+          : "Downloaded github-config.json — keep it private.",
+        "#fcd34d"
+      );
     }
 
     let ghTokenPullDebounce = null;
@@ -2488,7 +2683,7 @@
     // RENDER UI
     // =========================================================================
     function syncSubjectDropdowns() {
-      const ids = ["timerSubjectSelect", "paperSubjectSelect", "proofSubjectSelect", "diarySubjectSelect"];
+      const ids = ["timerSubjectSelect", "paperSubjectSelect", "proofSubjectSelect", "diarySubjectSelect", "fcSubjectSelect"];
       const optionsHtml = state.subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
       ids.forEach(id => {
         const el = document.getElementById(id);
@@ -2498,6 +2693,7 @@
         if (state.subjects.includes(prev)) el.value = prev;
       });
       syncStopwatchTopics();
+      syncFlashcardTopics();
     }
 
     function syncStopwatchTopics() {
@@ -2518,12 +2714,14 @@
     }
 
     function switchWorkspaceTab(tab) {
-      ["syllabus", "papers", "improvement", "proof", "diary"].forEach(t => {
+      ["syllabus", "flashcards", "timetable", "papers", "improvement", "proof", "diary"].forEach(t => {
         const pane = document.getElementById(`wsPane-${t}`);
         const btn = document.getElementById(`wsBtn-${t}`);
         if (pane) pane.style.display = t === tab ? "block" : "none";
         if (btn) btn.classList.toggle("active", t === tab);
       });
+      if (tab === "flashcards") renderFlashcards();
+      if (tab === "timetable") renderTimetable();
       if (window.innerWidth <= 768) {
         const targetMobileView = tab === "proof" ? "proof" : "study";
         document.body.setAttribute("data-mobile-view", targetMobileView);
@@ -2584,7 +2782,7 @@
         aiStatusEl.style.color = "var(--amb)";
       }
       document.getElementById("kpiAiModel").textContent =
-        `Model: ${state.gemini.model || "gemini-4-hydrogen"}`;
+        `Model: ${state.gemini.model || "gemini-3-flash-preview"}`;
 
       const breakdownEl = document.getElementById("subjectBreakdown");
       breakdownEl.innerHTML = state.subjects.map(subj => {
@@ -2656,6 +2854,8 @@
       renderLinks();
       renderProofAndPapers();
       renderImprovements();
+      renderFlashcards();
+      renderTimetable();
       renderEvidenceAndDiary();
 
       const pad = document.getElementById("scratchpadInput");
@@ -2667,6 +2867,7 @@
     // AI PAPER MARKER & IMPROVEMENT AREAS
     // =========================================================================
     let pendingPaperAttachment = null;
+    let pendingMarkSchemeAttachment = null;
     let pendingAiMarkedResult = null;
     let improvementSubjectFilter = "ALL";
 
@@ -2690,13 +2891,13 @@
         if (file.type.startsWith("image/")) {
           const img = new Image();
           img.onload = () => {
-            const maxW = 1400;
+            const maxW = 1150;
             const scale = img.width > maxW ? maxW / img.width : 1;
             const canvas = document.createElement("canvas");
             canvas.width = Math.round(img.width * scale);
             canvas.height = Math.round(img.height * scale);
             canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-            const compressed = canvas.toDataURL("image/jpeg", 0.85);
+            const compressed = canvas.toDataURL("image/jpeg", 0.78);
             pendingPaperAttachment = {
               fileName: file.name,
               mimeType: "image/jpeg",
@@ -2732,13 +2933,78 @@
 
     function clearPendingPaperFile() {
       pendingPaperAttachment = null;
+      pendingMarkSchemeAttachment = null;
       pendingAiMarkedResult = null;
       const inp = document.getElementById("paperFileInput");
+      const msInp = document.getElementById("markSchemeFileInput");
       const bar = document.getElementById("paperUploadPreviewBar");
+      const msBar = document.getElementById("markSchemePreviewBar");
       const box = document.getElementById("aiMarkerOutputBox");
       if (inp) inp.value = "";
+      if (msInp) msInp.value = "";
       if (bar) bar.style.display = "none";
+      if (msBar) msBar.style.display = "none";
       if (box) box.style.display = "none";
+    }
+
+    function handleMarkSchemeFileSelect(event) {
+      const file = event.target.files?.[0];
+      const bar = document.getElementById("markSchemePreviewBar");
+      if (!file) {
+        pendingMarkSchemeAttachment = null;
+        if (bar) bar.style.display = "none";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rawDataUrl = String(reader.result || "");
+        if (file.type.startsWith("image/")) {
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 1150;
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressed = canvas.toDataURL("image/jpeg", 0.78);
+            pendingMarkSchemeAttachment = {
+              fileName: file.name,
+              mimeType: "image/jpeg",
+              base64: compressed.split(",")[1]
+            };
+            bar.style.display = "flex";
+            bar.style.justifyContent = "space-between";
+            bar.style.alignItems = "center";
+            bar.innerHTML = `<span>📋 Mark Scheme attached: <strong>${escapeHtml(file.name)}</strong> (Strict exam-board grading active)</span><button type="button" class="b red sm" onclick="clearPendingMarkScheme()">✕</button>`;
+          };
+          img.src = rawDataUrl;
+        } else {
+          if (file.size > 4 * 1024 * 1024) {
+            showToast("Mark scheme PDF must be under 4MB");
+            event.target.value = "";
+            return;
+          }
+          pendingMarkSchemeAttachment = {
+            fileName: file.name,
+            mimeType: file.type || "application/pdf",
+            base64: rawDataUrl.split(",")[1]
+          };
+          bar.style.display = "flex";
+          bar.style.justifyContent = "space-between";
+          bar.style.alignItems = "center";
+          bar.innerHTML = `<span>📋 Mark Scheme PDF attached: <strong>${escapeHtml(file.name)}</strong> (Strict exam-board grading active)</span><button type="button" class="b red sm" onclick="clearPendingMarkScheme()">✕</button>`;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearPendingMarkScheme() {
+      pendingMarkSchemeAttachment = null;
+      const msInp = document.getElementById("markSchemeFileInput");
+      const msBar = document.getElementById("markSchemePreviewBar");
+      if (msInp) msInp.value = "";
+      if (msBar) msBar.style.display = "none";
     }
 
     async function aiMarkUploadedPaper() {
@@ -2759,52 +3025,106 @@
       btn.disabled = true;
       pendingAiMarkedResult = null;
       outBox.style.display = "block";
-      outBox.innerHTML = `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Gemini AI Examiner is reading &amp; marking your ${escapeHtml(subject)} work...</span>`;
+      outBox.innerHTML = `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Gemini AI Examiner is reading &amp; marking your ${escapeHtml(subject)} work${pendingMarkSchemeAttachment ? " against your attached Mark Scheme" : ""}...</span>`;
 
       geminiStatusCallback = msg => {
         outBox.innerHTML = `<span style="color:#fcd34d;font-family:var(--font-mono);font-size:11.5px;">⏳ ${escapeHtml(msg)}</span>`;
       };
 
-      const markerPrompt = `You are a strict, encouraging UK GCSE Examiner for ${subject}.
-Examine the attached completed student worksheet or past paper ("${title}").
+      const hasMs = Boolean(pendingMarkSchemeAttachment);
+      const markerPrompt = `You are a thorough, strict, and encouraging UK GCSE Senior Examiner for ${subject}.
+Examine Attachment 1: the completed student worksheet or past paper ("${title}").
+${hasMs ? `Attachment 2 is the OFFICIAL MARK SCHEME ("${pendingMarkSchemeAttachment.fileName}"). Grade strictly using its exact mark points, M1/A1/B1/C1 criteria, and accepted/rejected wording, explicitly noting every mark-scheme keyword or step the student got right or missed.` : "No official mark scheme was attached — mark using official UK GCSE exam-board standards (and note briefly that uploading the official mark scheme next time gives even tighter keyword precision)."}
 ${maxMarksHint ? `The student noted the maximum marks are ${maxMarksHint}.` : "Count the total available marks visible on the page(s) (or estimate an appropriate GCSE mark total if unlabelled)."}
 
-Tasks:
-1. Read every question and the student's written/typed answers carefully.
-2. Mark each question according to official UK GCSE mark-scheme standards (awarding method/working marks where applicable).
-3. Estimate the UK GCSE 9-1 grade for this performance.
-4. Identify 2 to 4 concrete, specific Areas of Improvement based on dropped marks or weak exam technique.
+CRITICAL COMPLETENESS INSTRUCTIONS:
+- Do NOT skip, summarise, or abbreviate any questions. Go through EVERY SINGLE question and sub-part (e.g. 1a, 1b, 2, 3...) from the first page to the last page in full detail.
+- For EVERY question/sub-part, include:
+  1. **Question Summary & Student's Answer:** What the question asked and what the student wrote/worked out.
+  2. **Detailed Examiner Marking:** Step-by-step mark breakdown (e.g. M1 method mark, A1 accuracy mark, B1 independent mark) explaining *why* marks were awarded or dropped.
+  3. **Full Model Answer & Workings:** For any question where marks were dropped (or partially awarded), provide the complete step-by-step model solution so the student can learn exactly how to earn full marks.
+- Separate any "Worked Example / Guided Example" items on the worksheet from actual student-answered questions so the feedback is crystal clear.
+- After marking all questions, provide:
+  - **Overall Examiner Summary & Estimated UK GCSE 9–1 Grade**
+  - **Detailed Areas of Improvement** (2 to 5 concrete, specific weak topics or exam-technique gaps based on dropped marks).
 
-STRICT FORMATTING RULES (VERY IMPORTANT):
-- NEVER use LaTeX syntax or dollar signs (NO $, \\frac, \\times, \\mathbf, \\implies). Write plain readable math instead (e.g. "188 / 200 × 100 = 94%").
+STRICT FORMATTING RULES:
+- NEVER use LaTeX syntax or dollar signs (NO $, \\frac, \\times, \\mathbf, \\implies). Write clean Unicode math instead (e.g. "188 / 200 × 100 = 94%", "x² + 5x + 6 = 0", "√(25) = 5").
 - NEVER output blank/empty bullet points. Every bullet point must have complete text on the same line.
-- Use clean Markdown headings (### for main sections, #### for individual questions) and concise bullets.
-- You may highlight key statuses using colour tags: [green]Correct / Full Marks[/green], [amber]Partial / Method Mark[/amber], [red]Incorrect / Dropped Mark[/red], and [cyan]Key Rule / Formula[/cyan].
-- Put mark awards at the end of each question summary in square brackets like [2/2 Marks], [1/3 Marks], or [0/2 Marks].
-- Separate "Worked Example / Guided Example" items on the worksheet from actual student-answered questions so the feedback is crystal clear.
+- Use clean Markdown headings (### for main sections, #### for individual questions) and \`---\` dividers between major sections.
+- Highlight statuses using colour tags: [green]Correct / Full Marks[/green], [amber]Partial / Method Mark[/amber], [red]Incorrect / Dropped Mark[/red], and [cyan]Key Rule / Formula[/cyan].
+- Put mark awards at the end of each question heading in square brackets like [2/2 Marks], [1/3 Marks], or [0/2 Marks].
 
-At the very end of your response, include a single JSON block in this exact format so the tracker can record the verified score and suggested improvements:
+At the very end of your complete response, include a single JSON block on its own line in this exact format so the tracker can record the verified score and suggested improvements:
 SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improvements": [{"area": "<short weak topic or skill>", "advice": "<specific mark-scheme action to improve>"}]}`;
 
+      const userParts = [
+        { text: markerPrompt },
+        {
+          inlineData: {
+            mimeType: pendingPaperAttachment.mimeType,
+            data: pendingPaperAttachment.base64
+          }
+        }
+      ];
+      if (hasMs) {
+        userParts.push({
+          inlineData: {
+            mimeType: pendingMarkSchemeAttachment.mimeType,
+            data: pendingMarkSchemeAttachment.base64
+          }
+        });
+      }
+
       try {
-        const data = await callGeminiRaw({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: markerPrompt },
-                {
-                  inlineData: {
-                    mimeType: pendingPaperAttachment.mimeType,
-                    data: pendingPaperAttachment.base64
-                  }
-                }
-              ]
-            }
-          ]
+        const convoContents = [
+          {
+            role: "user",
+            parts: userParts
+          }
+        ];
+
+        let data = await callGeminiRaw({
+          contents: convoContents,
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 16384
+          }
         });
 
-        const fullReply = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim() || "Marking complete.";
+        let candidate = data?.candidates?.[0];
+        let fullReply = candidate?.content?.parts?.map(p => p.text || "").join("") || "";
+
+        // If Gemini hit MAX_TOKENS or cut off before finishing SCORE_JSON, seamlessly request continuation
+        for (let cont = 0; cont < 2; cont++) {
+          const hitLimit = candidate?.finishReason === "MAX_TOKENS";
+          const missingJson = fullReply.trim().length > 0 && !/SCORE_JSON:\s*\{[\s\S]*\}/.test(fullReply);
+          if (!hitLimit && !missingJson) break;
+
+          outBox.innerHTML = `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Completing full question-by-question breakdown (part ${cont + 2})...</span>`;
+          convoContents.push({
+            role: "model",
+            parts: [{ text: fullReply }]
+          });
+          convoContents.push({
+            role: "user",
+            parts: [{ text: "Continue immediately from the exact word/character where you stopped without repeating anything, finish marking all remaining questions in full detail, and end with the SCORE_JSON line." }]
+          });
+
+          data = await callGeminiRaw({
+            contents: convoContents,
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 16384
+            }
+          });
+          candidate = data?.candidates?.[0];
+          const extraText = candidate?.content?.parts?.map(p => p.text || "").join("") || "";
+          if (!extraText.trim()) break;
+          fullReply += (fullReply.endsWith("\n") || extraText.startsWith("\n") ? "" : "\n") + extraText;
+        }
+
+        fullReply = fullReply.trim() || "Marking complete.";
         const jsonMatch = fullReply.match(/SCORE_JSON:\s*(\{[\s\S]*\})/);
         let cleanFeedback = fullReply.replace(/SCORE_JSON:\s*\{[\s\S]*\}/, "").trim();
 
@@ -2968,7 +3288,8 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
                   <strong style="color:#fff;text-decoration:${item.resolved ? "line-through" : "none"};">${escapeHtml(item.area)}</strong>
                   <span class="note" style="margin-left:6px;">from <em>${escapeHtml(item.sourcePaper)}</em> (${escapeHtml(item.date)})</span>
                 </div>
-                <div style="display:flex;align-items:center;gap:6px;">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <button type="button" class="b sm" style="border-color:var(--cyan);color:var(--cyan);" onclick="drillWeaknessWithAi(${item.id})">✦ Drill This Weakness</button>
                   <button type="button" class="rag-btn ${item.resolved ? "rag-green" : "rag-amber"}" onclick="toggleImprovementResolved(${item.id})">
                     ${item.resolved ? "✓ Improved" : "🎯 Focus Area"}
                   </button>
@@ -2979,6 +3300,354 @@ SCORE_JSON: {"score": <number>, "max": <number>, "grade": "<9-1 grade>", "improv
             </div>
           `).join("")
         : `<p class="note" style="text-align:center;padding:16px 0;">No improvement targets logged yet. Mark a worksheet or past paper in the <strong>📝 Past Papers</strong> tab to generate AI improvement areas.</p>`;
+    }
+
+    function drillWeaknessWithAi(id) {
+      const item = state.improvements.find(x => x.id === id);
+      if (!item) return;
+      const prompt = `Drill me on my GCSE ${item.subject} weakness: "${item.area}" (feedback: ${item.advice || "dropped exam marks"}). Give me 3 progressive UK GCSE exam-style questions (starting easy, building to full exam standard), wait for my answers, and mark me strictly against the mark scheme.`;
+      focusGeminiChat();
+      sendGeminiQuickPrompt(prompt);
+    }
+
+    // =========================================================================
+    // INTERACTIVE FLASHCARDS (AI GENERATION + SELF-GRADING RAG BOOST)
+    // =========================================================================
+    let currentFlashcardIndex = 0;
+    let currentFlashcardFlipped = false;
+
+    function syncFlashcardTopics() {
+      const subj = document.getElementById("fcSubjectSelect")?.value || state.subjects[0];
+      const topicSel = document.getElementById("fcTopicSelect");
+      if (!topicSel) return;
+      const prev = topicSel.value;
+      const matching = state.topics.filter(t => t.subject === subj);
+      const opts = [
+        `<option value="ALL">All ${escapeHtml(subj)} Cards (${(state.flashcards || []).filter(c => c.subject === subj).length})</option>`,
+        ...matching.map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.name)} (${t.status.toUpperCase()})</option>`)
+      ];
+      topicSel.innerHTML = opts.join("");
+      if ([...topicSel.options].some(o => o.value === prev)) topicSel.value = prev;
+      renderFlashcards();
+    }
+
+    function getFilteredFlashcards() {
+      const subj = document.getElementById("fcSubjectSelect")?.value || "ALL";
+      const topic = document.getElementById("fcTopicSelect")?.value || "ALL";
+      return (state.flashcards || []).filter(c => {
+        if (subj && subj !== "ALL" && c.subject !== subj) return false;
+        if (topic && topic !== "ALL" && c.topic !== topic) return false;
+        return true;
+      });
+    }
+
+    async function generateAiFlashcards() {
+      if (!state.gemini || !state.gemini.apiKey) {
+        openSettings("gemini");
+        return showToast("Add your Gemini API key first to generate flashcards");
+      }
+      const subj = document.getElementById("fcSubjectSelect")?.value || state.subjects[0];
+      const selectedTopic = document.getElementById("fcTopicSelect")?.value;
+      const fallbackTopic = state.topics.find(t => t.subject === subj && t.status !== "green")?.name || `${subj} Key Exam Concepts`;
+      const targetTopic = (selectedTopic && selectedTopic !== "ALL") ? selectedTopic : fallbackTopic;
+
+      const btn = document.getElementById("fcGenerateBtn");
+      btn.disabled = true;
+      btn.textContent = "✦ Generating...";
+
+      const prompt = `Create 5 high-yield UK GCSE active-recall flashcards for ${subj} on the topic "${targetTopic}".
+Output ONLY a raw JSON array (no markdown fences) in this exact format:
+[{"front": "Concise exam question or prompt", "back": "Clear mark-scheme answer with key terms"}]`;
+
+      try {
+        const data = await callGeminiRaw({
+          contents: [{ role: "user", parts: [{ text: prompt }] }]
+        });
+        let raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim() || "[]";
+        raw = raw.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+        const cards = JSON.parse(raw);
+        if (!Array.isArray(cards) || !cards.length) throw new Error("No cards returned.");
+
+        cards.forEach((c, idx) => {
+          if (c.front && c.back) {
+            state.flashcards.unshift({
+              id: Date.now() + idx,
+              subject: subj,
+              topic: targetTopic,
+              front: String(c.front).trim(),
+              back: String(c.back).trim(),
+              mastered: false
+            });
+          }
+        });
+        currentFlashcardIndex = 0;
+        currentFlashcardFlipped = false;
+        markSiteDataChanged();
+        syncFlashcardTopics();
+        showToast(`Generated ${cards.length} flashcards for ${targetTopic}!`);
+      } catch (err) {
+        showToast("Flashcard Error: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "✦ AI Generate 5 Cards";
+      }
+    }
+
+    function addCustomFlashcard() {
+      const subj = document.getElementById("fcSubjectSelect")?.value || state.subjects[0];
+      const topicSel = document.getElementById("fcTopicSelect")?.value;
+      const topic = (topicSel && topicSel !== "ALL") ? topicSel : `${subj} General`;
+      const frontInp = document.getElementById("fcCustomFront");
+      const backInp = document.getElementById("fcCustomBack");
+      const front = frontInp.value.trim();
+      const back = backInp.value.trim();
+      if (!front || !back) return showToast("Enter both front question and back answer");
+
+      state.flashcards.unshift({
+        id: Date.now(),
+        subject: subj,
+        topic,
+        front,
+        back,
+        mastered: false
+      });
+      frontInp.value = "";
+      backInp.value = "";
+      currentFlashcardIndex = 0;
+      currentFlashcardFlipped = false;
+      markSiteDataChanged();
+      syncFlashcardTopics();
+      showToast("Flashcard added & synced!");
+    }
+
+    function flipFlashcard() {
+      currentFlashcardFlipped = !currentFlashcardFlipped;
+      renderFlashcards();
+    }
+
+    function stepFlashcard(delta) {
+      const deck = getFilteredFlashcards();
+      if (!deck.length) return;
+      currentFlashcardIndex = (currentFlashcardIndex + delta + deck.length) % deck.length;
+      currentFlashcardFlipped = false;
+      renderFlashcards();
+    }
+
+    function gradeFlashcard(id, gotIt) {
+      const card = state.flashcards.find(c => c.id === id);
+      if (!card) return;
+      card.mastered = gotIt;
+
+      if (gotIt && card.topic) {
+        const matchedTopic = state.topics.find(t => t.subject === card.subject && t.name.toLowerCase() === card.topic.toLowerCase());
+        if (matchedTopic && matchedTopic.status !== "green") {
+          matchedTopic.status = matchedTopic.status === "red" ? "amber" : "green";
+          showToast(`✓ Got it! Boosted "${matchedTopic.name}" to ${matchedTopic.status.toUpperCase()}`);
+        }
+      }
+      markSiteDataChanged();
+      currentFlashcardFlipped = false;
+      currentFlashcardIndex++;
+      render();
+    }
+
+    function deleteFlashcard(id) {
+      state.flashcards = state.flashcards.filter(c => c.id !== id);
+      currentFlashcardFlipped = false;
+      markSiteDataChanged();
+      syncFlashcardTopics();
+    }
+
+    function renderFlashcards() {
+      const badge = document.getElementById("flashcardDeckBadge");
+      const area = document.getElementById("flashcardPlayerArea");
+      if (!badge || !area) return;
+
+      const deck = getFilteredFlashcards();
+      badge.textContent = `${deck.length} card${deck.length === 1 ? "" : "s"}`;
+
+      if (!deck.length) {
+        area.innerHTML = `<p class="note" style="text-align:center;padding:18px 0;">No flashcards in this filter yet. Select a subject/topic above and click <strong>✦ AI Generate 5 Cards</strong> or add one below.</p>`;
+        return;
+      }
+
+      if (currentFlashcardIndex >= deck.length) currentFlashcardIndex = 0;
+      const card = deck[currentFlashcardIndex];
+
+      area.innerHTML = `
+        <div class="flashcard-stage">
+          <div class="flashcard-box ${currentFlashcardFlipped ? "flipped" : ""}" onclick="flipFlashcard()">
+            <div style="font:800 10px var(--font-mono);color:${currentFlashcardFlipped ? "var(--cyan)" : "var(--ac)"};margin-bottom:8px;text-transform:uppercase;">
+              ${currentFlashcardFlipped ? "💡 ANSWER (CLICK TO FLIP BACK)" : "❓ QUESTION (CLICK CARD TO REVEAL)"} · CARD ${currentFlashcardIndex + 1} OF ${deck.length}
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#fff;max-width:560px;line-height:1.5;">
+              ${escapeHtml(currentFlashcardFlipped ? card.back : card.front)}
+            </div>
+            <div style="margin-top:12px;">
+              <span class="tag">${escapeHtml(card.subject)}</span>
+              <span class="note">${escapeHtml(card.topic)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="row" style="justify-content:center;align-items:center;margin-bottom:0;">
+          <button type="button" class="b sm" onclick="stepFlashcard(-1)">◀ Prev</button>
+          <button type="button" class="b sm" onclick="flipFlashcard()">🔄 Flip Card</button>
+          <button type="button" class="b sm pri" onclick="gradeFlashcard(${card.id}, true)">✓ Got It (Boost Topic)</button>
+          <button type="button" class="b sm" style="border-color:var(--amb);color:#fbbf24;" onclick="gradeFlashcard(${card.id}, false)">↺ Missed (Review Again)</button>
+          <button type="button" class="b sm" onclick="stepFlashcard(1)">Next ▶</button>
+          <button type="button" class="b red sm" onclick="deleteFlashcard(${card.id})" title="Delete card">✕</button>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // WEEKLY TIMETABLE & AI DAILY STUDY RECOMMENDATIONS
+    // =========================================================================
+    const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    function getTodayWeekdayName() {
+      const idx = new Date().getDay(); // 0 = Sun
+      return idx === 0 ? "Sunday" : WEEKDAYS[idx - 1];
+    }
+
+    function addSubjectToTimetableDay(day) {
+      const sel = document.getElementById(`ttAddSel-${day}`);
+      const subj = sel?.value;
+      if (!subj) return;
+      if (!Array.isArray(state.timetable[day])) state.timetable[day] = [];
+      if (!state.timetable[day].includes(subj)) {
+        state.timetable[day].push(subj);
+        markSiteDataChanged();
+        renderTimetable();
+        showToast(`Added ${subj} to ${day}`);
+      }
+    }
+
+    function removeSubjectFromTimetableDay(day, subj) {
+      if (!Array.isArray(state.timetable[day])) return;
+      state.timetable[day] = state.timetable[day].filter(s => s !== subj);
+      markSiteDataChanged();
+      renderTimetable();
+    }
+
+    async function recommendTodayTimetableWork() {
+      if (!state.gemini || !state.gemini.apiKey) {
+        openSettings("gemini");
+        return showToast("Add your Gemini API key first for AI daily recommendations");
+      }
+      const today = getTodayWeekdayName();
+      const todaysSubjects = state.timetable?.[today] || [];
+      const btn = document.getElementById("ttRecommendBtn");
+      const bodyEl = document.getElementById("timetableAiRecBody");
+
+      btn.disabled = true;
+      bodyEl.innerHTML = `<span style="color:var(--cyan);font-family:var(--font-mono);font-size:11.5px;">✦ Building your ${today} revision plan...</span>`;
+
+      const relevantTopics = state.topics.filter(t => !todaysSubjects.length || todaysSubjects.includes(t.subject));
+      const relevantImprovements = state.improvements.filter(i => !i.resolved && (!todaysSubjects.length || todaysSubjects.includes(i.subject)));
+
+      const prompt = `You are a helpful UK GCSE study assistant creating a simple, easy-to-read revision plan for ${today}.
+
+Today's scheduled subject(s): ${todaysSubjects.length ? todaysSubjects.join(", ") : "Flexible / Any Subject"}.
+Student's syllabus topics: ${JSON.stringify(relevantTopics.slice(0, 40))}
+Active past-paper improvement gaps: ${JSON.stringify(relevantImprovements.slice(0, 10))}
+Student's saved revision links: ${JSON.stringify(state.links || [])}
+
+Keep the plan concise, simple, and practical (no starter quizzes, no collapsible spoilers, no overly long walls of text). Include ONLY these sections separated by \`---\`:
+
+### 📚 Subject(s) for ${today}
+- State the subject(s) scheduled for today and a quick recommended session length (e.g. [25 Mins] or [45 Mins]).
+
+---
+
+### 🎯 Topic(s) to Work On
+- Name the 1–3 specific [red]Red[/red] or [amber]Amber[/amber] topics (or active past-paper gaps) they should focus on today and a 1-sentence reason why.
+
+---
+
+### 🔗 Useful Revision Links
+- Provide 2–4 direct clickable Markdown links using \`[Site Name](https://...)\` from their saved links or trusted UK GCSE sites (such as Physics & Maths Tutor, BBC Bitesize, Save My Exams, Seneca Learning, Corbettmaths, or Cognito) tailored to today's topic(s), with a brief note on what to do on each site.
+
+---
+
+### ✅ Quick Study Checklist
+- 2–3 short bullet points on what to actually do during the session (e.g., review notes, complete 5 exam questions, mark & update topic RAG status).
+
+FORMATTING RULES:
+- Never use LaTeX or dollar signs.
+- Use clean Markdown headings (###) on their own line, \`---\` between sections, and colour tags [red]...[/red], [amber]...[/amber], [green]...[/green], or [cyan]...[/cyan] sparingly for clarity.`;
+
+      try {
+        const data = await callGeminiRaw({
+          contents: [{ role: "user", parts: [{ text: prompt }] }]
+        });
+        const reply = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim() || "Plan ready.";
+        state.timetableAiPlan = { day: today, date: new Date().toISOString().slice(0, 10), text: reply };
+        markSiteDataChanged();
+        bodyEl.innerHTML = `<div class="md-body">${renderAiMarkdown(reply)}</div>`;
+      } catch (err) {
+        bodyEl.innerHTML = `<span style="color:#fda4af;">✕ Error: ${escapeHtml(err.message)}</span>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderTimetable() {
+      const container = document.getElementById("timetableDaysContainer");
+      const todayBadge = document.getElementById("ttTodayBadge");
+      const bodyEl = document.getElementById("timetableAiRecBody");
+      if (!container) return;
+
+      const today = getTodayWeekdayName();
+      if (todayBadge) todayBadge.textContent = `Today: ${today}`;
+
+      const todayIso = new Date().toISOString().slice(0, 10);
+      if (state.timetableAiPlan && state.timetableAiPlan.date !== todayIso) {
+        state.timetableAiPlan = null;
+        markSiteDataChanged();
+      }
+
+      if (bodyEl) {
+        if (state.timetableAiPlan && state.timetableAiPlan.date === todayIso && state.timetableAiPlan.text) {
+          bodyEl.innerHTML = `<div class="md-body">${renderAiMarkdown(state.timetableAiPlan.text)}</div>`;
+        } else {
+          bodyEl.innerHTML = `<p class="note" style="margin:0;">Click <strong>Get AI Plan for Today</strong> to get tailored topic recommendations for today's scheduled subjects.</p>`;
+        }
+      }
+
+      container.innerHTML = WEEKDAYS.map(day => {
+        const list = Array.isArray(state.timetable?.[day]) ? state.timetable[day] : [];
+        const isToday = day === today;
+        const available = state.subjects.filter(s => !list.includes(s));
+        return `
+          <div class="tt-day-card ${isToday ? "today" : ""}">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+              <div>
+                <strong style="color:#fff;font-size:13.5px;">${day}</strong>
+                ${isToday ? `<span class="uk-pill" style="margin-left:6px;">TODAY</span>` : ""}
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <select id="ttAddSel-${day}" style="padding:4px 9px;font-size:11.5px;max-width:170px;">
+                  ${available.length
+                    ? available.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("")
+                    : `<option value="">All added</option>`}
+                </select>
+                <button type="button" class="b sm pri" ${available.length ? "" : "disabled"} onclick="addSubjectToTimetableDay('${day}')">+ Add</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${list.length
+                ? list.map(s => `
+                    <span class="tag" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:11px;margin:0;">
+                      ${escapeHtml(s)}
+                      <button type="button" style="background:none;border:0;color:var(--red);cursor:pointer;font-weight:800;padding:0;" onclick="removeSubjectFromTimetableDay('${day}', '${escapeHtml(s).replace(/'/g, "\\'")}')">✕</button>
+                    </span>
+                  `).join("")
+                : `<span class="note" style="margin:0;">Rest / Flexible Revision Day</span>`}
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function openPaperPreview(id) {
@@ -4110,7 +4779,7 @@ ${subjLines}`;
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey || "";
       const sel = document.getElementById("geminiModelSelect");
       if (!state.gemini.model || state.gemini.model === "auto" || ![...sel.options].some(o => o.value === state.gemini.model)) {
-        state.gemini.model = "gemini-4-hydrogen";
+        state.gemini.model = "gemini-3-flash-preview";
       }
       sel.value = state.gemini.model;
       document.getElementById("geminiToolsEnabled").checked = state.gemini.toolsEnabled !== false;
@@ -4132,7 +4801,7 @@ ${subjLines}`;
     function saveGeminiSettings(silent = false) {
       state.gemini.apiKey = sanitizeApiKey(document.getElementById("geminiKeyInput").value);
       document.getElementById("geminiKeyInput").value = state.gemini.apiKey;
-      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-4-hydrogen";
+      state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-3-flash-preview";
       state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
       state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
       if (state.github) state.github.lastHash = "";
@@ -4151,7 +4820,7 @@ ${subjLines}`;
       if (!dot || !txt) return;
       if (state.gemini && state.gemini.apiKey) {
         dot.classList.add("connected");
-        txt.textContent = `${state.gemini.model || "gemini-4-hydrogen"} · Ready`;
+        txt.textContent = `${state.gemini.model || "gemini-3-flash-preview"} · Ready`;
       } else {
         dot.classList.remove("connected");
         txt.textContent = "No API Key";
@@ -4426,7 +5095,7 @@ CRITICAL RULES:
     function executeWipeAllData() {
       resetStopwatch();
       const preservedKey = state.gemini?.apiKey || "";
-      const preservedModel = state.gemini?.model || "gemini-4-hydrogen";
+      const preservedModel = state.gemini?.model || "gemini-3-flash-preview";
       const preservedGithub = state.github ? { ...state.github, lastHash: "" } : null;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem("sluk_gcse_hub_v4");
@@ -4464,7 +5133,7 @@ CRITICAL RULES:
 
       btn.disabled = true;
       statusEl.style.color = "var(--cyan)";
-      statusEl.textContent = `Testing ${state.gemini.model || "gemini-4-hydrogen"}...`;
+      statusEl.textContent = `Testing ${state.gemini.model || "gemini-3-flash-preview"}...`;
 
       geminiStatusCallback = msg => {
         statusEl.style.color = "#fcd34d";
@@ -4556,6 +5225,9 @@ CRITICAL RULES:
         })),
         savedLearningLinks: state.links.map(l => ({ name: l.name, url: l.url })),
         improvementAreas: state.improvements.map(i => ({ subject: i.subject, area: i.area, advice: i.advice, resolved: i.resolved })),
+        weeklyTimetable: state.timetable,
+        todayScheduledSubjects: state.timetable?.[getTodayWeekdayName()] || [],
+        flashcardCount: (state.flashcards || []).length,
         scratchpadNotes: state.scratchpad || ""
       };
 
@@ -4563,6 +5235,12 @@ CRITICAL RULES:
 You have complete real-time visibility into the student's entire Study Hub state below (JSON).
 When the student asks you to take an action (such as starting/pausing/resetting the focus timer, opening a revision website, adding a topic, updating a topic's RAG status, filtering by a subject, saving a learning link, or writing notes/plans to their scratchpad), call the appropriate tool function immediately.
 Keep explanations concise, structured, and tailored to UK GCSE specifications (AQA, Edexcel, OCR).
+
+STRICT FORMATTING RULES:
+- NEVER use raw LaTeX or dollar signs (NO $, \\frac, \\times, \\mathbf, \\implies). Use plain Unicode math (e.g. x², x⁻², 3x⁷ / y⁴, ×, ÷, √).
+- Use clean Markdown headings (### and #### on their own lines) and concise bullets with no empty bullet lines.
+- Use colour tags [green]...[/green], [amber]...[/amber], [red]...[/red], [cyan]...[/cyan] and bracketed badges like [2 Marks] or [25 Mins] where helpful.
+- Wrap hidden quiz answers in <details><summary>Click to check your answer</summary>...</details>.
 
 LIVE STUDY HUB DATA:
 ${JSON.stringify(snapshot, null, 2)}`;
@@ -4852,13 +5530,10 @@ ${JSON.stringify(snapshot, null, 2)}`;
     }
 
     const GEMINI_FALLBACK_CHAIN = [
-      "gemini-3.5-flash",
-      "gemini-3.6-flash",
-      "gemini-3.7-flash",
-      "gemini-3.8-flash",
-      "gemini-3.5-flash-lite",
-      "gemini-3.1-flash-lite",
-      "gemini-2.5-flash"
+      "gemini-3-flash-preview",
+      "gemini-2.5-flash",
+      "gemini-2.5-pro",
+      "gemini-2.5-flash-lite"
     ];
     let geminiStatusCallback = null;
     const waitMs = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -4901,118 +5576,100 @@ ${JSON.stringify(snapshot, null, 2)}`;
         : state.gemini.model;
 
       const modelsToTry = [preferred, ...GEMINI_FALLBACK_CHAIN.filter(m => m !== preferred)];
-      const MAX_ROUNDS = 2;
-      const ATTEMPTS_PER_MODEL = 1;
       let lastError = null;
       let sawOverload = false;
       let sawQuota = false;
       let maxRetryMs = 0;
 
-      for (let round = 0; round < MAX_ROUNDS; round++) {
-        let triedAnyThisRound = false;
-        for (const modelId of modelsToTry) {
-          if (geminiCooldown[modelId] && geminiCooldown[modelId] > Date.now()) continue;
-          triedAnyThisRound = true;
+      for (const modelId of modelsToTry) {
+        if (geminiCooldown[modelId] && geminiCooldown[modelId] > Date.now()) continue;
 
-          for (let attempt = 0; attempt < ATTEMPTS_PER_MODEL; attempt++) {
-            let err = null;
-            let retryMs = 0;
-            try {
-              const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
-              const res = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-                body: JSON.stringify(payload)
-              });
-              const data = await res.json().catch(() => ({}));
-              if (res.ok) {
-                const finish = data?.candidates?.[0]?.finishReason;
-                const hasContent = data?.candidates?.[0]?.content?.parts?.length;
-                if (hasContent || (finish && finish !== "OTHER")) {
-                  data._usedModel = modelId;
-                  delete geminiCooldown[modelId];
-                  geminiRateLimitUntil = 0;
-                  return data;
-                }
-                err = new Error("Empty response from model");
-                err.status = 503;
-              } else {
-                err = new Error(data?.error?.message || `HTTP ${res.status}`);
-                err.status = res.status;
-                retryMs = parseRetryDelayMs(res, data);
+        const maxAttempts = modelId === preferred ? 2 : 1;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          let err = null;
+          let retryMs = 0;
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelId)}:generateContent`;
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+              const finish = data?.candidates?.[0]?.finishReason;
+              const hasContent = data?.candidates?.[0]?.content?.parts?.length;
+              if (hasContent || (finish && finish !== "OTHER")) {
+                data._usedModel = modelId;
+                delete geminiCooldown[modelId];
+                geminiRateLimitUntil = 0;
+                return data;
               }
-            } catch (networkErr) {
-              err = networkErr;
-              err.status = 0;
-              err.isNetwork = true;
+              err = new Error("Empty response from model");
+              err.status = 503;
+            } else {
+              err = new Error(data?.error?.message || `HTTP ${res.status}`);
+              err.status = res.status;
+              retryMs = parseRetryDelayMs(res, data);
             }
+          } catch (networkErr) {
+            err = networkErr;
+            err.status = 0;
+            err.isNetwork = true;
+          }
 
-            lastError = err;
-            const msg = err.message || "";
+          lastError = err;
+          const msg = err.message || "";
 
-            if (err.status === 401 || err.status === 403 || (err.status === 400 && /api key|permission/i.test(msg))) {
-              throw err;
-            }
-
-            if (err.status === 404 || (err.status === 400 && /model/i.test(msg))) {
-              geminiCooldown[modelId] = Date.now() + 10 * 60 * 1000;
-              break;
-            }
-
-            if (err.status === 429) {
-              sawQuota = true;
-              const waitDuration = retryMs || 8000;
-              maxRetryMs = Math.max(maxRetryMs, waitDuration);
-              geminiCooldown[modelId] = Date.now() + Math.max(waitDuration, 15000);
-              geminiRateLimitUntil = Math.max(geminiRateLimitUntil, Date.now() + waitDuration);
-              if (geminiStatusCallback) {
-                geminiStatusCallback(`Rate limited on ${modelId} — checking next model...`);
-              }
-              await waitMs(650);
-              break;
-            }
-
-            const isOverload =
-              [500, 502, 503, 504].includes(err.status) ||
-              err.isNetwork ||
-              /high demand|overloaded|temporarily unavailable|try again later/i.test(msg);
-
-            if (isOverload) {
-              sawOverload = true;
-              if (attempt < ATTEMPTS_PER_MODEL - 1) {
-                const delay = retryMs || Math.round(700 + Math.random() * 500);
-                if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — quick retry...`);
-                await waitMs(delay);
-                continue;
-              }
-              geminiCooldown[modelId] = Date.now() + 15000;
-              if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — switching to another Gemini model...`);
-              break;
-            }
-
+          if (err.status === 401 || err.status === 403 || (err.status === 400 && /api key|permission/i.test(msg))) {
             throw err;
           }
-        }
 
-        if (!triedAnyThisRound) break;
-
-        if (round < MAX_ROUNDS - 1) {
-          const delay = maxRetryMs ? Math.min(maxRetryMs, 8000) : 2500;
-          const secs = Math.max(1, Math.round(delay / 1000));
-          if (geminiStatusCallback) geminiStatusCallback(`Rate limit active — waiting ${secs}s before 1 final retry...`);
-          await waitMs(delay);
-          for (const k of Object.keys(geminiCooldown)) {
-            if (geminiCooldown[k] - Date.now() < 20000) delete geminiCooldown[k];
+          if (err.status === 404 || (err.status === 400 && /model/i.test(msg))) {
+            geminiCooldown[modelId] = Date.now() + 30 * 60 * 1000;
+            break;
           }
+
+          if (err.status === 429) {
+            sawQuota = true;
+            const waitDuration = retryMs || 8000;
+            maxRetryMs = Math.max(maxRetryMs, waitDuration);
+            geminiCooldown[modelId] = Date.now() + Math.max(waitDuration, 20000);
+            geminiRateLimitUntil = Math.max(geminiRateLimitUntil, Date.now() + waitDuration);
+            if (geminiStatusCallback) {
+              geminiStatusCallback(`${modelId} quota reached — trying ${modelsToTry.find(m => !geminiCooldown[m] || geminiCooldown[m] <= Date.now()) || "fallback"}...`);
+            }
+            break;
+          }
+
+          const isOverload =
+            [500, 502, 503, 504].includes(err.status) ||
+            err.isNetwork ||
+            /high demand|overloaded|temporarily unavailable|try again later/i.test(msg);
+
+          if (isOverload) {
+            sawOverload = true;
+            if (attempt < maxAttempts - 1) {
+              const delay = retryMs || 1100;
+              if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — retrying once before switching...`);
+              await waitMs(delay);
+              continue;
+            }
+            geminiCooldown[modelId] = Date.now() + 20000;
+            if (geminiStatusCallback) geminiStatusCallback(`${modelId} busy — switching model...`);
+            break;
+          }
+
+          throw err;
         }
       }
 
       if (sawQuota && !sawOverload) {
         const secsLeft = Math.max(1, Math.ceil((geminiRateLimitUntil - Date.now()) / 1000));
-        throw new Error(`Rate limited by Gemini (429). Free/current tier requests per minute were hit — wait ~${secsLeft}s before sending again, or switch to a lite model in Settings.`);
+        throw new Error(`Rate limited by Gemini (429). Wait ~${secsLeft}s before marking another paper, or switch to gemini-2.5-flash-lite in Settings.`);
       }
       if (sawOverload || sawQuota) {
-        throw new Error("Google's Gemini servers are busy or rate-limiting right now. Please wait a moment and try again.");
+        throw new Error("Gemini servers are temporarily busy. Please wait a few seconds and click AI Mark again.");
       }
       throw lastError || new Error("No compatible Gemini model responded.");
     }
