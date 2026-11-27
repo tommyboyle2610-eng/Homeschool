@@ -1533,6 +1533,11 @@
           <button type="button" class="b sm" onclick="githubPushNow(true)">⬆ Push now</button>
           <button type="button" class="b sm" onclick="githubPullNow(true)">⬇ Pull from GitHub</button>
         </div>
+        <div class="row" style="margin-top:6px;">
+          <button type="button" class="b sm" onclick="document.getElementById('ghImportFile').click()">📥 Import config (.json)</button>
+          <button type="button" class="b sm" onclick="exportGithubConfig()">📤 Download config (.json)</button>
+          <input type="file" id="ghImportFile" accept=".json,application/json" style="display:none" onchange="importGithubConfigFile(this)" />
+        </div>
         <div id="ghStatus" class="note" style="font-family:var(--font-mono);"></div>
       </div>
 
@@ -1679,7 +1684,27 @@
       }
     }
 
-    let state = loadState();
+    // Connection settings live in their own small storage slot so they survive
+    // even if the main data is too big for the browser's storage quota.
+    const SETTINGS_KEY = "sluk_gcse_hub_settings_v1";
+    function persistSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ gemini: state.gemini, github: state.github }));
+        return true;
+      } catch (_) { return false; }
+    }
+    function overlaySavedSettings(st) {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return st;
+        const saved = JSON.parse(raw);
+        if (saved.gemini && typeof saved.gemini === "object") st.gemini = { ...st.gemini, ...saved.gemini };
+        if (saved.github && typeof saved.github === "object") st.github = { ...st.github, ...saved.github };
+      } catch (_) {}
+      return st;
+    }
+
+    let state = overlaySavedSettings(loadState());
     let activeSubjectFilter = "ALL";
     let geminiHistory = [];
 
@@ -1690,6 +1715,7 @@
 
     function saveState() {
       state._savedAt = Date.now();
+      persistSettings();
       const ok = saveStateLocal();
       if (typeof scheduleGithubPush === "function") scheduleGithubPush();
       return ok;
@@ -2017,6 +2043,7 @@
         merged.evidence.forEach(e => { if (!e.dataUrl && oldFiles["e" + e.id]) e.dataUrl = oldFiles["e" + e.id]; });
         merged.papers.forEach(p => { if (!p.fileDataUrl && oldFiles["p" + p.id]) p.fileDataUrl = oldFiles["p" + p.id]; });
         state = merged;
+        persistSettings();
         saveStateLocal();
         render();
         renderGeminiWelcome();
@@ -2051,7 +2078,66 @@
       const i = document.getElementById("ghToken");
       i.type = i.type === "password" ? "text" : "password";
     }
+    function applyGithubConfigObject(obj) {
+      const src = (obj && typeof obj.github === "object" && obj.github) ? obj.github : (obj || {});
+      const pick = (...keys) => { for (const k of keys) if (src[k] !== undefined && src[k] !== null && String(src[k]).trim() !== "") return String(src[k]).trim(); return ""; };
+      const cfg = {
+        owner: pick("owner", "username", "user", "org"),
+        repo: pick("repo", "repository", "repoName").replace(/\.git$/i, ""),
+        branch: pick("branch") || "main",
+        dir: pick("dir", "folder", "path") || "study-data",
+        token: pick("token", "pat", "accessToken").replace(/\s/g, "")
+      };
+      if (!cfg.owner || !cfg.repo) throw new Error("Config needs at least an \"owner\" and a \"repo\".");
+      state.github = {
+        ...state.github,
+        ...cfg,
+        auto: src.auto === undefined ? state.github.auto !== false : Boolean(src.auto),
+        lastHash: ""
+      };
+      persistSettings();
+      saveStateLocal();
+      loadGithubSettingsUI();
+      const g = state.github;
+      ghStatus(`✓ Imported: ${g.owner}/${g.repo} · branch ${g.branch} · folder ${g.dir} · token ${g.token ? "set" : "MISSING — paste it in the Token box"}`, g.token ? "#86efac" : "#fcd34d");
+      showToast("GitHub config imported");
+    }
+    function importGithubConfigFile(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { applyGithubConfigObject(JSON.parse(String(reader.result).replace(/^\uFEFF/, ""))); }
+        catch (err) { ghStatus("✕ " + (err.message.startsWith("Config") ? err.message : "That file isn't valid JSON."), "#fda4af"); }
+        input.value = "";
+      };
+      reader.onerror = () => ghStatus("✕ Couldn't read that file.", "#fda4af");
+      reader.readAsText(file);
+    }
+    function exportGithubConfig() {
+      const g = state.github || {};
+      const out = { owner: g.owner || "", repo: g.repo || "", branch: g.branch || "main", dir: g.dir || "study-data", token: g.token || "", auto: g.auto !== false };
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "github-config.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      ghStatus("Downloaded github-config.json — it contains your token, so keep it private (don't upload it to GitHub).", "#fcd34d");
+    }
+
+    function wireGithubFieldAutosave() {
+      ["ghOwner", "ghRepo", "ghBranch", "ghDir", "ghToken"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.dataset.wired) {
+          el.dataset.wired = "1";
+          el.addEventListener("change", () => saveGithubSettings(true));
+          el.addEventListener("blur", () => saveGithubSettings(true));
+        }
+      });
+    }
     function loadGithubSettingsUI() {
+      wireGithubFieldAutosave();
       const g = state.github || {};
       document.getElementById("ghOwner").value = g.owner || "";
       document.getElementById("ghRepo").value = g.repo || "";
@@ -2072,7 +2158,12 @@
         token: v("ghToken").replace(/\s/g, ""),
         auto: document.getElementById("ghAuto").checked
       };
+      const stored = persistSettings();
       saveStateLocal();
+      const g = state.github;
+      ghStatus(stored
+        ? `✓ Saved: ${g.owner || "(no owner)"}/${g.repo || "(no repo)"} · branch ${g.branch} · token ${g.token ? "set" : "MISSING"}`
+        : "✕ Couldn't save — your browser is blocking storage for this site.", stored ? "#86efac" : "#fda4af");
       if (!silent) showToast("GitHub settings saved");
     }
 
@@ -3595,6 +3686,7 @@ ${subjLines}`;
       state.gemini.model = document.getElementById("geminiModelSelect").value || "gemini-3.5-flash";
       state.gemini.toolsEnabled = document.getElementById("geminiToolsEnabled").checked;
       state.gemini.confirmActions = document.getElementById("geminiConfirmActions").checked;
+      persistSettings();
       saveState();
       render();
       renderGeminiWelcome();
@@ -3893,6 +3985,7 @@ CRITICAL RULES:
       state.gemini.apiKey = preservedKey;
       state.gemini.model = preservedModel;
       if (preservedGithub) state.github = preservedGithub;
+      persistSettings();
       activeSubjectFilter = "ALL";
       improvementSubjectFilter = "ALL";
       geminiHistory = [];
